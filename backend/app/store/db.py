@@ -66,6 +66,20 @@ class LedgerRow(Base):
 
 
 def init_db() -> None:
+    """Single source of truth for the DB schema.
+
+    The SQLAlchemy ORM models above ARE the schema — there is no hand-maintained
+    SQL file to drift from them. Apply/refresh the schema only through this function
+    (idempotent): via the CLI (`python -m app.store.db` or `scripts/init_db.py`) or
+    the FastAPI startup hook. Never run DDL manually against the database.
+    """
     with engine.begin() as conn:
         conn.exec_driver_sql("CREATE EXTENSION IF NOT EXISTS vector")
     Base.metadata.create_all(engine)
+
+
+if __name__ == "__main__":  # `uv run python -m app.store.db`
+    init_db()
+    from sqlalchemy import inspect
+
+    print("schema applied. tables:", sorted(inspect(engine).get_table_names()))

@@ -22,10 +22,18 @@ def run_job(session, job, xclient, grok_client=None):
         job.progress.discovered = len(tier1)
         jobs.save(session, job); session.commit()
 
-        # co-engagement
+        # co-engagement (degradable): liking_users/retweeters need OAuth user-context;
+        # an app-only bearer 403s here. Degrade to empty engagers and continue —
+        # seed_engagement stays null, the rest of the pipeline still runs.
         job.phase = JobPhase.co_engage
-        post_ids = xclient.api.get_recent_seed_posts(job.seed_account_id)
-        engagers = xclient.fetch_engagers(session, post_ids, job.job_id)
+        engagers = {"likes": set(), "reposts": set(), "replies": set(), "last": {}}
+        try:
+            post_ids = xclient.api.get_recent_seed_posts(job.seed_account_id)
+            engagers = xclient.fetch_engagers(session, post_ids, job.job_id)
+        except budget.BudgetExceeded:
+            raise
+        except Exception as e:
+            print(f"[worker] co_engage degraded for job {job.job_id}: {e}")
 
         # reload tier1 docs with seed_engagement for sampling
         docs = [personas.get_persona(session, d.user_id) for d in tier1]

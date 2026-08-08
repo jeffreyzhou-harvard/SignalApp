@@ -1,4 +1,4 @@
-from pydantic import Field
+from pydantic import AliasChoices, Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -10,7 +10,10 @@ class Settings(BaseSettings):
     )
 
     database_url: str = "postgresql+psycopg://agentsim:agentsim@localhost:5432/agentsim"
-    xai_api_key: str = Field(default="", validation_alias="XAI_API_KEY")
+    # Grok key: accept either XAI_API_KEY (plan) or X_AI_API_KEY (actual .env convention)
+    xai_api_key: str = Field(
+        default="", validation_alias=AliasChoices("XAI_API_KEY", "X_AI_API_KEY")
+    )
     x_bearer_token: str = Field(default="", validation_alias="X_AI_BEARER_TOKEN")
     x_api_budget_usd: float = 250.0
     x_api_spend_soft_limit_usd: float = 200.0
