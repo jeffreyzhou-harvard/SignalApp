@@ -133,24 +133,19 @@ before the $250 cap.
   "account_age_days": 3120, "verified": true, "verified_type": "blue",
   "location": "SF", "url": "…", "profile_image_url": "…",
 
-  // ── Bio ──
+  // ── Bio (raw text; hashtags/mentions live inline in the string) ──
   "bio": "…",
-  "bio_entities": { "hashtags": [], "mentions": [], "urls": [] },
 
-  // ── Metrics ──
+  // ── Metrics (raw counts — stored for cluster ranking, NOT embedded) ──
   "metrics": {
-    "followers_count": 0, "following_count": 0, "tweet_count": 0, "listed_count": 0,
-    "influence_ratio": 0.0,        // followers / following
-    "activity_level": "high"       // derived from tweet_count / account_age
+    "followers_count": 0, "following_count": 0, "tweet_count": 0, "listed_count": 0
   },
 
   // ── Content signature (last N posts) ──
   "content": {
     "sample_posts": [ { "text": "…", "type": "original|reply|repost|quote",
                         "created_at": "…", "metrics": {"like":0,"reply":0,"repost":0,"bookmark":0} } ],
-    "top_hashtags": [], "top_mentions": [],
     "context_annotations": [ {"domain":"Technology","entity":"Artificial Intelligence"} ], // X's OWN topic tags
-    "media_ratio": 0.2, "reply_ratio": 0.3, "original_ratio": 0.6,
     "avg_engagement": {"like":0,"reply":0,"repost":0,"bookmark":0}
   },
 
@@ -170,10 +165,7 @@ before the $250 cap.
     "model": "text-embedding-3-small", "dim": 1536,
     "embed_input": "<exact text embedded>",     // reproducible
     "vector": [ /* 1536 floats */ ]
-  },
-
-  // ── Provenance / cost ──
-  "meta": { "fetched_at": "…", "posts_sampled": 10, "api_cost_usd": 0.06 }
+  }
 }
 ```
 
@@ -197,7 +189,7 @@ document or forcing a second lookup:
   "user_id": "…", "handle": "@…", "display_name": "…",
   "profile_url": "https://x.com/…", "profile_image_url": "…",
   "bio": "…", "verified": true,
-  "followers_count": 0, "influence_ratio": 0.0,
+  "followers_count": 0,
   "top_sample_post": { "text": "…", "type": "original", "metrics": {"like":0,"repost":0} }
 }
 ```
