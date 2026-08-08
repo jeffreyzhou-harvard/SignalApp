@@ -18,6 +18,7 @@ export async function PATCH(req: Request, { params }: Params) {
   const project = await getStorage().updateProject(id, {
     ...(typeof patch.title === "string" ? { title: patch.title } : {}),
     ...(typeof patch.thumbnail === "string" || patch.thumbnail === null ? { thumbnail: patch.thumbnail } : {}),
+    ...(typeof patch.folderId === "string" || patch.folderId === null ? { folderId: patch.folderId } : {}),
   });
   if (!project) return NextResponse.json({ error: "Project not found." }, { status: 404 });
   return NextResponse.json(project);

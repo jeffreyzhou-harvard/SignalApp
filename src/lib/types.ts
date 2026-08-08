@@ -12,6 +12,14 @@ export interface Project {
   updatedAt: string;
   /** URL of the most recent generated image, used as the grid thumbnail. */
   thumbnail: string | null;
+  /** Folder this project lives in; null/undefined = unfiled. */
+  folderId?: string | null;
+}
+
+export interface ProjectFolder {
+  id: string;
+  name: string;
+  createdAt: string;
 }
 
 export type MessageRole = "user" | "assistant";
@@ -46,13 +54,28 @@ export interface LinkedXAccount {
   scope?: string;
 }
 
+export interface UserProfile {
+  /** Display name, used in the shell and the copilot's address. */
+  name: string | null;
+}
+
+export interface CreativeDefaults {
+  /** Style preset id from src/lib/styles.ts. */
+  style: string;
+  resolution: "1k" | "2k";
+}
+
 export interface AppSettings {
   xAccount: LinkedXAccount | null;
+  profile?: UserProfile;
+  defaults?: CreativeDefaults;
 }
 
 /** What the settings API exposes: no tokens, plus how linking works right now. */
 export interface PublicSettings {
   xAccount: Pick<LinkedXAccount, "handle" | "linkedAt" | "provider"> | null;
+  profile: UserProfile;
+  defaults: CreativeDefaults;
   auth: {
     provider: string;
     /** "local" = type a handle; "redirect" = Sign in with X. */

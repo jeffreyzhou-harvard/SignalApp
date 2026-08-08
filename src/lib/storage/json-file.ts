@@ -1,10 +1,11 @@
 import { promises as fs } from "fs";
 import path from "path";
-import type { AppSettings, ChatMessage, Project } from "../types";
+import type { AppSettings, ChatMessage, Project, ProjectFolder } from "../types";
 import type { StorageAdapter } from "./types";
 
 const DATA_DIR = process.env.DATA_DIR ?? path.join(process.cwd(), "data");
 const PROJECTS_FILE = path.join(DATA_DIR, "projects.json");
+const FOLDERS_FILE = path.join(DATA_DIR, "folders.json");
 const SETTINGS_FILE = path.join(DATA_DIR, "settings.json");
 const MESSAGES_DIR = path.join(DATA_DIR, "messages");
 const FILES_DIR = path.join(DATA_DIR, "files");
@@ -51,7 +52,7 @@ export const jsonFileStorage: StorageAdapter = {
     return projects.find((p) => p.id === id) ?? null;
   },
 
-  async createProject(title) {
+  async createProject(title, folderId = null) {
     const projects = await readJson<Project[]>(PROJECTS_FILE, []);
     const now = new Date().toISOString();
     const project: Project = {
@@ -60,6 +61,7 @@ export const jsonFileStorage: StorageAdapter = {
       createdAt: now,
       updatedAt: now,
       thumbnail: null,
+      folderId,
     };
     projects.push(project);
     await writeJson(PROJECTS_FILE, projects);
@@ -72,9 +74,50 @@ export const jsonFileStorage: StorageAdapter = {
     if (!project) return null;
     if (patch.title !== undefined) project.title = patch.title.trim() || project.title;
     if (patch.thumbnail !== undefined) project.thumbnail = patch.thumbnail;
+    if (patch.folderId !== undefined) project.folderId = patch.folderId;
     project.updatedAt = new Date().toISOString();
     await writeJson(PROJECTS_FILE, projects);
     return project;
+  },
+
+  async listFolders() {
+    const folders = await readJson<ProjectFolder[]>(FOLDERS_FILE, []);
+    return folders.sort((a, b) => a.name.localeCompare(b.name));
+  },
+
+  async createFolder(name) {
+    const folders = await readJson<ProjectFolder[]>(FOLDERS_FILE, []);
+    const folder: ProjectFolder = {
+      id: crypto.randomUUID(),
+      name: name.trim() || "Untitled folder",
+      createdAt: new Date().toISOString(),
+    };
+    folders.push(folder);
+    await writeJson(FOLDERS_FILE, folders);
+    return folder;
+  },
+
+  async renameFolder(id, name) {
+    const folders = await readJson<ProjectFolder[]>(FOLDERS_FILE, []);
+    const folder = folders.find((f) => f.id === id);
+    if (!folder) return null;
+    folder.name = name.trim() || folder.name;
+    await writeJson(FOLDERS_FILE, folders);
+    return folder;
+  },
+
+  async deleteFolder(id) {
+    const folders = await readJson<ProjectFolder[]>(FOLDERS_FILE, []);
+    await writeJson(FOLDERS_FILE, folders.filter((f) => f.id !== id));
+    const projects = await readJson<Project[]>(PROJECTS_FILE, []);
+    let touched = false;
+    for (const p of projects) {
+      if (p.folderId === id) {
+        p.folderId = null;
+        touched = true;
+      }
+    }
+    if (touched) await writeJson(PROJECTS_FILE, projects);
   },
 
   async deleteProject(id) {

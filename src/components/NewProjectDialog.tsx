@@ -4,7 +4,14 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Dialog } from "./Dialog";
 
-export function NewProjectDialog({ onClose }: { onClose: () => void }) {
+export function NewProjectDialog({
+  onClose,
+  folderId = null,
+}: {
+  onClose: () => void;
+  /** New projects land in this folder (when created from a folder view). */
+  folderId?: string | null;
+}) {
   const router = useRouter();
   const [title, setTitle] = useState("");
   const [busy, setBusy] = useState(false);
@@ -19,7 +26,7 @@ export function NewProjectDialog({ onClose }: { onClose: () => void }) {
       const res = await fetch("/api/projects", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ title }),
+        body: JSON.stringify({ title, folderId }),
       });
       const json = await res.json();
       if (!res.ok) throw new Error(json.error ?? "Could not create the project.");

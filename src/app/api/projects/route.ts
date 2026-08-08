@@ -9,10 +9,11 @@ export async function GET() {
 }
 
 export async function POST(req: Request) {
-  const { title } = await req.json().catch(() => ({ title: "" }));
+  const body = await req.json().catch(() => ({ title: "" }));
+  const { title, folderId } = body;
   if (typeof title !== "string" || !title.trim()) {
     return NextResponse.json({ error: "A project needs a title." }, { status: 400 });
   }
-  const project = await getStorage().createProject(title);
+  const project = await getStorage().createProject(title, typeof folderId === "string" ? folderId : null);
   return NextResponse.json(project, { status: 201 });
 }

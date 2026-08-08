@@ -134,6 +134,11 @@ export function ChatRoom({ projectId }: { projectId: string }) {
         setMessages(m);
         // A fresh project opens ready to render: the initial brief goes to Grok Imagine.
         if (m.length === 0) setImagineMode(true);
+        // Creative defaults from Settings seed the composer.
+        if (s?.defaults) {
+          setStyle(s.defaults.style ?? "none");
+          setResolution(s.defaults.resolution ?? "1k");
+        }
         setLoaded(true);
       } catch {
         setLoadError(true);

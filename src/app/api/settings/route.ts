@@ -16,6 +16,11 @@ function toPublic(settings: AppSettings): PublicSettings {
           provider: settings.xAccount.provider,
         }
       : null,
+    profile: { name: settings.profile?.name ?? null },
+    defaults: {
+      style: settings.defaults?.style ?? "none",
+      resolution: settings.defaults?.resolution ?? "1k",
+    },
     auth: {
       provider: provider.id,
       mode: provider.mode,
@@ -33,6 +38,18 @@ export async function PUT(req: Request) {
   const body = await req.json().catch(() => ({}));
   const storage = getStorage();
   const settings = await storage.getSettings();
+
+  if ("name" in body) {
+    const name = typeof body.name === "string" ? body.name.trim().slice(0, 60) : "";
+    settings.profile = { name: name || null };
+  }
+
+  if ("defaults" in body && body.defaults && typeof body.defaults === "object") {
+    settings.defaults = {
+      style: typeof body.defaults.style === "string" ? body.defaults.style : (settings.defaults?.style ?? "none"),
+      resolution: body.defaults.resolution === "2k" ? "2k" : "1k",
+    };
+  }
 
   if ("xHandle" in body) {
     if (body.xHandle === null) {

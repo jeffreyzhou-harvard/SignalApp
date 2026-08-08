@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { MoreHorizontal, Pencil, Trash2 } from "lucide-react";
+import { FolderInput, MoreHorizontal, Pencil, Trash2 } from "lucide-react";
 import type { Project } from "@/lib/types";
 import { timeAgo } from "@/lib/format";
 
@@ -11,11 +11,13 @@ export function ProjectCard({
   index,
   onRename,
   onDelete,
+  onMove,
 }: {
   project: Project;
   index: number;
   onRename: (project: Project) => void;
   onDelete: (project: Project) => void;
+  onMove?: (project: Project) => void;
 }) {
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -84,6 +86,18 @@ export function ProjectCard({
                 <Pencil size={13} strokeWidth={2} className="text-muted" />
                 Rename
               </button>
+              {onMove && (
+                <button
+                  onClick={() => {
+                    setMenuOpen(false);
+                    onMove(project);
+                  }}
+                  className="flex w-full items-center gap-2 px-3 py-1.5 text-left text-[13px] text-fg hover:bg-raised"
+                >
+                  <FolderInput size={13} strokeWidth={2} className="text-muted" />
+                  Move to folder
+                </button>
+              )}
               <button
                 onClick={() => {
                   setMenuOpen(false);

@@ -1,4 +1,4 @@
-import type { AppSettings, ChatMessage, Project } from "../types";
+import type { AppSettings, ChatMessage, Project, ProjectFolder } from "../types";
 
 /**
  * Pluggable persistence. The default adapter writes JSON files under ./data;
@@ -10,9 +10,18 @@ export interface StorageAdapter {
 
   listProjects(): Promise<Project[]>;
   getProject(id: string): Promise<Project | null>;
-  createProject(title: string): Promise<Project>;
-  updateProject(id: string, patch: Partial<Pick<Project, "title" | "thumbnail">>): Promise<Project | null>;
+  createProject(title: string, folderId?: string | null): Promise<Project>;
+  updateProject(
+    id: string,
+    patch: Partial<Pick<Project, "title" | "thumbnail" | "folderId">>
+  ): Promise<Project | null>;
   deleteProject(id: string): Promise<void>;
+
+  listFolders(): Promise<ProjectFolder[]>;
+  createFolder(name: string): Promise<ProjectFolder>;
+  renameFolder(id: string, name: string): Promise<ProjectFolder | null>;
+  /** Deleting a folder unfiles its projects. */
+  deleteFolder(id: string): Promise<void>;
 
   listMessages(projectId: string): Promise<ChatMessage[]>;
   appendMessage(message: ChatMessage): Promise<ChatMessage>;
