@@ -1,5 +1,9 @@
 # AgentSim
 
+## Git
+
+- **NEVER commit or push as Claude.** All commits must be attributed to the user, not Claude. Do not add `Co-Authored-By: Claude` (or any Claude/Anthropic identity) to commit messages. Claude may run `git commit` and `git push`, but the commit history must show only the user as author.
+
 ## Modular design
 
 - **One responsibility per module.** A file/module should do one thing. If you can't describe it in a sentence without "and", split it.
