@@ -15,7 +15,7 @@ Nobody knows who their X audience actually is — so every launch post is one-si
 ## The product loop
 
 1. **Ingest** — pull followers via the X API: bios, recent posts, engagement with the account, follow graph.
-2. **Cluster** — embed each follower as a persona document (bio + posts + engagement + who they follow), cluster the embeddings, refine with the graph. Output: named tribes backed by real members and real posts.
+2. **Cluster** — embed each follower as a persona document (bio + posts + engagement signals), cluster the embeddings. Output: named tribes backed by real members and real posts.
 3. **Generate** — brief the copilot on your product; it drafts a variant per cluster: pitch copy + a Grok Imagine poster styled for that tribe.
 4. **Target** — tell the copilot who to reach ("my biggest following," "this new group"); it picks the cluster(s) and pairs each with its variant.
 5. **Deploy** — post the chosen variant organically; export each cluster + matched creative as Ads-ready dark-post audiences.

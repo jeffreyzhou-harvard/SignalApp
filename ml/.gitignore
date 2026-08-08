@@ -1,0 +1,5 @@
+runs/
+.embed_cache/
+real_personas.json
+.venv/
+__pycache__/
