@@ -129,6 +129,7 @@ before the $250 cap.
 
   // ── Identity ──
   "user_id": "…", "handle": "@…", "display_name": "…",
+  "profile_url": "https://x.com/…",   // direct link to the X profile
   "account_age_days": 3120, "verified": true, "verified_type": "blue",
   "location": "SF", "url": "…", "profile_image_url": "…",
 
@@ -184,6 +185,48 @@ carries semantic richness, `context_annotations` are X's own high-signal topic
 labels, and pinning the exact `embed_input` makes embeddings reproducible and cheap
 to re-run. Metrics/engagement are **stored but not embedded** — B weights those
 numerically or as sparse features rather than diluting the dense vector.
+
+### 4.4 `ProfileCard` (compact, reusable X profile snippet)
+
+A small projection of a `PersonaDocument` used wherever we surface a real person
+in the UI (cluster exemplars, focus-group members) without shipping the full
+document or forcing a second lookup:
+
+```jsonc
+{
+  "user_id": "…", "handle": "@…", "display_name": "…",
+  "profile_url": "https://x.com/…", "profile_image_url": "…",
+  "bio": "…", "verified": true,
+  "followers_count": 0, "influence_ratio": 0.0,
+  "top_sample_post": { "text": "…", "type": "original", "metrics": {"like":0,"repost":0} }
+}
+```
+
+### 4.5 `Cluster` (B→C,D contract — A serves the stub + fixtures)
+
+B owns real cluster generation; A serves a **stubbed `/clusters`** returning
+fixtures of this exact shape so C/D build from minute one. Every cluster is
+**backed by real X profiles** (the vision's "tribes backed by real members"):
+
+```jsonc
+{
+  "schema_version": "1.0",
+  "seed_account_id": "…",
+  "cluster_id": "c-ai-skeptics",
+  "label": "AI-skeptic senior engineers",      // Grok-generated
+  "persona_card": { /* representative persona_card for the tribe */ },
+  "size": 214,                                  // members in this cluster
+  "share_of_audience": 0.18,                    // fraction of sampled audience
+  "engagement_index": 0.72,                     // avg engagement, for "biggest/most-engaged" ranking
+  "centroid": [ /* 1536 floats */ ],
+  "exemplars": [ /* ProfileCard[] — the real faces of the tribe, for the UI */ ],
+  "member_ids": [ "…" ]                         // full membership (join back to personas)
+}
+```
+
+`exemplars` carry full `ProfileCard`s (real handle, avatar, bio, profile link,
+sample post) so the audience map / variant grid can render actual followers, not
+placeholders. `member_ids` stays as the cheap full-membership list.
 
 ## 5. Sampling strategy
 
