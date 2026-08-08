@@ -13,6 +13,8 @@ import numpy as np
 from .cluster import ClusterResult, run_clustering
 from .compose import compose
 from .config import RunConfig
+from .contracts import (ClusterAggregate, MemberRecord, _centroids_2d,
+                        assign_tier1, build_aggregates, build_members)
 from .embed import get_embedder
 from .harness import HarnessScores, evaluate
 from .label import ClusterLabel, get_labeler
@@ -32,6 +34,8 @@ class RunResult:
     cluster_result: ClusterResult
     coords: np.ndarray
     deep_docs: list[PersonaDocument]
+    members: list[MemberRecord]
+    aggregates: list[ClusterAggregate]
 
 
 def _profile_card(d) -> dict:
@@ -44,48 +48,30 @@ def _profile_card(d) -> dict:
     }
 
 
-def _write_clusters_json(path: Path, docs, result: ClusterResult,
-                         cluster_labels: list[ClusterLabel], coords: np.ndarray):
+def _write_clusters_json(path: Path, deep_docs, aggregates: list[ClusterAggregate],
+                         members: list[MemberRecord]):
     """The B -> C/D contract: emits Sam's Cluster schema
-    (backend/app/models/persona.py::Cluster) + a display-coords sidecar."""
-    from .label import pick_exemplars
-
-    by_id = {cl.cluster_id: cl for cl in cluster_labels}
-    pop_engagement = np.mean([d.avg_engagement for d in docs]) or 1.0
-    clusters = []
-    for cid in np.unique(result.labels):
-        m = result.labels == cid
-        idx = np.where(m)[0]
-        cl = by_id.get(int(cid))
-        cluster_engagement = np.mean([docs[i].avg_engagement for i in idx]) or 0.0
-        # exemplars via centroid+MMR so downstream sees representative + diverse
-        ex_idx = pick_exemplars(coords, result.labels, _centroids_2d(coords, result.labels),
-                                int(cid), n_near=3, n_diverse=2)
-        clusters.append({
-            "schema_version": "1.0",
-            "seed_account_id": docs[0].seed_account_id if docs else "",
-            "cluster_id": str(int(cid)),
-            "label": cl.name if cl else str(cid),
-            "persona_card": None,  # C's contrastive card pass fills this
-            "size": int(m.sum()),
-            "share_of_audience": round(float(m.mean()), 4),
-            "engagement_index": round(float(cluster_engagement / pop_engagement), 3),
-            "centroid": [round(float(v), 5) for v in result.centroids[int(cid)]],
-            "exemplars": [_profile_card(docs[i]) for i in ex_idx],
-            "member_ids": [docs[i].user_id for i in idx],
-        })
-    members = [
-        {"user_id": d.user_id, "cluster_id": str(int(result.labels[i])),
-         "periphery": bool(result.was_noise[i]),
-         "x": float(coords[i, 0]), "y": float(coords[i, 1])}
-        for i, d in enumerate(docs)
-    ]
-    path.write_text(json.dumps({"clusters": clusters, "members": members}, indent=2))
-
-
-def _centroids_2d(coords: np.ndarray, labels: np.ndarray) -> np.ndarray:
-    ids = np.unique(labels)
-    return np.vstack([coords[labels == i].mean(axis=0) for i in ids])
+    (backend/app/models/persona.py::Cluster) + a display-coords sidecar.
+    Aggregates/members are built once in `contracts` so the DB write agrees."""
+    seed = deep_docs[0].seed_account_id if deep_docs else ""
+    clusters = [{
+        "schema_version": "1.0",
+        "seed_account_id": seed,
+        "cluster_id": a.cluster_id,
+        "label": a.label,
+        "persona_card": None,  # C's contrastive card pass fills this
+        "size": a.size,
+        "share_of_audience": a.share_of_audience,
+        "engagement_index": a.engagement_index,
+        "centroid": a.centroid,
+        "exemplars": [_profile_card(deep_docs[i]) for i in a.exemplar_idx],
+        "member_ids": a.member_ids,
+    } for a in aggregates]
+    members_json = [{
+        "user_id": m.user_id, "cluster_id": m.cluster_id, "periphery": m.periphery,
+        "confidence": round(m.confidence, 3), "x": m.x, "y": m.y,
+    } for m in members]
+    path.write_text(json.dumps({"clusters": clusters, "members": members_json}, indent=2))
 
 
 def _norm(m: np.ndarray) -> np.ndarray:
@@ -94,7 +80,8 @@ def _norm(m: np.ndarray) -> np.ndarray:
     return m / n
 
 
-def _features(cfg: RunConfig, deep: list[PersonaDocument], run_dir: Path) -> np.ndarray:
+def _features(cfg: RunConfig, deep: list[PersonaDocument], run_dir: Path,
+              embedder) -> np.ndarray:
     if cfg.composition == "T":
         # Arm T: taxonomy backbone ⊕ dense bio ⊕ sparse annotations/mentions.
         from .taxonomy import (derive_taxonomy, load_tags, score_users,
@@ -117,32 +104,42 @@ def _features(cfg: RunConfig, deep: list[PersonaDocument], run_dir: Path) -> np.
         tax_m = taxonomy_block(tags, tax, role_weight=cfg.role_weight)
         if cfg.strip_common_component:
             tax_m = strip_first_pc(tax_m)
-        bio_dense = get_embedder(cfg.embedder).embed([compose(d, "A") for d in deep])
+        bio_dense = embedder.embed([compose(d, "A") for d in deep])
         w_tax, w_bio, w_sparse = cfg.tax_weights
         blocks = [(tax_m, w_tax), (bio_dense, w_bio),
                   (sparse_features(deep), w_sparse)]
         return np.hstack([w * _norm(b) for b, w in blocks if w > 0]).astype(np.float32)
 
     texts = [compose(d, cfg.composition, cfg.n_posts_in_composition) for d in deep]
-    dense = get_embedder(cfg.embedder).embed(texts)
+    dense = embedder.embed(texts)
     return fuse(dense, sparse_features(deep), cfg.sparse_weight)
 
 
 def run(cfg: RunConfig, docs: list[PersonaDocument]) -> RunResult:
     deep = [d for d in docs if d.is_deep]
-    x = _features(cfg, deep, cfg.out_dir / cfg.run_id)
+    shallow = [d for d in docs if not d.is_deep]
+    embedder = get_embedder(cfg.embedder)
+    x = _features(cfg, deep, cfg.out_dir / cfg.run_id, embedder)
 
     result = run_clustering(x, cfg)
     cluster_labels = get_labeler(cfg.labeler).label(deep, x, result.labels, result.centroids)
     scores = evaluate(x, result.labels, result.was_noise, deep, cfg)
 
+    coords = display_projection(x)
+    coords_2d = _centroids_2d(coords, result.labels)
+    # tier-1 (bio-only) followers -> nearest deep bio-centroid, so a run covers
+    # the whole audience, not just the deep sample.
+    shallow_labels, shallow_conf = assign_tier1(deep, shallow, result.labels, embedder)
+    members = build_members(deep, result, coords, shallow, shallow_labels, shallow_conf, coords_2d)
+    aggregates = build_aggregates(deep, result, cluster_labels, coords, members)
+
     run_dir = cfg.out_dir / cfg.run_id
     run_dir.mkdir(parents=True, exist_ok=True)
-    coords = display_projection(x)
-    _write_clusters_json(run_dir / "clusters.json", deep, result, cluster_labels, coords)
+    _write_clusters_json(run_dir / "clusters.json", deep, aggregates, members)
     report = write_report(run_dir / "report.html", cfg, deep, x,
                           result.labels, result.was_noise, result.centroids,
                           cluster_labels, scores)
     log_run(cfg.out_dir, {**cfg.to_row(), **scores.to_row(), "report": str(report)})
     return RunResult(cfg, scores, result.labels, cluster_labels, report,
-                     cluster_result=result, coords=coords, deep_docs=deep)
+                     cluster_result=result, coords=coords, deep_docs=deep,
+                     members=members, aggregates=aggregates)

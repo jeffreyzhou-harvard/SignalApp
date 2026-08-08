@@ -73,8 +73,7 @@ def main() -> None:
         from .db import get_engine, write_run
 
         seed = res.deep_docs[0].seed_account_id if res.deep_docs else (args.from_db or "")
-        write_run(get_engine(args.env), cfg, res.deep_docs, res.cluster_result,
-                  res.cluster_labels, res.coords, res.scores,
+        write_run(get_engine(args.env), cfg, res.aggregates, res.members, res.scores,
                   seed_account_id=seed, activate=True)
         print(f"wrote + activated run {cfg.run_id} in DB (seed {seed})")
 

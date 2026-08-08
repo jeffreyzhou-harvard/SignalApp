@@ -7,7 +7,6 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-import numpy as np
 from sqlalchemy import create_engine, text
 
 
@@ -29,12 +28,15 @@ def fetch_personas(engine, seed_account_id: str | None = None) -> list[dict]:
     return [json.loads(r) if isinstance(r, str) else r for r in rows]
 
 
-def write_run(engine, cfg, docs, result, cluster_labels, coords: np.ndarray,
-              scores, seed_account_id: str, activate: bool = True) -> str:
+def write_run(engine, cfg, aggregates, members, scores,
+              seed_account_id: str, activate: bool = True) -> str:
     """Insert run + clusters + members in one transaction; optionally make it
-    the active run (archiving the previous one atomically)."""
-    by_id = {cl.cluster_id: cl for cl in cluster_labels}
-    pop_eng = np.mean([d.avg_engagement for d in docs]) or 1.0
+    the active run (archiving the previous one atomically).
+
+    `aggregates` and `members` come from `contracts` — the single source of the
+    per-cluster stats and per-user membership, shared with the clusters.json
+    emitter so the two contract sinks never drift.
+    """
     with engine.begin() as c:
         c.execute(text(
             "INSERT INTO cluster_runs (run_id, seed_account_id, status, config, metrics)"
@@ -42,30 +44,23 @@ def write_run(engine, cfg, docs, result, cluster_labels, coords: np.ndarray,
         ), {"r": cfg.run_id, "s": seed_account_id,
             "cfg": json.dumps(cfg.to_row()), "m": json.dumps(scores.to_row())})
 
-        for cid in np.unique(result.labels):
-            m = result.labels == cid
-            idx = np.where(m)[0]
-            cl = by_id.get(int(cid))
-            eng = float((np.mean([docs[i].avg_engagement for i in idx]) or 0.0) / pop_eng)
+        for a in aggregates:
             c.execute(text(
                 "INSERT INTO clusters (run_id, cluster_id, label, doc, size,"
                 " share_of_audience, engagement_index, centroid)"
                 " VALUES (:r, :c, :l, :d, :n, :sh, :e, :cen)"
-            ), {"r": cfg.run_id, "c": str(int(cid)),
-                "l": cl.name if cl else str(cid),
-                "d": json.dumps({"one_liner": cl.one_liner if cl else "",
-                                 "keywords": cl.keywords if cl else []}),
-                "n": int(m.sum()), "sh": float(m.mean()), "e": round(eng, 3),
-                "cen": json.dumps([round(float(v), 5) for v in result.centroids[int(cid)]])})
+            ), {"r": cfg.run_id, "c": a.cluster_id, "l": a.label,
+                "d": json.dumps({"one_liner": a.one_liner, "keywords": a.keywords}),
+                "n": a.size, "sh": a.share_of_audience, "e": a.engagement_index,
+                "cen": json.dumps(a.centroid)})
 
         c.execute(
             text("INSERT INTO cluster_members (run_id, user_id, cluster_id,"
-                 " periphery, map_x, map_y)"
-                 " VALUES (:r, :u, :c, :p, :x, :y)"),
-            [{"r": cfg.run_id, "u": d.user_id, "c": str(int(result.labels[i])),
-              "p": bool(result.was_noise[i]),
-              "x": float(coords[i, 0]), "y": float(coords[i, 1])}
-             for i, d in enumerate(docs)],
+                 " periphery, confidence, map_x, map_y)"
+                 " VALUES (:r, :u, :c, :p, :conf, :x, :y)"),
+            [{"r": cfg.run_id, "u": m.user_id, "c": m.cluster_id,
+              "p": m.periphery, "conf": m.confidence, "x": m.x, "y": m.y}
+             for m in members],
         )
         if activate:
             _activate_in_txn(c, cfg.run_id, seed_account_id)

@@ -2,7 +2,7 @@
 
 ## Git
 
-- **NEVER commit or push as Claude.** All commits must be attributed to the user, not Claude. Do not add `Co-Authored-By: Claude` (or any Claude/Anthropic identity) to commit messages. Claude may run `git commit` and `git push`, but the commit history must show only the user as author.
+- **Claude may commit and push, but never under a Claude identity.** All commits must be attributed to the user, not Claude. Do not add `Co-Authored-By: Claude` (or any Claude/Anthropic identity) to commit messages. Claude may run `git commit` and `git push` (including to `main`), but the commit history must show only the user as author.
 
 ## Modular design
 
