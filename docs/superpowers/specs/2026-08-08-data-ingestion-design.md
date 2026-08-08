@@ -220,6 +220,45 @@ fixtures of this exact shape so C/D build from minute one. Every cluster is
 sample post) so the audience map / variant grid can render actual followers, not
 placeholders. `member_ids` stays as the cheap full-membership list.
 
+### 4.6 `jobs` & `cost_ledger` (operational tables)
+
+`jobs` — one row per ingestion request; Postgres is the single source of truth for
+job state (survives restarts; drives `/ingest/{id}` progress):
+
+```jsonc
+{
+  "job_id": "uuid",                 // PK
+  "seed": "@somefounder",           // handle or id as given
+  "seed_account_id": "44196397",    // resolved once
+  "relationship": "follower",       // "follower" | "following"
+  "params": { "sample_pct": 0.2, "max_followers": 1000, "posts_per_user": 10 },
+  "status": "queued",               // queued | running | done | failed | paused_budget
+  "phase": "enrich",               // resolve | fetch_followers | sample | enrich | done
+  "progress": { "discovered": 0, "sampled": 0, "enriched": 0, "failed": 0 },
+  "member_ids": [ "…" ],           // sampled set (stable across restarts)
+  "next_token": "…",               // checkpoint for resumable follower pagination
+  "cost_usd": 0.0,                  // running spend for this job
+  "budget_cap_usd": 200,            // soft-limit snapshot at start
+  "error": null,
+  "created_at": "…", "updated_at": "…"
+}
+```
+
+`cost_ledger` — one row per billable API call; drives `/budget` and the spend guard:
+
+```jsonc
+{
+  "id": "uuid", "job_id": "uuid | null",
+  "provider": "x",                  // "x" | "xai" | "openai"
+  "resource": "followers",          // followers | user | post | grok_card | embedding | post_create
+  "count": 100,                     // records/units in the call
+  "unit_cost_usd": 0.010,
+  "total_usd": 1.00,
+  "dedup_hit": false,               // true = served from 24h cache, $0
+  "created_at": "…"
+}
+```
+
 ## 5. Sampling strategy
 
 - Sample **~20% of followers**, minimum **100**, capped by budget guard.
@@ -228,18 +267,53 @@ placeholders. `member_ids` stays as the cheap full-membership list.
 - Per sampled follower, fetch **last 10 posts** (`max_results=10`), including
   originals/replies/reposts/quotes (distinguish via `referenced_tweets[].type`).
 
-## 6. API surface (FastAPI)
+## 6. Job lifecycle & ingestion worker
+
+Ingestion is minutes-long and paid, so it runs as an async job, never inside the
+request. **Infra = a `jobs` table (durable state) + one in-process asyncio worker
+loop.** No Celery/Redis/broker.
+
+**Worker loop** (started at FastAPI startup):
+- Claims the oldest `queued` job, or resumes a `running` job left over from a crash.
+- Runs one job at a time (serialized → clean budget accounting, no rate-limit thrash).
+- Enriches members with bounded concurrency (semaphore ~5–8 in flight); tweepy's
+  sync calls run via `run_in_executor`.
+- Checkpoints `progress`/`next_token` to the job row continuously.
+
+**Phases (each idempotent + cache-checked):**
+1. `resolve` — seed handle → id (1 cached lookup)
+2. `fetch_followers` — paginated; each `raw_user` cached; `next_token` checkpointed → resumable mid-fetch
+3. `sample` — stratified pick; `member_ids` persisted to the job (stable set)
+4. `enrich` — per member: timeline (cached) → clean → Grok card → embed → **upsert** persona; skips anyone already persisted for this `schema_version`
+5. `done`
+
+**Why it's robust without a queue:** the pipeline is a pure function of cached
+inputs, so re-running is cheap (24h dedup = free) and convergent. A crash mid-job →
+the worker re-claims it on restart and continues; fetched data is free, enriched
+personas are skipped. Crash-safety by construction, not by a broker.
+
+**Budget guard:** every paid call passes the cost meter, which writes `cost_ledger`
+and checks `spent + est_call_cost ≤ soft_limit`. On breach → job set to
+`paused_budget` and stopped cleanly (resumable when the cap is raised). Per-member
+failures never kill a job (persist `persona_card=null`, bump `failed`, continue).
+
+**Idempotency:** `POST /ingest` for a `(seed_account_id, relationship)` that already
+has a `done` job returns that job unless `force: true` — demo re-runs are instant
+and free.
+
+## 7. API surface (FastAPI)
 
 | Endpoint | Method | Purpose |
 | --- | --- | --- |
-| `/ingest` | POST | body `{seed_account, sample_pct, max_followers}` → runs pipeline (async job), returns job id |
-| `/ingest/{job_id}` | GET | job status + progress + running cost |
+| `/ingest` | POST | body `{seed, relationship?, sample_pct?, max_followers?, posts_per_user?, force?}` → creates a `queued` job, returns `{job_id, status}` |
+| `/ingest/{job_id}` | GET | job status + phase + progress + running cost |
+| `/ingest` | GET | list recent jobs |
 | `/personas` | GET | list/query persisted `PersonaDocument`s (paginated) |
 | `/clusters` | GET | **stub** returning fixture clusters so C/D are unblocked |
 | `/budget` | GET | spend to date, remaining, per-resource breakdown |
 | `/health` | GET | liveness + DB + config check |
 
-## 7. Config (`.env`)
+## 8. Config (`.env`)
 
 ```
 # X platform (read; already present)
@@ -260,15 +334,15 @@ X_API_BUDGET_USD=250
 X_API_SPEND_SOFT_LIMIT_USD=200
 ```
 
-## 8. Fixtures & team sync
+## 9. Fixtures & team sync
 
-- Generate **~50 synthetic `PersonaDocument`s** + a `clusters.json` on day one so B
+- Generate **~100 synthetic `PersonaDocument`s** + a `clusters.json` on day one so B
   (embedding/clustering), C (agent), and D (UI) build against the contract
   immediately. Real data swaps in behind the same schema.
 - **Sync point 1 (end of night one):** real data flows A→B once.
 - **Sync point 2 (midday day two):** feature freeze; the schema is frozen at v1.0.
 
-## 9. Error handling & resilience
+## 10. Error handling & resilience
 
 - **Cache-first:** every fetch checks the raw cache before an API call (dedup + cost).
 - **Spend guard:** cost meter hard-stops the pipeline at the soft limit ($200) with a
@@ -280,7 +354,7 @@ X_API_SPEND_SOFT_LIMIT_USD=200
 - **Partial failures:** a follower that fails enrichment is persisted with
   `persona_card=null` and retried later, never blocking the batch.
 
-## 10. Testing
+## 11. Testing
 
 - Unit: cleaning (raw → content signature), sampler stratification, cost math,
   `embed_input` construction, budget guard trip.
@@ -288,7 +362,23 @@ X_API_SPEND_SOFT_LIMIT_USD=200
 - Integration (mocked X + Grok + OpenAI): full pipeline on fixtures, no live spend.
 - One guarded live smoke test against a small known account, off by default.
 
-## 11. Open questions / assumptions
+## 12. Graph strategy (decided)
+
+- **P0 clustering is text-only.** `PersonaDocument` has no follows block; topical
+  signal comes free from `context_annotations` + bio + sample posts + persona card.
+- **Per-follower following-list fetch is cut** — billed per followed account
+  ($0.010/record → ~$3–5 per follower → thousands for a 1k audience). The anchor
+  compression trick (rank shared anchors, enrich the top ~300, LLM-tag them) is
+  elegant but sits downstream of that unaffordable fetch, so it's out for the weekend.
+- **The affordable graph is co-engagement** (stretch): fetch `liking_users` +
+  `retweeted_by` for the founder's ~25 recent posts (~$50, bounded) → a
+  `followers × posts` matrix in a separate table (does **not** touch
+  `PersonaDocument`). Reused three ways: Leiden/Louvain community detection
+  cross-validated against embedding clusters (the SimClusters judge line), Graph RAG
+  grounding for focus-group + bridge queries, and edges for the galaxy viz.
+- **Skip entirely:** node2vec, blended affinity matrices.
+
+## 13. Open questions / assumptions
 
 1. **Write path deferred:** posting (OAuth2 PKCE, Read+Write token) is teammate D's
    deploy step; A provides the audience export + a posting helper but the token must
