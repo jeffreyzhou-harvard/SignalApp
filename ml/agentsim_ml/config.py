@@ -18,7 +18,14 @@ COMPOSITION_ARMS = {
     "C": ["bio", "posts", "annotations"],
     "D": ["card"],
     "E": ["bio", "posts", "annotations", "card"],
+    # v2 arms: reply text already excluded from "posts"; "engaged" adds parent
+    # posts the user interacted with (consumption evidence)
+    "F": ["bio", "posts", "engaged", "annotations"],
 }
+
+# Arm T (taxonomy backbone) is not a text composition — see taxonomy.py:
+# features = taxonomy scores ⊕ dense bio embedding ⊕ sparse block.
+TAXONOMY_ARM = "T"
 
 
 @dataclass
@@ -35,6 +42,10 @@ class RunConfig:
     min_export_size: int = 25        # scaled-down default for ~1.5k deep samples
     n_posts_in_composition: int = 6
     labeler: str = "heuristic"       # "heuristic" | "grok"
+    tags_file: str | None = None     # reuse a prior run's tags.json (skip Grok scoring)
+    tax_weights: tuple = (0.5, 0.3, 0.2)  # taxonomy, bio-dense, sparse
+    role_weight: float = 0.5         # 0 disables role one-hot in the tax block
+    strip_common_component: bool = False  # remove shared 1st PC (audience-wide sameness)
     stability_bootstraps: int = 5
     out_dir: Path = field(default=Path("runs"))
 

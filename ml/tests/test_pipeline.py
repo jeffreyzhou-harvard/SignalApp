@@ -61,3 +61,41 @@ def test_small_clusters_get_merged():
     result = run_clustering(x, cfg(algorithm="kmeans", n_clusters=2, min_export_size=10))
     _, counts = np.unique(result.labels, return_counts=True)
     assert len(counts) <= 2
+
+
+def test_v2_posts_block_excludes_reply_text():
+    from agentsim_ml.schema import Post
+
+    doc = make_fixtures(5)[0]
+    doc.posts = [
+        Post(text="congrats on the launch!!", type="reply",
+             referenced_text="Announcing our new AI eval harness for agents"),
+        Post(text="deep dive on our rust rewrite", type="original"),
+    ]
+    out = compose(doc, "F")
+    assert "congrats" not in out
+    assert "rust rewrite" in out
+    assert "eval harness" in out  # parent content surfaces as engagement evidence
+
+
+def test_taxonomy_offline_heuristic_and_block():
+    from agentsim_ml.taxonomy import derive_taxonomy, score_users, taxonomy_block
+
+    docs = make_fixtures(20)
+    tax = derive_taxonomy(docs)          # no XAI key in tests -> core domains
+    tags = score_users(docs, tax)
+    block = taxonomy_block(tags, tax)
+    assert block.shape == (20, len(tax.domains) + 5)
+    assert block.max() <= 1.0
+
+
+def test_arm_T_pipeline_runs(tmp_path):
+    from agentsim_ml.config import RunConfig
+    from agentsim_ml.pipeline import run
+
+    docs = make_fixtures(100)
+    cfg = RunConfig(run_id="test-armT", composition="T", min_export_size=5,
+                    stability_bootstraps=2, out_dir=tmp_path)
+    res = run(cfg, docs)
+    assert (tmp_path / "test-armT" / "tags.json").exists()
+    assert res.scores.n_clusters >= 2

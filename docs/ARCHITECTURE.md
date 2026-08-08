@@ -52,6 +52,17 @@ LLM persona card (Grok, high-ROI): ranked interests, archetype, preferred format
 
 **Storage:** raw X objects in Postgres/SQLite/DuckDB · persona docs + embeddings in a vector store (Chroma/FAISS/LanceDB) · cluster centroids, labels, exemplars · graph edges (NetworkX in-memory is enough for the weekend) · historical post performance for the future backtesting loop.
 
+## Representation v2 (post-first-results redesign)
+
+First real-data runs over-indexed on phatic reply text ("congrats/excited") — junk axes formed junk clusters. v2 fixes the signal, not the algorithm:
+
+- **Engagement-target principle:** the post a user engages *with* beats their interaction text. Ingest requests the `referenced_tweets` expansion (same API call, no extra cost) and stores parent text; reply/comment text is dropped from features entirely; quote posts keep both halves.
+- **Two-axis marketing taxonomy:** *domain* (what they engage with — vocabulary derived per audience by one corpus-level Grok call, merged with a ~15-tag stable core) × *role* (closed enum: builder / operator / investor / creator / enthusiast). The pair drives messaging.
+- **LLM = structured extraction only** (arm-E lesson: never embed LLM prose). Per deep user, one concurrent Grok structured call scores the taxonomy + role from bio + original/quote posts + engaged-with parents, instructed to ignore social pleasantries (the non-brittle stoplist). Persona cards leave ingest — generated lazily for cluster exemplars at labeling time.
+- **Faceted features:** taxonomy score vector (~40 interpretable dims, the backbone) ⊕ dense bio embedding ⊕ annotations/mentions sparse block, fused with existing weighting machinery. Phatic content has no axis in this space, so it cannot form a cluster.
+- **Multi-cluster association:** the per-user `tag_scores` vector IS the multi-membership; `cluster_members` keeps one hard *primary* cluster (delivery requires one variant per user). Targeting works by cluster or by tag across clusters. UI pattern: **regions + lenses** — primary cluster = node color/position (UMAP places mixed users between regions), a *tag lens* highlights all nodes with `tag > τ` across clusters (doubles as campaign audience preview), hover shows the user's tag bar.
+- **Phase-2 ingest restructure:** with cards removed and calls concurrent, deep enrichment ≈ timeline fetches — minutes. Raise deep sample to 300–500 next run.
+
 ## 3. ML layer
 
 **Embeddings — note: there is no Grok/xAI embeddings API.** Pipeline: Grok generates a clean persona summary / structured JSON from the persona document (this is where semantic quality comes from), then embed that with an open-source model (e.g., bge/gte via sentence-transformers — local, free, fast) or a third-party embeddings API. Optional hybrid: dense vector + sparse hashtag TF-IDF.

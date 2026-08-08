@@ -25,7 +25,8 @@ def main() -> None:
     p.add_argument("--from-db", metavar="SEED_ID", help="load personas for seed account from Neon")
     p.add_argument("--write-db", action="store_true", help="write run to Neon and activate it")
     p.add_argument("--env", default="../.env", help="path to .env with DATABASE_URL")
-    p.add_argument("--arm", default="E", choices=list("ABCDE"), help="composition arm")
+    p.add_argument("--arm", default="C", choices=list("ABCDEF") + ["T"],
+                   help="composition arm (F = +engaged targets, T = taxonomy backbone)")
     p.add_argument("--embedder", default="local", choices=["local", "gemini", "xai"])
     p.add_argument("--sparse", type=float, default=0.0, dest="sparse_weight")
     p.add_argument("--algo", default="kmeans",
@@ -34,6 +35,9 @@ def main() -> None:
     p.add_argument("--labeler", default="heuristic", choices=["heuristic", "grok"])
     p.add_argument("--min-export", type=int, default=None)
     p.add_argument("--run-id", default=None)
+    p.add_argument("--tags-file", default=None, help="reuse prior tags.json (arm T)")
+    p.add_argument("--role-weight", type=float, default=0.5)
+    p.add_argument("--strip-pc1", action="store_true")
     args = p.parse_args()
 
     if args.synthetic:
@@ -57,6 +61,8 @@ def main() -> None:
         composition=args.arm, embedder=args.embedder,
         sparse_weight=args.sparse_weight, algorithm=args.algo,
         n_clusters=args.k, labeler=args.labeler, min_export_size=min_export,
+        tags_file=args.tags_file, role_weight=args.role_weight,
+        strip_common_component=args.strip_pc1,
     )
     res = run(cfg, docs)
     print(f"run {cfg.run_id}: {res.scores.to_row()}")

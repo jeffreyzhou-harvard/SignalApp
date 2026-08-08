@@ -15,6 +15,7 @@ class Post:
     type: str = "original"
     mentions: list[str] = field(default_factory=list)
     referenced_user: str | None = None
+    referenced_text: str | None = None  # parent post content (engagement target)
 
 
 @dataclass
@@ -52,6 +53,7 @@ class PersonaDocument:
                 type=p.get("type", "original"),
                 mentions=[h for h in (_handle(m) for m in p.get("mentions", [])) if h],
                 referenced_user=_handle(p["referenced_user"]) if p.get("referenced_user") else None,
+                referenced_text=p.get("referenced_text"),
             )
             for p in content.get("sample_posts", [])
         ]

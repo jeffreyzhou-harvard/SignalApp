@@ -18,6 +18,30 @@ Fast-pass matrix (≈14 runs): E1 arms A–E (KMeans fixed) → E2 sparse weight
 
 **Provisional default: arm C + sparse 0.2 + UMAP→HDBSCAN**, KMeans k=8 kept as fallback. Re-verify the full matrix on real ingest with the Gemini embedder before freezing — fixture tribes are planted, so real-data numbers will be lower and could reorder E2/E3.
 
+### Real-data results (@ishand, 200 deep-enriched, Gemini embedder) — CONFIRMED
+
+| Config | Stability | Purity | k |
+|---|---|---|---|
+| A bios-only KMeans | .214 | .477 | 4 |
+| C KMeans | .241 | .520 | 5 |
+| E (+card) KMeans | **.155** | .492 | 4 |
+| C KMeans s0.2 | .267 | .457 | 4 |
+| C agglo s0.2 | .300 | .479 | 3 |
+| **C HDBSCAN s0.2 → active run** | **.302** | .438 | 4+periphery |
+
+### Representation v2 results (same audience, engagement-target + taxonomy features)
+
+| Config | Stability | k | Notes |
+|---|---|---|---|
+| F: reply text dropped, HDBSCAN | .436 | 5 | filtering alone: +44% over baseline |
+| T: taxonomy ⊕ bio ⊕ sparse, HDBSCAN | .046 | 2 | LLM scoring was excellent; **UMAP+HDBSCAN collapses on discrete tag vectors** |
+| T: same features, KMeans | .481 | 3 | geometry fixed, clusters merged too far |
+| **T3: KMeans k=8, min-export 12, Grok labels → active** | **.511** | **8** | AI Product Builders · AI Tooling Devs · SaaS Founders & Operators · Crypto & Tech Casuals · AI Agent Specialists · xAI & Multimodal Researchers · SpaceX & xAI Enthusiasts · AI Venture Investors |
+
+Takeaways: (1) taxonomy features want KMeans, not density clustering — discrete low-dim vectors are not UMAP food; (2) "speedrun" was the a16z speedrun crowd, a real tribe, not noise — the taxonomy separated it; (3) per-user `tag_scores` + role now ship in each run's `tags.json` for the tag-lens UI; (4) next lift: Sam's `referenced_tweets` expansion feeds engaged-with content into scoring (arm F ⊕ T combined).
+
+Every fixture-pass ordering held: C > A, sparse 0.2 helps, HDBSCAN wins, and card-in-embedding (E) is *worst* — homogenization confirmed empirically. E7 enrichment lift: +25% stability over bios-only. Absolute stability (~0.30) says this audience is soft-structured at n=200; levers before demo: bigger deep sample (enrichment is now concurrent), content-quality gate (cluster text-rich users, assign the rest), min_cluster_size tuning, and demo-account choice (a differentiated audience clusters better — testable in one command per candidate).
+
 ## Fixed decisions (don't re-litigate mid-experiment)
 
 - **Embedder:** `gemini-embedding-001`, `task_type="CLUSTERING"`, dim 1536, vectors L2-normalized, cosine everywhere. (Day-one check: does the hackathon xAI key expose an embedding model? If yes, add it as one arm of E1 and keep everything else identical.)

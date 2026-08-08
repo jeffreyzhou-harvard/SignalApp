@@ -88,11 +88,49 @@ def _centroids_2d(coords: np.ndarray, labels: np.ndarray) -> np.ndarray:
     return np.vstack([coords[labels == i].mean(axis=0) for i in ids])
 
 
-def run(cfg: RunConfig, docs: list[PersonaDocument]) -> RunResult:
-    deep = [d for d in docs if d.is_deep]
+def _norm(m: np.ndarray) -> np.ndarray:
+    n = np.linalg.norm(m, axis=1, keepdims=True)
+    n[n == 0] = 1.0
+    return m / n
+
+
+def _features(cfg: RunConfig, deep: list[PersonaDocument], run_dir: Path) -> np.ndarray:
+    if cfg.composition == "T":
+        # Arm T: taxonomy backbone ⊕ dense bio ⊕ sparse annotations/mentions.
+        from .taxonomy import (derive_taxonomy, load_tags, score_users,
+                               strip_first_pc, taxonomy_block)
+
+        if cfg.tags_file:
+            tax, tags = load_tags(cfg.tags_file)
+        else:
+            tax = derive_taxonomy(deep)
+            tags = score_users(deep, tax)
+        by_uid = {t.user_id: t for t in tags}
+        tags = [by_uid[d.user_id] for d in deep if d.user_id in by_uid]
+        deep[:] = [d for d in deep if d.user_id in by_uid]
+        run_dir.mkdir(parents=True, exist_ok=True)
+        (run_dir / "tags.json").write_text(json.dumps({
+            "domains": tax.domains,
+            "users": [{"user_id": t.user_id, "tag_scores": t.tag_scores,
+                       "role": t.role, "evidence": t.evidence} for t in tags],
+        }, indent=2))
+        tax_m = taxonomy_block(tags, tax, role_weight=cfg.role_weight)
+        if cfg.strip_common_component:
+            tax_m = strip_first_pc(tax_m)
+        bio_dense = get_embedder(cfg.embedder).embed([compose(d, "A") for d in deep])
+        w_tax, w_bio, w_sparse = cfg.tax_weights
+        blocks = [(tax_m, w_tax), (bio_dense, w_bio),
+                  (sparse_features(deep), w_sparse)]
+        return np.hstack([w * _norm(b) for b, w in blocks if w > 0]).astype(np.float32)
+
     texts = [compose(d, cfg.composition, cfg.n_posts_in_composition) for d in deep]
     dense = get_embedder(cfg.embedder).embed(texts)
-    x = fuse(dense, sparse_features(deep), cfg.sparse_weight)
+    return fuse(dense, sparse_features(deep), cfg.sparse_weight)
+
+
+def run(cfg: RunConfig, docs: list[PersonaDocument]) -> RunResult:
+    deep = [d for d in docs if d.is_deep]
+    x = _features(cfg, deep, cfg.out_dir / cfg.run_id)
 
     result = run_clustering(x, cfg)
     cluster_labels = get_labeler(cfg.labeler).label(deep, x, result.labels, result.centroids)
