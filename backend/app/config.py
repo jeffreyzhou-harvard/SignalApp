@@ -39,6 +39,7 @@ class Settings(BaseSettings):
     embedding_dim: int = 1536
     embedding_task_type: str = "CLUSTERING"   # match B's document embeddings
     gemini_api_key: str = Field(default="", validation_alias="GEMINI_API_KEY")
+    embedding_cache_size: int = 512           # in-process LRU for query embeddings
 
 
 settings = Settings()

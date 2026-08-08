@@ -8,6 +8,7 @@ task_type) or cosine comparison is meaningless. All knobs come from config.
 from __future__ import annotations
 
 import math
+from collections import OrderedDict
 from typing import Protocol
 
 from app.config import settings
@@ -58,7 +59,40 @@ class GeminiEmbedder:
         return _l2_normalize(list(resp.embeddings[0].values))
 
 
+# Module-level so the LRU survives across per-call get_embedder() instances (the
+# search tool builds a fresh wrapper each call). A query embedding is a pure
+# function of (model, dim, task_type, text) — cache hits are always correct; the
+# LRU only bounds memory and skips the paid, rate-limited Gemini call.
+_QUERY_CACHE: "OrderedDict[tuple, list[float]]" = OrderedDict()
+
+
+class CachedEmbedder:
+    """Wraps an embedder with a bounded, process-wide LRU keyed on the full
+    embedding-space identity plus the query text."""
+
+    def __init__(self, inner: Embedder, maxsize: int = 512):
+        self.inner = inner
+        self.name = inner.name
+        self.maxsize = max(1, maxsize)
+
+    def _key(self, text: str) -> tuple:
+        return (self.name, settings.embedding_dim, settings.embedding_task_type, text)
+
+    def embed(self, text: str) -> list[float]:
+        key = self._key(text)
+        hit = _QUERY_CACHE.get(key)
+        if hit is not None:
+            _QUERY_CACHE.move_to_end(key)
+            return list(hit)
+        vec = self.inner.embed(text)
+        _QUERY_CACHE[key] = vec
+        _QUERY_CACHE.move_to_end(key)
+        while len(_QUERY_CACHE) > self.maxsize:
+            _QUERY_CACHE.popitem(last=False)
+        return list(vec)
+
+
 def get_embedder() -> Embedder | None:
     if not settings.gemini_api_key:
         return None
-    return GeminiEmbedder()
+    return CachedEmbedder(GeminiEmbedder(), settings.embedding_cache_size)
