@@ -34,7 +34,7 @@ async def worker_loop():
     from app.ingest.tweepy_adapter import make_api, make_grok
 
     while True:
-        await asyncio.sleep(1.0)
+        await asyncio.sleep(settings.worker_poll_interval_s)
         try:
             with db.SessionLocal() as s:
                 job = jobs.claim_next(s)

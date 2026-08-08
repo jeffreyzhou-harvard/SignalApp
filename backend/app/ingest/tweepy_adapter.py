@@ -68,7 +68,7 @@ class TweepyAPI:
             self.client.get_users_followers,
             id=seed_id,
             user_fields=_USER_FIELDS,
-            max_results=1000,
+            max_results=settings.followers_page_size,
         )
         for page in paginator:
             users = page.data or []
@@ -114,7 +114,7 @@ class TweepyAPI:
         return None
 
     def get_recent_seed_posts(self, seed_id) -> list[str]:
-        resp = self.client.get_users_tweets(seed_id, max_results=25)
+        resp = self.client.get_users_tweets(seed_id, max_results=settings.seed_posts_lookback)
         return [str(t.id) for t in (resp.data or [])]
 
     # -- engagement ------------------------------------------------------
@@ -141,6 +141,8 @@ def make_grok():
     import openai
 
     return openai.OpenAI(
-        base_url="https://api.x.ai/v1",
+        base_url=settings.grok_base_url,
         api_key=settings.xai_api_key,
+        timeout=settings.http_timeout_s,
+        max_retries=settings.grok_max_retries,
     )

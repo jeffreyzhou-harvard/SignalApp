@@ -1,6 +1,6 @@
+from app.config import settings
 from app.models.persona import PersonaCard, Content
 
-GROK_MODEL = "grok-4.3"   # NEVER a retired id
 _SYSTEM = ("Summarize this X user into a persona card for launch targeting. "
            "Be concrete and grounded in their bio and posts.")
 
@@ -27,7 +27,7 @@ def generate_card(bio: str, content: Content, client=None) -> PersonaCard:
         posts = "\n".join(p.text for p in content.sample_posts[:8])
         topics = ", ".join(f"{c.entity}({c.count})" for c in content.context_annotations)
         completion = client.beta.chat.completions.parse(
-            model=GROK_MODEL,
+            model=settings.grok_model,
             messages=[{"role": "system", "content": _SYSTEM},
                       {"role": "user", "content": f"BIO:\n{bio}\n\nTOPICS:\n{topics}\n\nPOSTS:\n{posts}"}],
             response_format=PersonaCard,

@@ -15,8 +15,22 @@ class Settings(BaseSettings):
         default="", validation_alias=AliasChoices("XAI_API_KEY", "X_AI_API_KEY")
     )
     x_bearer_token: str = Field(default="", validation_alias="X_AI_BEARER_TOKEN")
+
+    # Budget guard (USD)
     x_api_budget_usd: float = 250.0
     x_api_spend_soft_limit_usd: float = 200.0
+
+    # Grok summarization client — model id is billing-sensitive (retired ids overbill),
+    # so it is config, never inline. Only grok-4.3 is sanctioned for v1.
+    grok_model: str = "grok-4.3"
+    grok_base_url: str = "https://api.x.ai/v1"
+    grok_max_retries: int = 2
+
+    # API throttling / robustness
+    http_timeout_s: float = 30.0          # per-request timeout for the Grok client
+    worker_poll_interval_s: float = 1.0   # background worker job-claim poll cadence
+    followers_page_size: int = 1000       # X followers page size (max 1000)
+    seed_posts_lookback: int = 25         # recent seed posts scanned for co-engagement
 
 
 settings = Settings()
