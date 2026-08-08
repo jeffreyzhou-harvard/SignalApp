@@ -1,2 +1,36 @@
-.env
+# dependencies
+/node_modules
 
+# next.js
+/.next/
+/out/
+next-env.d.ts
+
+# local data store (projects, chats, uploads)
+/data/
+
+# env
+.env
+.env.local
+.env*.local
+
+# python / backend
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+
+# SDD scratch workspace
+/.superpowers/
+
+# misc
+.DS_Store
+*.tsbuildinfo
+
+# local agent/editor tooling (impeccable skill installs)
+/.agents/
+/.claude/
+/.codex/
+/.cursor/
+/.kiro/
+/.impeccable/

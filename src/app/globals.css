@@ -1,0 +1,131 @@
+@import "tailwindcss";
+
+/*
+  AgentSim shell tokens — dark, Grok-native.
+  Layered near-blacks, crisp white type, white primary actions,
+  one signal-blue accent reserved for identity + focus.
+*/
+@theme {
+  --color-ground: #08090a;
+  --color-surface: #0e0f11;
+  --color-raised: #16181b;
+  --color-overlay: #1b1e22;
+  --color-line: #212428;
+  --color-line-strong: #2f343a;
+  --color-fg: #f2f4f6;
+  --color-muted: #a3abb4;
+  --color-faint: #82898f;
+  --color-accent: #4da3ff;
+  --color-danger: #ff6369;
+
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+html,
+body {
+  height: 100%;
+  background: var(--color-ground);
+  color: var(--color-fg);
+}
+
+::selection {
+  background: color-mix(in srgb, var(--color-accent) 35%, transparent);
+}
+
+/* Logo rendered through a mask so the mark takes any color. */
+.logo-mask {
+  background-color: currentColor;
+  mask: url("/AgentSim.png") no-repeat center / contain;
+  -webkit-mask: url("/AgentSim.png") no-repeat center / contain;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+/* Thin, quiet scrollbars for the dark shell. */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-line-strong) transparent;
+}
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+*::-webkit-scrollbar-thumb {
+  background: var(--color-line-strong);
+  border-radius: 4px;
+}
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.rise-in {
+  animation: rise-in 0.5s var(--ease-out-expo) both;
+}
+
+/* Wind-tunnel streamlines for the empty state: dashes drift once, then hold. */
+@keyframes streamline {
+  from {
+    stroke-dashoffset: 240;
+    opacity: 0;
+  }
+  30% {
+    opacity: 1;
+  }
+  to {
+    stroke-dashoffset: 0;
+    opacity: 1;
+  }
+}
+.streamline {
+  stroke-dasharray: 160 80;
+  animation:
+    streamline 1.6s var(--ease-out-expo) both,
+    streamline-drift 18s linear 1.6s infinite;
+}
+
+/* After the draw, keep the air moving — one full dash period per loop. */
+@keyframes streamline-drift {
+  from {
+    stroke-dashoffset: 0;
+  }
+  to {
+    stroke-dashoffset: -240;
+  }
+}
+
+@keyframes pulse-dot {
+  0%,
+  100% {
+    opacity: 0.35;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+.thinking-dot {
+  animation: pulse-dot 1.2s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rise-in,
+  .streamline {
+    animation: none;
+    opacity: 1;
+  }
+}
