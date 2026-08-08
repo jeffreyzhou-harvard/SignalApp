@@ -4,16 +4,16 @@ import { useState } from "react";
 import { Check, Unlink } from "lucide-react";
 import { Dialog } from "./Dialog";
 import { XLogo } from "./XLogo";
-import type { AppSettings } from "@/lib/types";
+import type { PublicSettings } from "@/lib/types";
 
 export function SettingsDialog({
   settings,
   onClose,
   onSaved,
 }: {
-  settings: AppSettings | null;
+  settings: PublicSettings | null;
   onClose: () => void;
-  onSaved: (s: AppSettings) => void;
+  onSaved: (s: PublicSettings) => void;
 }) {
   const [handle, setHandle] = useState("");
   const [busy, setBusy] = useState(false);
@@ -75,6 +75,16 @@ export function SettingsDialog({
               Unlink
             </button>
           </div>
+        ) : settings?.auth.mode === "redirect" ? (
+          <a
+            href={`${settings.auth.startUrl}?returnTo=${encodeURIComponent(
+              typeof window !== "undefined" ? window.location.pathname : "/dashboard"
+            )}`}
+            className="mt-4 flex items-center justify-center gap-2 rounded-lg bg-fg px-4 py-2.5 text-sm font-semibold text-ground transition-transform hover:scale-[1.02] active:scale-[0.98]"
+          >
+            <XLogo size={14} className="text-ground" />
+            Sign in with X
+          </a>
         ) : (
           <form
             className="mt-4 flex gap-2"
@@ -108,7 +118,9 @@ export function SettingsDialog({
         {error && <p className="mt-2 text-[13px] text-danger">{error}</p>}
         {!linked && (
           <p className="mt-3 text-xs leading-5 text-faint">
-            Stored locally for now. X sign-in (OAuth) drops into this same slot later.
+            {settings?.auth.mode === "redirect"
+              ? "You'll authorize AgentSim to read your audience and post only when you say ship."
+              : "Stored locally for now. Sign in with X activates when OAuth credentials are configured."}
           </p>
         )}
       </section>

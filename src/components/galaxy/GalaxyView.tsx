@@ -53,8 +53,11 @@ export function GalaxyView({ projectId, xHandle }: { projectId?: string; xHandle
     );
   }
 
-  // Selection is only steerable from the graph while the panel is targeting.
-  const canRetarget = stage === "target";
+  // Without a projectId this is the standalone audience map: pure visualization,
+  // no campaign card. With one, selection locks once the panel moves past targeting.
+  const vizOnly = !projectId;
+  const canRetarget = vizOnly || stage === "target";
+  const selectedCluster = snapshot?.clusters.find((c) => c.id === selected) ?? null;
 
   return (
     <div className="relative h-full w-full overflow-hidden rise-in">
@@ -65,7 +68,7 @@ export function GalaxyView({ projectId, xHandle }: { projectId?: string; xHandle
             members={snapshot.members}
             selectedId={selected}
             pulseClusterId={simRunning ? selected : null}
-            shifted
+            shifted={!vizOnly}
             onPick={(id) => {
               if (canRetarget) setSelected(id);
             }}
@@ -92,7 +95,11 @@ export function GalaxyView({ projectId, xHandle }: { projectId?: string; xHandle
 
       {snapshot && (
         <>
-          <div className="absolute left-4 top-4 flex flex-col gap-1.5 max-md:right-4 max-md:flex-row max-md:overflow-x-auto max-md:pb-1 md:max-w-[calc(100%-420px)]">
+          <div
+            className={`absolute left-4 top-4 flex flex-col gap-1.5 max-md:right-4 max-md:flex-row max-md:overflow-x-auto max-md:pb-1 ${
+              vizOnly ? "" : "md:max-w-[calc(100%-420px)]"
+            }`}
+          >
             {snapshot.clusters.map((c) => {
               const active = selected === c.id;
               return (
@@ -139,6 +146,25 @@ export function GalaxyView({ projectId, xHandle }: { projectId?: string; xHandle
               onSimRunning={setSimRunning}
             />
           )}
+
+          {vizOnly &&
+            (selectedCluster ? (
+              <div className="absolute bottom-5 left-1/2 flex -translate-x-1/2 items-center gap-3 max-md:w-[calc(100%-2rem)]">
+                <button
+                  onClick={() => setSelected(null)}
+                  className="flex shrink-0 items-center gap-1.5 rounded-full border border-line bg-surface/80 px-3.5 py-2 text-xs font-medium text-muted backdrop-blur transition-colors hover:border-line-strong hover:text-fg"
+                >
+                  Overview
+                </button>
+                <div className="max-w-md rounded-full border border-line bg-surface/80 px-4 py-2 text-xs text-muted backdrop-blur max-md:truncate">
+                  <span className="font-medium text-fg">{selectedCluster.label}:</span> {selectedCluster.blurb}
+                </div>
+              </div>
+            ) : (
+              <p className="absolute bottom-5 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full border border-line bg-surface/70 px-4 py-2 text-xs text-faint backdrop-blur">
+                Click a tribe to zoom in · hover a follower for their persona
+              </p>
+            ))}
         </>
       )}
     </div>

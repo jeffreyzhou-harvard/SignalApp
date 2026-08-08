@@ -18,7 +18,7 @@ import {
   X,
 } from "lucide-react";
 import { STYLE_PRESETS } from "@/lib/styles";
-import type { AppSettings, ChatMessage, Project } from "@/lib/types";
+import type { ChatMessage, Project, PublicSettings } from "@/lib/types";
 import { XLogo } from "../XLogo";
 import { SettingsDialog } from "../SettingsDialog";
 import { Markdown } from "./Markdown";
@@ -82,7 +82,7 @@ const BRIEF_STARTERS = [
 
 export function ChatRoom({ projectId }: { projectId: string }) {
   const [project, setProject] = useState<Project | null>(null);
-  const [settings, setSettings] = useState<AppSettings | null>(null);
+  const [settings, setSettings] = useState<PublicSettings | null>(null);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [loaded, setLoaded] = useState(false);
   const [notFound, setNotFound] = useState(false);
@@ -292,7 +292,7 @@ export function ChatRoom({ projectId }: { projectId: string }) {
     return (
       <div className="flex h-dvh flex-col items-center justify-center gap-3">
         <p className="text-sm text-muted">This project doesn’t exist anymore.</p>
-        <Link href="/" className="text-sm font-medium text-accent hover:underline">
+        <Link href="/dashboard" className="text-sm font-medium text-accent hover:underline">
           Back to projects
         </Link>
       </div>
@@ -351,7 +351,7 @@ export function ChatRoom({ projectId }: { projectId: string }) {
       )}
       <header className="flex items-center gap-2 border-b border-line px-4 py-3">
         <Link
-          href="/"
+          href="/dashboard"
           aria-label="Back to projects"
           className="rounded-md p-1.5 text-muted transition-colors hover:bg-raised hover:text-fg"
         >

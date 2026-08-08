@@ -9,5 +9,9 @@ import type { LinkedXAccount } from "../types";
 export interface AccountProvider {
   id: string;
   label: string;
+  /** "local" links by typed handle; "redirect" sends the user through OAuth. */
+  mode: "local" | "redirect";
+  /** Route that starts a redirect flow; null for local providers. */
+  startUrl: string | null;
   link(input: { handle: string }): Promise<LinkedXAccount>;
 }

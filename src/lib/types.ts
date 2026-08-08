@@ -35,10 +35,28 @@ export interface ChatMessage {
 export interface LinkedXAccount {
   handle: string;
   linkedAt: string;
-  /** Which account provider produced this link (e.g. "x-stub", later "x-oauth"). */
+  /** Which account provider produced this link ("x-stub" or "x-oauth"). */
   provider: string;
+  /** OAuth-only fields. Tokens live server-side and are stripped from API responses. */
+  userId?: string;
+  accessToken?: string;
+  refreshToken?: string;
+  /** Epoch ms when accessToken expires. */
+  expiresAt?: number;
+  scope?: string;
 }
 
 export interface AppSettings {
   xAccount: LinkedXAccount | null;
+}
+
+/** What the settings API exposes: no tokens, plus how linking works right now. */
+export interface PublicSettings {
+  xAccount: Pick<LinkedXAccount, "handle" | "linkedAt" | "provider"> | null;
+  auth: {
+    provider: string;
+    /** "local" = type a handle; "redirect" = Sign in with X. */
+    mode: "local" | "redirect";
+    startUrl: string | null;
+  };
 }

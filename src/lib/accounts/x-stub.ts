@@ -6,6 +6,8 @@ const HANDLE_RE = /^[A-Za-z0-9_]{1,15}$/;
 export const xStubAccount: AccountProvider = {
   id: "x-stub",
   label: "X (local)",
+  mode: "local",
+  startUrl: null,
 
   async link({ handle }) {
     const clean = handle.trim().replace(/^@/, "");

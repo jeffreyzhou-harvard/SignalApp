@@ -2,50 +2,54 @@
 
 import { Folder, Radar, Rocket, Settings } from "lucide-react";
 import { XLogo } from "./XLogo";
-import type { AppSettings } from "@/lib/types";
+import type { PublicSettings } from "@/lib/types";
 
 export function Sidebar({
   settings,
   onOpenSettings,
+  active = "projects",
 }: {
-  settings: AppSettings | null;
+  settings: PublicSettings | null;
   onOpenSettings: () => void;
+  active?: "projects" | "audience";
 }) {
   const linked = settings?.xAccount ?? null;
+  const navClass = (isActive: boolean) =>
+    `flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm transition-colors ${
+      isActive ? "bg-raised font-medium text-fg" : "text-muted hover:bg-raised/50 hover:text-fg"
+    }`;
 
   return (
     <aside className="flex w-60 shrink-0 flex-col border-r border-line bg-surface max-md:hidden">
-      <div className="flex items-center gap-2.5 px-4 pb-5 pt-5">
+      <a href="/" className="flex items-center gap-2.5 px-4 pb-5 pt-5">
         <span className="logo-mask block h-7 w-9 text-fg" aria-hidden="true" />
         <span className="text-[15px] font-semibold tracking-tight">AgentSim</span>
-      </div>
+      </a>
 
       <nav className="flex flex-col gap-0.5 px-2" aria-label="Main">
         <a
-          href="/"
-          aria-current="page"
-          className="flex items-center gap-2.5 rounded-lg bg-raised px-3 py-2 text-sm font-medium text-fg"
+          href="/dashboard"
+          aria-current={active === "projects" ? "page" : undefined}
+          className={navClass(active === "projects")}
         >
           <Folder size={16} strokeWidth={2} className="text-muted" />
           Projects
         </a>
-        <div
-          className="flex cursor-default items-center gap-2.5 rounded-lg px-3 py-2 text-sm text-faint"
-          title="Coming soon"
+        <a
+          href="/dashboard/audience"
+          aria-current={active === "audience" ? "page" : undefined}
+          className={navClass(active === "audience")}
         >
-          <Radar size={16} strokeWidth={2} />
-          Audience map
-          <span className="ml-auto rounded border border-line px-1.5 py-px text-[10px] uppercase tracking-wide text-faint">
-            Soon
-          </span>
-        </div>
+          <Radar size={16} strokeWidth={2} className="text-muted" />
+          Audience Map
+        </a>
         <div
           className="flex cursor-default items-center gap-2.5 rounded-lg px-3 py-2 text-sm text-faint"
           title="Coming soon"
         >
           <Rocket size={16} strokeWidth={2} />
           Deploys
-          <span className="ml-auto rounded border border-line px-1.5 py-px text-[10px] uppercase tracking-wide text-faint">
+          <span className="ml-auto rounded border border-line px-1.5 py-px text-xs uppercase tracking-wide text-faint">
             Soon
           </span>
         </div>

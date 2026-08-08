@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Plus, Search, Settings } from "lucide-react";
-import type { AppSettings, Project } from "@/lib/types";
+import type { Project, PublicSettings } from "@/lib/types";
 import { Sidebar } from "./Sidebar";
 import { ProjectCard } from "./ProjectCard";
 import { EmptyState } from "./EmptyState";
@@ -12,7 +12,7 @@ import { Dialog } from "./Dialog";
 
 export function ProjectsHome() {
   const [projects, setProjects] = useState<Project[] | null>(null);
-  const [settings, setSettings] = useState<AppSettings | null>(null);
+  const [settings, setSettings] = useState<PublicSettings | null>(null);
   const [query, setQuery] = useState("");
   const [showNew, setShowNew] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
