@@ -1,0 +1,6302 @@
+[
+  {
+    "schema_version": "1.0",
+    "seed_account_id": "demo",
+    "relationship": "follower",
+    "enrichment_tier": 1,
+    "user_id": "u0",
+    "handle": "@user0",
+    "display_name": "User 0",
+    "profile_url": "https://x.com/user0",
+    "profile_image_url": "https://img/x.png",
+    "account_age_days": 100,
+    "verified": true,
+    "verified_type": null,
+    "location": null,
+    "url": null,
+    "bio": "AI-skeptic engineers \u00b7 building things \u00b7 post 0",
+    "metrics": {
+      "followers_count": 0,
+      "following_count": 50,
+      "tweet_count": 0,
+      "listed_count": 0
+    },
+    "seed_engagement": null,
+    "content": null,
+    "persona_card": null,
+    "embedding": null
+  },
+  {
+    "schema_version": "1.0",
+    "seed_account_id": "demo",
+    "relationship": "follower",
+    "enrichment_tier": 2,
+    "user_id": "u1",
+    "handle": "@user1",
+    "display_name": "User 1",
+    "profile_url": "https://x.com/user1",
+    "profile_image_url": "https://img/x.png",
+    "account_age_days": 101,
+    "verified": false,
+    "verified_type": null,
+    "location": null,
+    "url": null,
+    "bio": "indie hackers \u00b7 building things \u00b7 post 1",
+    "metrics": {
+      "followers_count": 13,
+      "following_count": 51,
+      "tweet_count": 5,
+      "listed_count": 1
+    },
+    "seed_engagement": null,
+    "content": {
+      "sample_posts": [
+        {
+          "text": "thoughts on indie hackers #1",
+          "type": "original",
+          "created_at": "2026-08-05T00:00:00Z",
+          "mentions": [],
+          "hashtags": [],
+          "referenced_user": null,
+          "metrics": {
+            "like": 1.0,
+            "reply": 1.0,
+            "repost": 0,
+            "bookmark": 0
+          }
+        }
+      ],
+      "context_annotations": [
+        {
+          "domain": "Technology",
+          "entity": "indie hackers",
+          "count": 3
+        }
+      ],
+      "avg_engagement": {
+        "like": 1.0,
+        "reply": 0,
+        "repost": 0,
+        "bookmark": 0
+      }
+    },
+    "persona_card": {
+      "archetype": "indie hackers",
+      "one_liner": "A indie hacker",
+      "ranked_interests": [
+        "indie hackers",
+        "startups"
+      ],
+      "preferred_formats": [
+        "threads"
+      ],
+      "tone_affinity": "candid",
+      "conversion_levers": [
+        "proof"
+      ],
+      "summary": "A member of indie hackers."
+    },
+    "embedding": null
+  },
+  {
+    "schema_version": "1.0",
+    "seed_account_id": "demo",
+    "relationship": "follower",
+    "enrichment_tier": 2,
+    "user_id": "u2",
+    "handle": "@user2",
+    "display_name": "User 2",
+    "profile_url": "https://x.com/user2",
+    "profile_image_url": "https://img/x.png",
+    "account_age_days": 102,
+    "verified": false,
+    "verified_type": null,
+    "location": null,
+    "url": null,
+    "bio": "growth marketers \u00b7 building things \u00b7 post 2",
+    "metrics": {
+      "followers_count": 26,
+      "following_count": 52,
+      "tweet_count": 10,
+      "listed_count": 2
+    },
+    "seed_engagement": null,
+    "content": {
+      "sample_posts": [
+        {
+          "text": "thoughts on growth marketers #2",
+          "type": "original",
+          "created_at": "2026-08-05T00:00:00Z",
+          "mentions": [],
+          "hashtags": [],
+          "referenced_user": null,
+          "metrics": {
+            "like": 2.0,
+            "reply": 1.0,
+            "repost": 0,
+            "bookmark": 0
+          }
+        }
+      ],
+      "context_annotations": [
+        {
+          "domain": "Technology",
+          "entity": "growth marketers",
+          "count": 3
+        }
+      ],
+      "avg_engagement": {
+        "like": 2.0,
+        "reply": 0,
+        "repost": 0,
+        "bookmark": 0
+      }
+    },
+    "persona_card": {
+      "archetype": "growth marketers",
+      "one_liner": "A growth marketer",
+      "ranked_interests": [
+        "growth marketers",
+        "startups"
+      ],
+      "preferred_formats": [
+        "threads"
+      ],
+      "tone_affinity": "candid",
+      "conversion_levers": [
+        "proof"
+      ],
+      "summary": "A member of growth marketers."
+    },
+    "embedding": null
+  },
+  {
+    "schema_version": "1.0",
+    "seed_account_id": "demo",
+    "relationship": "follower",
+    "enrichment_tier": 2,
+    "user_id": "u3",
+    "handle": "@user3",
+    "display_name": "User 3",
+    "profile_url": "https://x.com/user3",
+    "profile_image_url": "https://img/x.png",
+    "account_age_days": 103,
+    "verified": false,
+    "verified_type": null,
+    "location": null,
+    "url": null,
+    "bio": "crypto builders \u00b7 building things \u00b7 post 3",
+    "metrics": {
+      "followers_count": 39,
+      "following_count": 53,
+      "tweet_count": 15,
+      "listed_count": 3
+    },
+    "seed_engagement": null,
+    "content": {
+      "sample_posts": [
+        {
+          "text": "thoughts on crypto builders #3",
+          "type": "original",
+          "created_at": "2026-08-05T00:00:00Z",
+          "mentions": [],
+          "hashtags": [],
+          "referenced_user": null,
+          "metrics": {
+            "like": 3.0,
+            "reply": 1.0,
+            "repost": 0,
+            "bookmark": 0
+          }
+        }
+      ],
+      "context_annotations": [
+        {
+          "domain": "Technology",
+          "entity": "crypto builders",
+          "count": 3
+        }
+      ],
+      "avg_engagement": {
+        "like": 3.0,
+        "reply": 0,
+        "repost": 0,
+        "bookmark": 0
+      }
+    },
+    "persona_card": {
+      "archetype": "crypto builders",
+      "one_liner": "A crypto builder",
+      "ranked_interests": [
+        "crypto builders",
+        "startups"
+      ],
+      "preferred_formats": [
+        "threads"
+      ],
+      "tone_affinity": "candid",
+      "conversion_levers": [
+        "proof"
+      ],
+      "summary": "A member of crypto builders."
+    },
+    "embedding": null
+  },
+  {
+    "schema_version": "1.0",
+    "seed_account_id": "demo",
+    "relationship": "follower",
+    "enrichment_tier": 2,
+    "user_id": "u4",
+    "handle": "@user4",
+    "display_name": "User 4",
+    "profile_url": "https://x.com/user4",
+    "profile_image_url": "https://img/x.png",
+    "account_age_days": 104,
+    "verified": false,
+    "verified_type": null,
+    "location": null,
+    "url": null,
+    "bio": "design-first founders \u00b7 building things \u00b7 post 4",
+    "metrics": {
+      "followers_count": 52,
+      "following_count": 54,
+      "tweet_count": 20,
+      "listed_count": 0
+    },
+    "seed_engagement": null,
+    "content": {
+      "sample_posts": [
+        {
+          "text": "thoughts on design-first founders #4",
+          "type": "original",
+          "created_at": "2026-08-05T00:00:00Z",
+          "mentions": [],
+          "hashtags": [],
+          "referenced_user": null,
+          "metrics": {
+            "like": 4.0,
+            "reply": 1.0,
+            "repost": 0,
+            "bookmark": 0
+          }
+        }
+      ],
+      "context_annotations": [
+        {
+          "domain": "Technology",
+          "entity": "design-first founders",
+          "count": 3
+        }
+      ],
+      "avg_engagement": {
+        "like": 4.0,
+        "reply": 0,
+        "repost": 0,
+        "bookmark": 0
+      }
+    },
+    "persona_card": {
+      "archetype": "design-first founders",
+      "one_liner": "A design-first founder",
+      "ranked_interests": [
+        "design-first founders",
+        "startups"
+      ],
+      "preferred_formats": [
+        "threads"
+      ],
+      "tone_affinity": "candid",
+      "conversion_levers": [
+        "proof"
+      ],
+      "summary": "A member of design-first founders."
+    },
+    "embedding": null
+  },
+  {
+    "schema_version": "1.0",
+    "seed_account_id": "demo",
+    "relationship": "follower",
+    "enrichment_tier": 1,
+    "user_id": "u5",
+    "handle": "@user5",
+    "display_name": "User 5",
+    "profile_url": "https://x.com/user5",
+    "profile_image_url": "https://img/x.png",
+    "account_age_days": 105,
+    "verified": false,
+    "verified_type": null,
+    "location": null,
+    "url": null,
+    "bio": "data scientists \u00b7 building things \u00b7 post 5",
+    "metrics": {
+      "followers_count": 65,
+      "following_count": 55,
+      "tweet_count": 25,
+      "listed_count": 1
+    },
+    "seed_engagement": null,
+    "content": null,
+    "persona_card": null,
+    "embedding": null
+  },
+  {
+    "schema_version": "1.0",
+    "seed_account_id": "demo",
+    "relationship": "follower",
+    "enrichment_tier": 2,
+    "user_id": "u6",
+    "handle": "@user6",
+    "display_name": "User 6",
+    "profile_url": "https://x.com/user6",
+    "profile_image_url": "https://img/x.png",
+    "account_age_days": 106,
+    "verified": false,
+    "verified_type": null,
+    "location": null,
+    "url": null,
+    "bio": "AI-skeptic engineers \u00b7 building things \u00b7 post 6",
+    "metrics": {
+      "followers_count": 78,
+      "following_count": 56,
+      "tweet_count": 30,
+      "listed_count": 2
+    },
+    "seed_engagement": null,
+    "content": {
+      "sample_posts": [
+        {
+          "text": "thoughts on AI-skeptic engineers #6",
+          "type": "original",
+          "created_at": "2026-08-05T00:00:00Z",
+          "mentions": [],
+          "hashtags": [],
+          "referenced_user": null,
+          "metrics": {
+            "like": 6.0,
+            "reply": 1.0,
+            "repost": 0,
+            "bookmark": 0
+          }
+        }
+      ],
+      "context_annotations": [
+        {
+          "domain": "Technology",
+          "entity": "AI-skeptic engineers",
+          "count": 3
+        }
+      ],
+      "avg_engagement": {
+        "like": 6.0,
+        "reply": 0,
+        "repost": 0,
+        "bookmark": 0
+      }
+    },
+    "persona_card": {
+      "archetype": "AI-skeptic engineers",
+      "one_liner": "A AI-skeptic engineer",
+      "ranked_interests": [
+        "AI-skeptic engineers",
+        "startups"
+      ],
+      "preferred_formats": [
+        "threads"
+      ],
+      "tone_affinity": "candid",
+      "conversion_levers": [
+        "proof"
+      ],
+      "summary": "A member of AI-skeptic engineers."
+    },
+    "embedding": null
+  },
+  {
+    "schema_version": "1.0",
+    "seed_account_id": "demo",
+    "relationship": "follower",
+    "enrichment_tier": 2,
+    "user_id": "u7",
+    "handle": "@user7",
+    "display_name": "User 7",
+    "profile_url": "https://x.com/user7",
+    "profile_image_url": "https://img/x.png",
+    "account_age_days": 107,
+    "verified": true,
+    "verified_type": null,
+    "location": null,
+    "url": null,
+    "bio": "indie hackers \u00b7 building things \u00b7 post 7",
+    "metrics": {
+      "followers_count": 91,
+      "following_count": 57,
+      "tweet_count": 35,
+      "listed_count": 3
+    },
+    "seed_engagement": null,
+    "content": {
+      "sample_posts": [
+        {
+          "text": "thoughts on indie hackers #7",
+          "type": "original",
+          "created_at": "2026-08-05T00:00:00Z",
+          "mentions": [],
+          "hashtags": [],
+          "referenced_user": null,
+          "metrics": {
+            "like": 7.0,
+            "reply": 1.0,
+            "repost": 0,
+            "bookmark": 0
+          }
+        }
+      ],
+      "context_annotations": [
+        {
+          "domain": "Technology",
+          "entity": "indie hackers",
+          "count": 3
+        }
+      ],
+      "avg_engagement": {
+        "like": 7.0,
+        "reply": 0,
+        "repost": 0,
+        "bookmark": 0
+      }
+    },
+    "persona_card": {
+      "archetype": "indie hackers",
+      "one_liner": "A indie hacker",
+      "ranked_interests": [
+        "indie hackers",
+        "startups"
+      ],
+      "preferred_formats": [
+        "threads"
+      ],
+      "tone_affinity": "candid",
+      "conversion_levers": [
+        "proof"
+      ],
+      "summary": "A member of indie hackers."
+    },
+    "embedding": null
+  },
+  {
+    "schema_version": "1.0",
+    "seed_account_id": "demo",
+    "relationship": "follower",
+    "enrichment_tier": 2,
+    "user_id": "u8",
+    "handle": "@user8",
+    "display_name": "User 8",
+    "profile_url": "https://x.com/user8",
+    "profile_image_url": "https://img/x.png",
+    "account_age_days": 108,
+    "verified": false,
+    "verified_type": null,
+    "location": null,
+    "url": null,
+    "bio": "growth marketers \u00b7 building things \u00b7 post 8",
+    "metrics": {
+      "followers_count": 104,
+      "following_count": 58,
+      "tweet_count": 40,
+      "listed_count": 0
+    },
+    "seed_engagement": null,
+    "content": {
+      "sample_posts": [
+        {
+          "text": "thoughts on growth marketers #8",
+          "type": "original",
+          "created_at": "2026-08-05T00:00:00Z",
+          "mentions": [],
+          "hashtags": [],
+          "referenced_user": null,
+          "metrics": {
+            "like": 8.0,
+            "reply": 1.0,
+            "repost": 0,
+            "bookmark": 0
+          }
+        }
+      ],
+      "context_annotations": [
+        {
+          "domain": "Technology",
+          "entity": "growth marketers",
+          "count": 3
+        }
+      ],
+      "avg_engagement": {
+        "like": 8.0,
+        "reply": 0,
+        "repost": 0,
+        "bookmark": 0
+      }
+    },
+    "persona_card": {
+      "archetype": "growth marketers",
+      "one_liner": "A growth marketer",
+      "ranked_interests": [
+        "growth marketers",
+        "startups"
+      ],
+      "preferred_formats": [
+        "threads"
+      ],
+      "tone_affinity": "candid",
+      "conversion_levers": [
+        "proof"
+      ],
+      "summary": "A member of growth marketers."
+    },
+    "embedding": null
+  },
+  {
+    "schema_version": "1.0",
+    "seed_account_id": "demo",
+    "relationship": "follower",
+    "enrichment_tier": 2,
+    "user_id": "u9",
+    "handle": "@user9",
+    "display_name": "User 9",
+    "profile_url": "https://x.com/user9",
+    "profile_image_url": "https://img/x.png",
+    "account_age_days": 109,
+    "verified": false,
+    "verified_type": null,
+    "location": null,
+    "url": null,
+    "bio": "crypto builders \u00b7 building things \u00b7 post 9",
+    "metrics": {
+      "followers_count": 117,
+      "following_count": 59,
+      "tweet_count": 45,
+      "listed_count": 1
+    },
+    "seed_engagement": null,
+    "content": {
+      "sample_posts": [
+        {
+          "text": "thoughts on crypto builders #9",
+          "type": "original",
+          "created_at": "2026-08-05T00:00:00Z",
+          "mentions": [],
+          "hashtags": [],
+          "referenced_user": null,
+          "metrics": {
+            "like": 9.0,
+            "reply": 1.0,
+            "repost": 0,
+            "bookmark": 0
+          }
+        }
+      ],
+      "context_annotations": [
+        {
+          "domain": "Technology",
+          "entity": "crypto builders",
+          "count": 3
+        }
+      ],
+      "avg_engagement": {
+        "like": 9.0,
+        "reply": 0,
+        "repost": 0,
+        "bookmark": 0
+      }
+    },
+    "persona_card": {
+      "archetype": "crypto builders",
+      "one_liner": "A crypto builder",
+      "ranked_interests": [
+        "crypto builders",
+        "startups"
+      ],
+      "preferred_formats": [
+        "threads"
+      ],
+      "tone_affinity": "candid",
+      "conversion_levers": [
+        "proof"
+      ],
+      "summary": "A member of crypto builders."
+    },
+    "embedding": null
+  },
+  {
+    "schema_version": "1.0",
+    "seed_account_id": "demo",
+    "relationship": "follower",
+    "enrichment_tier": 1,
+    "user_id": "u10",
+    "handle": "@user10",
+    "display_name": "User 10",
+    "profile_url": "https://x.com/user10",
+    "profile_image_url": "https://img/x.png",
+    "account_age_days": 110,
+    "verified": false,
+    "verified_type": null,
+    "location": null,
+    "url": null,
+    "bio": "design-first founders \u00b7 building things \u00b7 post 10",
+    "metrics": {
+      "followers_count": 130,
+      "following_count": 60,
+      "tweet_count": 50,
+      "listed_count": 2
+    },
+    "seed_engagement": null,
+    "content": null,
+    "persona_card": null,
+    "embedding": null
+  },
+  {
+    "schema_version": "1.0",
+    "seed_account_id": "demo",
+    "relationship": "follower",
+    "enrichment_tier": 2,
+    "user_id": "u11",
+    "handle": "@user11",
+    "display_name": "User 11",
+    "profile_url": "https://x.com/user11",
+    "profile_image_url": "https://img/x.png",
+    "account_age_days": 111,
+    "verified": false,
+    "verified_type": null,
+    "location": null,
+    "url": null,
+    "bio": "data scientists \u00b7 building things \u00b7 post 11",
+    "metrics": {
+      "followers_count": 143,
+      "following_count": 61,
+      "tweet_count": 55,
+      "listed_count": 3
+    },
+    "seed_engagement": null,
+    "content": {
+      "sample_posts": [
+        {
+          "text": "thoughts on data scientists #11",
+          "type": "original",
+          "created_at": "2026-08-05T00:00:00Z",
+          "mentions": [],
+          "hashtags": [],
+          "referenced_user": null,
+          "metrics": {
+            "like": 11.0,
+            "reply": 1.0,
+            "repost": 0,
+            "bookmark": 0
+          }
+        }
+      ],
+      "context_annotations": [
+        {
+          "domain": "Technology",
+          "entity": "data scientists",
+          "count": 3
+        }
+      ],
+      "avg_engagement": {
+        "like": 11.0,
+        "reply": 0,
+        "repost": 0,
+        "bookmark": 0
+      }
+    },
+    "persona_card": {
+      "archetype": "data scientists",
+      "one_liner": "A data scientist",
+      "ranked_interests": [
+        "data scientists",
+        "startups"
+      ],
+      "preferred_formats": [
+        "threads"
+      ],
+      "tone_affinity": "candid",
+      "conversion_levers": [
+        "proof"
+      ],
+      "summary": "A member of data scientists."
+    },
+    "embedding": null
+  },
+  {
+    "schema_version": "1.0",
+    "seed_account_id": "demo",
+    "relationship": "follower",
+    "enrichment_tier": 2,
+    "user_id": "u12",
+    "handle": "@user12",
+    "display_name": "User 12",
+    "profile_url": "https://x.com/user12",
+    "profile_image_url": "https://img/x.png",
+    "account_age_days": 112,
+    "verified": false,
+    "verified_type": null,
+    "location": null,
+    "url": null,
+    "bio": "AI-skeptic engineers \u00b7 building things \u00b7 post 12",
+    "metrics": {
+      "followers_count": 156,
+      "following_count": 62,
+      "tweet_count": 60,
+      "listed_count": 0
+    },
+    "seed_engagement": null,
+    "content": {
+      "sample_posts": [
+        {
+          "text": "thoughts on AI-skeptic engineers #12",
+          "type": "original",
+          "created_at": "2026-08-05T00:00:00Z",
+          "mentions": [],
+          "hashtags": [],
+          "referenced_user": null,
+          "metrics": {
+            "like": 12.0,
+            "reply": 1.0,
+            "repost": 0,
+            "bookmark": 0
+          }
+        }
+      ],
+      "context_annotations": [
+        {
+          "domain": "Technology",
+          "entity": "AI-skeptic engineers",
+          "count": 3
+        }
+      ],
+      "avg_engagement": {
+        "like": 12.0,
+        "reply": 0,
+        "repost": 0,
+        "bookmark": 0
+      }
+    },
+    "persona_card": {
+      "archetype": "AI-skeptic engineers",
+      "one_liner": "A AI-skeptic engineer",
+      "ranked_interests": [
+        "AI-skeptic engineers",
+        "startups"
+      ],
+      "preferred_formats": [
+        "threads"
+      ],
+      "tone_affinity": "candid",
+      "conversion_levers": [
+        "proof"
+      ],
+      "summary": "A member of AI-skeptic engineers."
+    },
+    "embedding": null
+  },
+  {
+    "schema_version": "1.0",
+    "seed_account_id": "demo",
+    "relationship": "follower",
+    "enrichment_tier": 2,
+    "user_id": "u13",
+    "handle": "@user13",
+    "display_name": "User 13",
+    "profile_url": "https://x.com/user13",
+    "profile_image_url": "https://img/x.png",
+    "account_age_days": 113,
+    "verified": false,
+    "verified_type": null,
+    "location": null,
+    "url": null,
+    "bio": "indie hackers \u00b7 building things \u00b7 post 13",
+    "metrics": {
+      "followers_count": 169,
+      "following_count": 63,
+      "tweet_count": 65,
+      "listed_count": 1
+    },
+    "seed_engagement": null,
+    "content": {
+      "sample_posts": [
+        {
+          "text": "thoughts on indie hackers #13",
+          "type": "original",
+          "created_at": "2026-08-05T00:00:00Z",
+          "mentions": [],
+          "hashtags": [],
+          "referenced_user": null,
+          "metrics": {
+            "like": 13.0,
+            "reply": 1.0,
+            "repost": 0,
+            "bookmark": 0
+          }
+        }
+      ],
+      "context_annotations": [
+        {
+          "domain": "Technology",
+          "entity": "indie hackers",
+          "count": 3
+        }
+      ],
+      "avg_engagement": {
+        "like": 13.0,
+        "reply": 0,
+        "repost": 0,
+        "bookmark": 0
+      }
+    },
+    "persona_card": {
+      "archetype": "indie hackers",
+      "one_liner": "A indie hacker",
+      "ranked_interests": [
+        "indie hackers",
+        "startups"
+      ],
+      "preferred_formats": [
+        "threads"
+      ],
+      "tone_affinity": "candid",
+      "conversion_levers": [
+        "proof"
+      ],
+      "summary": "A member of indie hackers."
+    },
+    "embedding": null
+  },
+  {
+    "schema_version": "1.0",
+    "seed_account_id": "demo",
+    "relationship": "follower",
+    "enrichment_tier": 2,
+    "user_id": "u14",
+    "handle": "@user14",
+    "display_name": "User 14",
+    "profile_url": "https://x.com/user14",
+    "profile_image_url": "https://img/x.png",
+    "account_age_days": 114,
+    "verified": true,
+    "verified_type": null,
+    "location": null,
+    "url": null,
+    "bio": "growth marketers \u00b7 building things \u00b7 post 14",
+    "metrics": {
+      "followers_count": 182,
+      "following_count": 64,
+      "tweet_count": 70,
+      "listed_count": 2
+    },
+    "seed_engagement": null,
+    "content": {
+      "sample_posts": [
+        {
+          "text": "thoughts on growth marketers #14",
+          "type": "original",
+          "created_at": "2026-08-05T00:00:00Z",
+          "mentions": [],
+          "hashtags": [],
+          "referenced_user": null,
+          "metrics": {
+            "like": 14.0,
+            "reply": 1.0,
+            "repost": 0,
+            "bookmark": 0
+          }
+        }
+      ],
+      "context_annotations": [
+        {
+          "domain": "Technology",
+          "entity": "growth marketers",
+          "count": 3
+        }
+      ],
+      "avg_engagement": {
+        "like": 14.0,
+        "reply": 0,
+        "repost": 0,
+        "bookmark": 0
+      }
+    },
+    "persona_card": {
+      "archetype": "growth marketers",
+      "one_liner": "A growth marketer",
+      "ranked_interests": [
+        "growth marketers",
+        "startups"
+      ],
+      "preferred_formats": [
+        "threads"
+      ],
+      "tone_affinity": "candid",
+      "conversion_levers": [
+        "proof"
+      ],
+      "summary": "A member of growth marketers."
+    },
+    "embedding": null
+  },
+  {
+    "schema_version": "1.0",
+    "seed_account_id": "demo",
+    "relationship": "follower",
+    "enrichment_tier": 1,
+    "user_id": "u15",
+    "handle": "@user15",
+    "display_name": "User 15",
+    "profile_url": "https://x.com/user15",
+    "profile_image_url": "https://img/x.png",
+    "account_age_days": 115,
+    "verified": false,
+    "verified_type": null,
+    "location": null,
+    "url": null,
+    "bio": "crypto builders \u00b7 building things \u00b7 post 15",
+    "metrics": {
+      "followers_count": 195,
+      "following_count": 65,
+      "tweet_count": 75,
+      "listed_count": 3
+    },
+    "seed_engagement": null,
+    "content": null,
+    "persona_card": null,
+    "embedding": null
+  },
+  {
+    "schema_version": "1.0",
+    "seed_account_id": "demo",
+    "relationship": "follower",
+    "enrichment_tier": 2,
+    "user_id": "u16",
+    "handle": "@user16",
+    "display_name": "User 16",
+    "profile_url": "https://x.com/user16",
+    "profile_image_url": "https://img/x.png",
+    "account_age_days": 116,
+    "verified": false,
+    "verified_type": null,
+    "location": null,
+    "url": null,
+    "bio": "design-first founders \u00b7 building things \u00b7 post 16",
+    "metrics": {
+      "followers_count": 208,
+      "following_count": 66,
+      "tweet_count": 80,
+      "listed_count": 0
+    },
+    "seed_engagement": null,
+    "content": {
+      "sample_posts": [
+        {
+          "text": "thoughts on design-first founders #16",
+          "type": "original",
+          "created_at": "2026-08-05T00:00:00Z",
+          "mentions": [],
+          "hashtags": [],
+          "referenced_user": null,
+          "metrics": {
+            "like": 16.0,
+            "reply": 1.0,
+            "repost": 0,
+            "bookmark": 0
+          }
+        }
+      ],
+      "context_annotations": [
+        {
+          "domain": "Technology",
+          "entity": "design-first founders",
+          "count": 3
+        }
+      ],
+      "avg_engagement": {
+        "like": 16.0,
+        "reply": 0,
+        "repost": 0,
+        "bookmark": 0
+      }
+    },
+    "persona_card": {
+      "archetype": "design-first founders",
+      "one_liner": "A design-first founder",
+      "ranked_interests": [
+        "design-first founders",
+        "startups"
+      ],
+      "preferred_formats": [
+        "threads"
+      ],
+      "tone_affinity": "candid",
+      "conversion_levers": [
+        "proof"
+      ],
+      "summary": "A member of design-first founders."
+    },
+    "embedding": null
+  },
+  {
+    "schema_version": "1.0",
+    "seed_account_id": "demo",
+    "relationship": "follower",
+    "enrichment_tier": 2,
+    "user_id": "u17",
+    "handle": "@user17",
+    "display_name": "User 17",
+    "profile_url": "https://x.com/user17",
+    "profile_image_url": "https://img/x.png",
+    "account_age_days": 117,
+    "verified": false,
+    "verified_type": null,
+    "location": null,
+    "url": null,
+    "bio": "data scientists \u00b7 building things \u00b7 post 17",
+    "metrics": {
+      "followers_count": 221,
+      "following_count": 67,
+      "tweet_count": 85,
+      "listed_count": 1
+    },
+    "seed_engagement": null,
+    "content": {
+      "sample_posts": [
+        {
+          "text": "thoughts on data scientists #17",
+          "type": "original",
+          "created_at": "2026-08-05T00:00:00Z",
+          "mentions": [],
+          "hashtags": [],
+          "referenced_user": null,
+          "metrics": {
+            "like": 17.0,
+            "reply": 1.0,
+            "repost": 0,
+            "bookmark": 0
+          }
+        }
+      ],
+      "context_annotations": [
+        {
+          "domain": "Technology",
+          "entity": "data scientists",
+          "count": 3
+        }
+      ],
+      "avg_engagement": {
+        "like": 17.0,
+        "reply": 0,
+        "repost": 0,
+        "bookmark": 0
+      }
+    },
+    "persona_card": {
+      "archetype": "data scientists",
+      "one_liner": "A data scientist",
+      "ranked_interests": [
+        "data scientists",
+        "startups"
+      ],
+      "preferred_formats": [
+        "threads"
+      ],
+      "tone_affinity": "candid",
+      "conversion_levers": [
+        "proof"
+      ],
+      "summary": "A member of data scientists."
+    },
+    "embedding": null
+  },
+  {
+    "schema_version": "1.0",
+    "seed_account_id": "demo",
+    "relationship": "follower",
+    "enrichment_tier": 2,
+    "user_id": "u18",
+    "handle": "@user18",
+    "display_name": "User 18",
+    "profile_url": "https://x.com/user18",
+    "profile_image_url": "https://img/x.png",
+    "account_age_days": 118,
+    "verified": false,
+    "verified_type": null,
+    "location": null,
+    "url": null,
+    "bio": "AI-skeptic engineers \u00b7 building things \u00b7 post 18",
+    "metrics": {
+      "followers_count": 234,
+      "following_count": 68,
+      "tweet_count": 90,
+      "listed_count": 2
+    },
+    "seed_engagement": null,
+    "content": {
+      "sample_posts": [
+        {
+          "text": "thoughts on AI-skeptic engineers #18",
+          "type": "original",
+          "created_at": "2026-08-05T00:00:00Z",
+          "mentions": [],
+          "hashtags": [],
+          "referenced_user": null,
+          "metrics": {
+            "like": 18.0,
+            "reply": 1.0,
+            "repost": 0,
+            "bookmark": 0
+          }
+        }
+      ],
+      "context_annotations": [
+        {
+          "domain": "Technology",
+          "entity": "AI-skeptic engineers",
+          "count": 3
+        }
+      ],
+      "avg_engagement": {
+        "like": 18.0,
+        "reply": 0,
+        "repost": 0,
+        "bookmark": 0
+      }
+    },
+    "persona_card": {
+      "archetype": "AI-skeptic engineers",
+      "one_liner": "A AI-skeptic engineer",
+      "ranked_interests": [
+        "AI-skeptic engineers",
+        "startups"
+      ],
+      "preferred_formats": [
+        "threads"
+      ],
+      "tone_affinity": "candid",
+      "conversion_levers": [
+        "proof"
+      ],
+      "summary": "A member of AI-skeptic engineers."
+    },
+    "embedding": null
+  },
+  {
+    "schema_version": "1.0",
+    "seed_account_id": "demo",
+    "relationship": "follower",
+    "enrichment_tier": 2,
+    "user_id": "u19",
+    "handle": "@user19",
+    "display_name": "User 19",
+    "profile_url": "https://x.com/user19",
+    "profile_image_url": "https://img/x.png",
+    "account_age_days": 119,
+    "verified": false,
+    "verified_type": null,
+    "location": null,
+    "url": null,
+    "bio": "indie hackers \u00b7 building things \u00b7 post 19",
+    "metrics": {
+      "followers_count": 247,
+      "following_count": 69,
+      "tweet_count": 95,
+      "listed_count": 3
+    },
+    "seed_engagement": null,
+    "content": {
+      "sample_posts": [
+        {
+          "text": "thoughts on indie hackers #19",
+          "type": "original",
+          "created_at": "2026-08-05T00:00:00Z",
+          "mentions": [],
+          "hashtags": [],
+          "referenced_user": null,
+          "metrics": {
+            "like": 19.0,
+            "reply": 1.0,
+            "repost": 0,
+            "bookmark": 0
+          }
+        }
+      ],
+      "context_annotations": [
+        {
+          "domain": "Technology",
+          "entity": "indie hackers",
+          "count": 3
+        }
+      ],
+      "avg_engagement": {
+        "like": 19.0,
+        "reply": 0,
+        "repost": 0,
+        "bookmark": 0
+      }
+    },
+    "persona_card": {
+      "archetype": "indie hackers",
+      "one_liner": "A indie hacker",
+      "ranked_interests": [
+        "indie hackers",
+        "startups"
+      ],
+      "preferred_formats": [
+        "threads"
+      ],
+      "tone_affinity": "candid",
+      "conversion_levers": [
+        "proof"
+      ],
+      "summary": "A member of indie hackers."
+    },
+    "embedding": null
+  },
+  {
+    "schema_version": "1.0",
+    "seed_account_id": "demo",
+    "relationship": "follower",
+    "enrichment_tier": 1,
+    "user_id": "u20",
+    "handle": "@user20",
+    "display_name": "User 20",
+    "profile_url": "https://x.com/user20",
+    "profile_image_url": "https://img/x.png",
+    "account_age_days": 120,
+    "verified": false,
+    "verified_type": null,
+    "location": null,
+    "url": null,
+    "bio": "growth marketers \u00b7 building things \u00b7 post 20",
+    "metrics": {
+      "followers_count": 260,
+      "following_count": 70,
+      "tweet_count": 100,
+      "listed_count": 0
+    },
+    "seed_engagement": null,
+    "content": null,
+    "persona_card": null,
+    "embedding": null
+  },
+  {
+    "schema_version": "1.0",
+    "seed_account_id": "demo",
+    "relationship": "follower",
+    "enrichment_tier": 2,
+    "user_id": "u21",
+    "handle": "@user21",
+    "display_name": "User 21",
+    "profile_url": "https://x.com/user21",
+    "profile_image_url": "https://img/x.png",
+    "account_age_days": 121,
+    "verified": true,
+    "verified_type": null,
+    "location": null,
+    "url": null,
+    "bio": "crypto builders \u00b7 building things \u00b7 post 21",
+    "metrics": {
+      "followers_count": 273,
+      "following_count": 71,
+      "tweet_count": 105,
+      "listed_count": 1
+    },
+    "seed_engagement": null,
+    "content": {
+      "sample_posts": [
+        {
+          "text": "thoughts on crypto builders #21",
+          "type": "original",
+          "created_at": "2026-08-05T00:00:00Z",
+          "mentions": [],
+          "hashtags": [],
+          "referenced_user": null,
+          "metrics": {
+            "like": 21.0,
+            "reply": 1.0,
+            "repost": 0,
+            "bookmark": 0
+          }
+        }
+      ],
+      "context_annotations": [
+        {
+          "domain": "Technology",
+          "entity": "crypto builders",
+          "count": 3
+        }
+      ],
+      "avg_engagement": {
+        "like": 21.0,
+        "reply": 0,
+        "repost": 0,
+        "bookmark": 0
+      }
+    },
+    "persona_card": {
+      "archetype": "crypto builders",
+      "one_liner": "A crypto builder",
+      "ranked_interests": [
+        "crypto builders",
+        "startups"
+      ],
+      "preferred_formats": [
+        "threads"
+      ],
+      "tone_affinity": "candid",
+      "conversion_levers": [
+        "proof"
+      ],
+      "summary": "A member of crypto builders."
+    },
+    "embedding": null
+  },
+  {
+    "schema_version": "1.0",
+    "seed_account_id": "demo",
+    "relationship": "follower",
+    "enrichment_tier": 2,
+    "user_id": "u22",
+    "handle": "@user22",
+    "display_name": "User 22",
+    "profile_url": "https://x.com/user22",
+    "profile_image_url": "https://img/x.png",
+    "account_age_days": 122,
+    "verified": false,
+    "verified_type": null,
+    "location": null,
+    "url": null,
+    "bio": "design-first founders \u00b7 building things \u00b7 post 22",
+    "metrics": {
+      "followers_count": 286,
+      "following_count": 72,
+      "tweet_count": 110,
+      "listed_count": 2
+    },
+    "seed_engagement": null,
+    "content": {
+      "sample_posts": [
+        {
+          "text": "thoughts on design-first founders #22",
+          "type": "original",
+          "created_at": "2026-08-05T00:00:00Z",
+          "mentions": [],
+          "hashtags": [],
+          "referenced_user": null,
+          "metrics": {
+            "like": 22.0,
+            "reply": 1.0,
+            "repost": 0,
+            "bookmark": 0
+          }
+        }
+      ],
+      "context_annotations": [
+        {
+          "domain": "Technology",
+          "entity": "design-first founders",
+          "count": 3
+        }
+      ],
+      "avg_engagement": {
+        "like": 22.0,
+        "reply": 0,
+        "repost": 0,
+        "bookmark": 0
+      }
+    },
+    "persona_card": {
+      "archetype": "design-first founders",
+      "one_liner": "A design-first founder",
+      "ranked_interests": [
+        "design-first founders",
+        "startups"
+      ],
+      "preferred_formats": [
+        "threads"
+      ],
+      "tone_affinity": "candid",
+      "conversion_levers": [
+        "proof"
+      ],
+      "summary": "A member of design-first founders."
+    },
+    "embedding": null
+  },
+  {
+    "schema_version": "1.0",
+    "seed_account_id": "demo",
+    "relationship": "follower",
+    "enrichment_tier": 2,
+    "user_id": "u23",
+    "handle": "@user23",
+    "display_name": "User 23",
+    "profile_url": "https://x.com/user23",
+    "profile_image_url": "https://img/x.png",
+    "account_age_days": 123,
+    "verified": false,
+    "verified_type": null,
+    "location": null,
+    "url": null,
+    "bio": "data scientists \u00b7 building things \u00b7 post 23",
+    "metrics": {
+      "followers_count": 299,
+      "following_count": 73,
+      "tweet_count": 115,
+      "listed_count": 3
+    },
+    "seed_engagement": null,
+    "content": {
+      "sample_posts": [
+        {
+          "text": "thoughts on data scientists #23",
+          "type": "original",
+          "created_at": "2026-08-05T00:00:00Z",
+          "mentions": [],
+          "hashtags": [],
+          "referenced_user": null,
+          "metrics": {
+            "like": 23.0,
+            "reply": 1.0,
+            "repost": 0,
+            "bookmark": 0
+          }
+        }
+      ],
+      "context_annotations": [
+        {
+          "domain": "Technology",
+          "entity": "data scientists",
+          "count": 3
+        }
+      ],
+      "avg_engagement": {
+        "like": 23.0,
+        "reply": 0,
+        "repost": 0,
+        "bookmark": 0
+      }
+    },
+    "persona_card": {
+      "archetype": "data scientists",
+      "one_liner": "A data scientist",
+      "ranked_interests": [
+        "data scientists",
+        "startups"
+      ],
+      "preferred_formats": [
+        "threads"
+      ],
+      "tone_affinity": "candid",
+      "conversion_levers": [
+        "proof"
+      ],
+      "summary": "A member of data scientists."
+    },
+    "embedding": null
+  },
+  {
+    "schema_version": "1.0",
+    "seed_account_id": "demo",
+    "relationship": "follower",
+    "enrichment_tier": 2,
+    "user_id": "u24",
+    "handle": "@user24",
+    "display_name": "User 24",
+    "profile_url": "https://x.com/user24",
+    "profile_image_url": "https://img/x.png",
+    "account_age_days": 124,
+    "verified": false,
+    "verified_type": null,
+    "location": null,
+    "url": null,
+    "bio": "AI-skeptic engineers \u00b7 building things \u00b7 post 24",
+    "metrics": {
+      "followers_count": 312,
+      "following_count": 74,
+      "tweet_count": 120,
+      "listed_count": 0
+    },
+    "seed_engagement": null,
+    "content": {
+      "sample_posts": [
+        {
+          "text": "thoughts on AI-skeptic engineers #24",
+          "type": "original",
+          "created_at": "2026-08-05T00:00:00Z",
+          "mentions": [],
+          "hashtags": [],
+          "referenced_user": null,
+          "metrics": {
+            "like": 24.0,
+            "reply": 1.0,
+            "repost": 0,
+            "bookmark": 0
+          }
+        }
+      ],
+      "context_annotations": [
+        {
+          "domain": "Technology",
+          "entity": "AI-skeptic engineers",
+          "count": 3
+        }
+      ],
+      "avg_engagement": {
+        "like": 24.0,
+        "reply": 0,
+        "repost": 0,
+        "bookmark": 0
+      }
+    },
+    "persona_card": {
+      "archetype": "AI-skeptic engineers",
+      "one_liner": "A AI-skeptic engineer",
+      "ranked_interests": [
+        "AI-skeptic engineers",
+        "startups"
+      ],
+      "preferred_formats": [
+        "threads"
+      ],
+      "tone_affinity": "candid",
+      "conversion_levers": [
+        "proof"
+      ],
+      "summary": "A member of AI-skeptic engineers."
+    },
+    "embedding": null
+  },
+  {
+    "schema_version": "1.0",
+    "seed_account_id": "demo",
+    "relationship": "follower",
+    "enrichment_tier": 1,
+    "user_id": "u25",
+    "handle": "@user25",
+    "display_name": "User 25",
+    "profile_url": "https://x.com/user25",
+    "profile_image_url": "https://img/x.png",
+    "account_age_days": 125,
+    "verified": false,
+    "verified_type": null,
+    "location": null,
+    "url": null,
+    "bio": "indie hackers \u00b7 building things \u00b7 post 25",
+    "metrics": {
+      "followers_count": 325,
+      "following_count": 75,
+      "tweet_count": 125,
+      "listed_count": 1
+    },
+    "seed_engagement": null,
+    "content": null,
+    "persona_card": null,
+    "embedding": null
+  },
+  {
+    "schema_version": "1.0",
+    "seed_account_id": "demo",
+    "relationship": "follower",
+    "enrichment_tier": 2,
+    "user_id": "u26",
+    "handle": "@user26",
+    "display_name": "User 26",
+    "profile_url": "https://x.com/user26",
+    "profile_image_url": "https://img/x.png",
+    "account_age_days": 126,
+    "verified": false,
+    "verified_type": null,
+    "location": null,
+    "url": null,
+    "bio": "growth marketers \u00b7 building things \u00b7 post 26",
+    "metrics": {
+      "followers_count": 338,
+      "following_count": 76,
+      "tweet_count": 130,
+      "listed_count": 2
+    },
+    "seed_engagement": null,
+    "content": {
+      "sample_posts": [
+        {
+          "text": "thoughts on growth marketers #26",
+          "type": "original",
+          "created_at": "2026-08-05T00:00:00Z",
+          "mentions": [],
+          "hashtags": [],
+          "referenced_user": null,
+          "metrics": {
+            "like": 26.0,
+            "reply": 1.0,
+            "repost": 0,
+            "bookmark": 0
+          }
+        }
+      ],
+      "context_annotations": [
+        {
+          "domain": "Technology",
+          "entity": "growth marketers",
+          "count": 3
+        }
+      ],
+      "avg_engagement": {
+        "like": 26.0,
+        "reply": 0,
+        "repost": 0,
+        "bookmark": 0
+      }
+    },
+    "persona_card": {
+      "archetype": "growth marketers",
+      "one_liner": "A growth marketer",
+      "ranked_interests": [
+        "growth marketers",
+        "startups"
+      ],
+      "preferred_formats": [
+        "threads"
+      ],
+      "tone_affinity": "candid",
+      "conversion_levers": [
+        "proof"
+      ],
+      "summary": "A member of growth marketers."
+    },
+    "embedding": null
+  },
+  {
+    "schema_version": "1.0",
+    "seed_account_id": "demo",
+    "relationship": "follower",
+    "enrichment_tier": 2,
+    "user_id": "u27",
+    "handle": "@user27",
+    "display_name": "User 27",
+    "profile_url": "https://x.com/user27",
+    "profile_image_url": "https://img/x.png",
+    "account_age_days": 127,
+    "verified": false,
+    "verified_type": null,
+    "location": null,
+    "url": null,
+    "bio": "crypto builders \u00b7 building things \u00b7 post 27",
+    "metrics": {
+      "followers_count": 351,
+      "following_count": 77,
+      "tweet_count": 135,
+      "listed_count": 3
+    },
+    "seed_engagement": null,
+    "content": {
+      "sample_posts": [
+        {
+          "text": "thoughts on crypto builders #27",
+          "type": "original",
+          "created_at": "2026-08-05T00:00:00Z",
+          "mentions": [],
+          "hashtags": [],
+          "referenced_user": null,
+          "metrics": {
+            "like": 27.0,
+            "reply": 1.0,
+            "repost": 0,
+            "bookmark": 0
+          }
+        }
+      ],
+      "context_annotations": [
+        {
+          "domain": "Technology",
+          "entity": "crypto builders",
+          "count": 3
+        }
+      ],
+      "avg_engagement": {
+        "like": 27.0,
+        "reply": 0,
+        "repost": 0,
+        "bookmark": 0
+      }
+    },
+    "persona_card": {
+      "archetype": "crypto builders",
+      "one_liner": "A crypto builder",
+      "ranked_interests": [
+        "crypto builders",
+        "startups"
+      ],
+      "preferred_formats": [
+        "threads"
+      ],
+      "tone_affinity": "candid",
+      "conversion_levers": [
+        "proof"
+      ],
+      "summary": "A member of crypto builders."
+    },
+    "embedding": null
+  },
+  {
+    "schema_version": "1.0",
+    "seed_account_id": "demo",
+    "relationship": "follower",
+    "enrichment_tier": 2,
+    "user_id": "u28",
+    "handle": "@user28",
+    "display_name": "User 28",
+    "profile_url": "https://x.com/user28",
+    "profile_image_url": "https://img/x.png",
+    "account_age_days": 128,
+    "verified": true,
+    "verified_type": null,
+    "location": null,
+    "url": null,
+    "bio": "design-first founders \u00b7 building things \u00b7 post 28",
+    "metrics": {
+      "followers_count": 364,
+      "following_count": 78,
+      "tweet_count": 140,
+      "listed_count": 0
+    },
+    "seed_engagement": null,
+    "content": {
+      "sample_posts": [
+        {
+          "text": "thoughts on design-first founders #28",
+          "type": "original",
+          "created_at": "2026-08-05T00:00:00Z",
+          "mentions": [],
+          "hashtags": [],
+          "referenced_user": null,
+          "metrics": {
+            "like": 28.0,
+            "reply": 1.0,
+            "repost": 0,
+            "bookmark": 0
+          }
+        }
+      ],
+      "context_annotations": [
+        {
+          "domain": "Technology",
+          "entity": "design-first founders",
+          "count": 3
+        }
+      ],
+      "avg_engagement": {
+        "like": 28.0,
+        "reply": 0,
+        "repost": 0,
+        "bookmark": 0
+      }
+    },
+    "persona_card": {
+      "archetype": "design-first founders",
+      "one_liner": "A design-first founder",
+      "ranked_interests": [
+        "design-first founders",
+        "startups"
+      ],
+      "preferred_formats": [
+        "threads"
+      ],
+      "tone_affinity": "candid",
+      "conversion_levers": [
+        "proof"
+      ],
+      "summary": "A member of design-first founders."
+    },
+    "embedding": null
+  },
+  {
+    "schema_version": "1.0",
+    "seed_account_id": "demo",
+    "relationship": "follower",
+    "enrichment_tier": 2,
+    "user_id": "u29",
+    "handle": "@user29",
+    "display_name": "User 29",
+    "profile_url": "https://x.com/user29",
+    "profile_image_url": "https://img/x.png",
+    "account_age_days": 129,
+    "verified": false,
+    "verified_type": null,
+    "location": null,
+    "url": null,
+    "bio": "data scientists \u00b7 building things \u00b7 post 29",
+    "metrics": {
+      "followers_count": 377,
+      "following_count": 79,
+      "tweet_count": 145,
+      "listed_count": 1
+    },
+    "seed_engagement": null,
+    "content": {
+      "sample_posts": [
+        {
+          "text": "thoughts on data scientists #29",
+          "type": "original",
+          "created_at": "2026-08-05T00:00:00Z",
+          "mentions": [],
+          "hashtags": [],
+          "referenced_user": null,
+          "metrics": {
+            "like": 29.0,
+            "reply": 1.0,
+            "repost": 0,
+            "bookmark": 0
+          }
+        }
+      ],
+      "context_annotations": [
+        {
+          "domain": "Technology",
+          "entity": "data scientists",
+          "count": 3
+        }
+      ],
+      "avg_engagement": {
+        "like": 29.0,
+        "reply": 0,
+        "repost": 0,
+        "bookmark": 0
+      }
+    },
+    "persona_card": {
+      "archetype": "data scientists",
+      "one_liner": "A data scientist",
+      "ranked_interests": [
+        "data scientists",
+        "startups"
+      ],
+      "preferred_formats": [
+        "threads"
+      ],
+      "tone_affinity": "candid",
+      "conversion_levers": [
+        "proof"
+      ],
+      "summary": "A member of data scientists."
+    },
+    "embedding": null
+  },
+  {
+    "schema_version": "1.0",
+    "seed_account_id": "demo",
+    "relationship": "follower",
+    "enrichment_tier": 1,
+    "user_id": "u30",
+    "handle": "@user30",
+    "display_name": "User 30",
+    "profile_url": "https://x.com/user30",
+    "profile_image_url": "https://img/x.png",
+    "account_age_days": 130,
+    "verified": false,
+    "verified_type": null,
+    "location": null,
+    "url": null,
+    "bio": "AI-skeptic engineers \u00b7 building things \u00b7 post 30",
+    "metrics": {
+      "followers_count": 390,
+      "following_count": 80,
+      "tweet_count": 150,
+      "listed_count": 2
+    },
+    "seed_engagement": null,
+    "content": null,
+    "persona_card": null,
+    "embedding": null
+  },
+  {
+    "schema_version": "1.0",
+    "seed_account_id": "demo",
+    "relationship": "follower",
+    "enrichment_tier": 2,
+    "user_id": "u31",
+    "handle": "@user31",
+    "display_name": "User 31",
+    "profile_url": "https://x.com/user31",
+    "profile_image_url": "https://img/x.png",
+    "account_age_days": 131,
+    "verified": false,
+    "verified_type": null,
+    "location": null,
+    "url": null,
+    "bio": "indie hackers \u00b7 building things \u00b7 post 31",
+    "metrics": {
+      "followers_count": 403,
+      "following_count": 81,
+      "tweet_count": 155,
+      "listed_count": 3
+    },
+    "seed_engagement": null,
+    "content": {
+      "sample_posts": [
+        {
+          "text": "thoughts on indie hackers #31",
+          "type": "original",
+          "created_at": "2026-08-05T00:00:00Z",
+          "mentions": [],
+          "hashtags": [],
+          "referenced_user": null,
+          "metrics": {
+            "like": 31.0,
+            "reply": 1.0,
+            "repost": 0,
+            "bookmark": 0
+          }
+        }
+      ],
+      "context_annotations": [
+        {
+          "domain": "Technology",
+          "entity": "indie hackers",
+          "count": 3
+        }
+      ],
+      "avg_engagement": {
+        "like": 31.0,
+        "reply": 0,
+        "repost": 0,
+        "bookmark": 0
+      }
+    },
+    "persona_card": {
+      "archetype": "indie hackers",
+      "one_liner": "A indie hacker",
+      "ranked_interests": [
+        "indie hackers",
+        "startups"
+      ],
+      "preferred_formats": [
+        "threads"
+      ],
+      "tone_affinity": "candid",
+      "conversion_levers": [
+        "proof"
+      ],
+      "summary": "A member of indie hackers."
+    },
+    "embedding": null
+  },
+  {
+    "schema_version": "1.0",
+    "seed_account_id": "demo",
+    "relationship": "follower",
+    "enrichment_tier": 2,
+    "user_id": "u32",
+    "handle": "@user32",
+    "display_name": "User 32",
+    "profile_url": "https://x.com/user32",
+    "profile_image_url": "https://img/x.png",
+    "account_age_days": 132,
+    "verified": false,
+    "verified_type": null,
+    "location": null,
+    "url": null,
+    "bio": "growth marketers \u00b7 building things \u00b7 post 32",
+    "metrics": {
+      "followers_count": 416,
+      "following_count": 82,
+      "tweet_count": 160,
+      "listed_count": 0
+    },
+    "seed_engagement": null,
+    "content": {
+      "sample_posts": [
+        {
+          "text": "thoughts on growth marketers #32",
+          "type": "original",
+          "created_at": "2026-08-05T00:00:00Z",
+          "mentions": [],
+          "hashtags": [],
+          "referenced_user": null,
+          "metrics": {
+            "like": 32.0,
+            "reply": 1.0,
+            "repost": 0,
+            "bookmark": 0
+          }
+        }
+      ],
+      "context_annotations": [
+        {
+          "domain": "Technology",
+          "entity": "growth marketers",
+          "count": 3
+        }
+      ],
+      "avg_engagement": {
+        "like": 32.0,
+        "reply": 0,
+        "repost": 0,
+        "bookmark": 0
+      }
+    },
+    "persona_card": {
+      "archetype": "growth marketers",
+      "one_liner": "A growth marketer",
+      "ranked_interests": [
+        "growth marketers",
+        "startups"
+      ],
+      "preferred_formats": [
+        "threads"
+      ],
+      "tone_affinity": "candid",
+      "conversion_levers": [
+        "proof"
+      ],
+      "summary": "A member of growth marketers."
+    },
+    "embedding": null
+  },
+  {
+    "schema_version": "1.0",
+    "seed_account_id": "demo",
+    "relationship": "follower",
+    "enrichment_tier": 2,
+    "user_id": "u33",
+    "handle": "@user33",
+    "display_name": "User 33",
+    "profile_url": "https://x.com/user33",
+    "profile_image_url": "https://img/x.png",
+    "account_age_days": 133,
+    "verified": false,
+    "verified_type": null,
+    "location": null,
+    "url": null,
+    "bio": "crypto builders \u00b7 building things \u00b7 post 33",
+    "metrics": {
+      "followers_count": 429,
+      "following_count": 83,
+      "tweet_count": 165,
+      "listed_count": 1
+    },
+    "seed_engagement": null,
+    "content": {
+      "sample_posts": [
+        {
+          "text": "thoughts on crypto builders #33",
+          "type": "original",
+          "created_at": "2026-08-05T00:00:00Z",
+          "mentions": [],
+          "hashtags": [],
+          "referenced_user": null,
+          "metrics": {
+            "like": 33.0,
+            "reply": 1.0,
+            "repost": 0,
+            "bookmark": 0
+          }
+        }
+      ],
+      "context_annotations": [
+        {
+          "domain": "Technology",
+          "entity": "crypto builders",
+          "count": 3
+        }
+      ],
+      "avg_engagement": {
+        "like": 33.0,
+        "reply": 0,
+        "repost": 0,
+        "bookmark": 0
+      }
+    },
+    "persona_card": {
+      "archetype": "crypto builders",
+      "one_liner": "A crypto builder",
+      "ranked_interests": [
+        "crypto builders",
+        "startups"
+      ],
+      "preferred_formats": [
+        "threads"
+      ],
+      "tone_affinity": "candid",
+      "conversion_levers": [
+        "proof"
+      ],
+      "summary": "A member of crypto builders."
+    },
+    "embedding": null
+  },
+  {
+    "schema_version": "1.0",
+    "seed_account_id": "demo",
+    "relationship": "follower",
+    "enrichment_tier": 2,
+    "user_id": "u34",
+    "handle": "@user34",
+    "display_name": "User 34",
+    "profile_url": "https://x.com/user34",
+    "profile_image_url": "https://img/x.png",
+    "account_age_days": 134,
+    "verified": false,
+    "verified_type": null,
+    "location": null,
+    "url": null,
+    "bio": "design-first founders \u00b7 building things \u00b7 post 34",
+    "metrics": {
+      "followers_count": 442,
+      "following_count": 84,
+      "tweet_count": 170,
+      "listed_count": 2
+    },
+    "seed_engagement": null,
+    "content": {
+      "sample_posts": [
+        {
+          "text": "thoughts on design-first founders #34",
+          "type": "original",
+          "created_at": "2026-08-05T00:00:00Z",
+          "mentions": [],
+          "hashtags": [],
+          "referenced_user": null,
+          "metrics": {
+            "like": 34.0,
+            "reply": 1.0,
+            "repost": 0,
+            "bookmark": 0
+          }
+        }
+      ],
+      "context_annotations": [
+        {
+          "domain": "Technology",
+          "entity": "design-first founders",
+          "count": 3
+        }
+      ],
+      "avg_engagement": {
+        "like": 34.0,
+        "reply": 0,
+        "repost": 0,
+        "bookmark": 0
+      }
+    },
+    "persona_card": {
+      "archetype": "design-first founders",
+      "one_liner": "A design-first founder",
+      "ranked_interests": [
+        "design-first founders",
+        "startups"
+      ],
+      "preferred_formats": [
+        "threads"
+      ],
+      "tone_affinity": "candid",
+      "conversion_levers": [
+        "proof"
+      ],
+      "summary": "A member of design-first founders."
+    },
+    "embedding": null
+  },
+  {
+    "schema_version": "1.0",
+    "seed_account_id": "demo",
+    "relationship": "follower",
+    "enrichment_tier": 1,
+    "user_id": "u35",
+    "handle": "@user35",
+    "display_name": "User 35",
+    "profile_url": "https://x.com/user35",
+    "profile_image_url": "https://img/x.png",
+    "account_age_days": 135,
+    "verified": true,
+    "verified_type": null,
+    "location": null,
+    "url": null,
+    "bio": "data scientists \u00b7 building things \u00b7 post 35",
+    "metrics": {
+      "followers_count": 455,
+      "following_count": 85,
+      "tweet_count": 175,
+      "listed_count": 3
+    },
+    "seed_engagement": null,
+    "content": null,
+    "persona_card": null,
+    "embedding": null
+  },
+  {
+    "schema_version": "1.0",
+    "seed_account_id": "demo",
+    "relationship": "follower",
+    "enrichment_tier": 2,
+    "user_id": "u36",
+    "handle": "@user36",
+    "display_name": "User 36",
+    "profile_url": "https://x.com/user36",
+    "profile_image_url": "https://img/x.png",
+    "account_age_days": 136,
+    "verified": false,
+    "verified_type": null,
+    "location": null,
+    "url": null,
+    "bio": "AI-skeptic engineers \u00b7 building things \u00b7 post 36",
+    "metrics": {
+      "followers_count": 468,
+      "following_count": 86,
+      "tweet_count": 180,
+      "listed_count": 0
+    },
+    "seed_engagement": null,
+    "content": {
+      "sample_posts": [
+        {
+          "text": "thoughts on AI-skeptic engineers #36",
+          "type": "original",
+          "created_at": "2026-08-05T00:00:00Z",
+          "mentions": [],
+          "hashtags": [],
+          "referenced_user": null,
+          "metrics": {
+            "like": 36.0,
+            "reply": 1.0,
+            "repost": 0,
+            "bookmark": 0
+          }
+        }
+      ],
+      "context_annotations": [
+        {
+          "domain": "Technology",
+          "entity": "AI-skeptic engineers",
+          "count": 3
+        }
+      ],
+      "avg_engagement": {
+        "like": 36.0,
+        "reply": 0,
+        "repost": 0,
+        "bookmark": 0
+      }
+    },
+    "persona_card": {
+      "archetype": "AI-skeptic engineers",
+      "one_liner": "A AI-skeptic engineer",
+      "ranked_interests": [
+        "AI-skeptic engineers",
+        "startups"
+      ],
+      "preferred_formats": [
+        "threads"
+      ],
+      "tone_affinity": "candid",
+      "conversion_levers": [
+        "proof"
+      ],
+      "summary": "A member of AI-skeptic engineers."
+    },
+    "embedding": null
+  },
+  {
+    "schema_version": "1.0",
+    "seed_account_id": "demo",
+    "relationship": "follower",
+    "enrichment_tier": 2,
+    "user_id": "u37",
+    "handle": "@user37",
+    "display_name": "User 37",
+    "profile_url": "https://x.com/user37",
+    "profile_image_url": "https://img/x.png",
+    "account_age_days": 137,
+    "verified": false,
+    "verified_type": null,
+    "location": null,
+    "url": null,
+    "bio": "indie hackers \u00b7 building things \u00b7 post 37",
+    "metrics": {
+      "followers_count": 481,
+      "following_count": 87,
+      "tweet_count": 185,
+      "listed_count": 1
+    },
+    "seed_engagement": null,
+    "content": {
+      "sample_posts": [
+        {
+          "text": "thoughts on indie hackers #37",
+          "type": "original",
+          "created_at": "2026-08-05T00:00:00Z",
+          "mentions": [],
+          "hashtags": [],
+          "referenced_user": null,
+          "metrics": {
+            "like": 37.0,
+            "reply": 1.0,
+            "repost": 0,
+            "bookmark": 0
+          }
+        }
+      ],
+      "context_annotations": [
+        {
+          "domain": "Technology",
+          "entity": "indie hackers",
+          "count": 3
+        }
+      ],
+      "avg_engagement": {
+        "like": 37.0,
+        "reply": 0,
+        "repost": 0,
+        "bookmark": 0
+      }
+    },
+    "persona_card": {
+      "archetype": "indie hackers",
+      "one_liner": "A indie hacker",
+      "ranked_interests": [
+        "indie hackers",
+        "startups"
+      ],
+      "preferred_formats": [
+        "threads"
+      ],
+      "tone_affinity": "candid",
+      "conversion_levers": [
+        "proof"
+      ],
+      "summary": "A member of indie hackers."
+    },
+    "embedding": null
+  },
+  {
+    "schema_version": "1.0",
+    "seed_account_id": "demo",
+    "relationship": "follower",
+    "enrichment_tier": 2,
+    "user_id": "u38",
+    "handle": "@user38",
+    "display_name": "User 38",
+    "profile_url": "https://x.com/user38",
+    "profile_image_url": "https://img/x.png",
+    "account_age_days": 138,
+    "verified": false,
+    "verified_type": null,
+    "location": null,
+    "url": null,
+    "bio": "growth marketers \u00b7 building things \u00b7 post 38",
+    "metrics": {
+      "followers_count": 494,
+      "following_count": 88,
+      "tweet_count": 190,
+      "listed_count": 2
+    },
+    "seed_engagement": null,
+    "content": {
+      "sample_posts": [
+        {
+          "text": "thoughts on growth marketers #38",
+          "type": "original",
+          "created_at": "2026-08-05T00:00:00Z",
+          "mentions": [],
+          "hashtags": [],
+          "referenced_user": null,
+          "metrics": {
+            "like": 38.0,
+            "reply": 1.0,
+            "repost": 0,
+            "bookmark": 0
+          }
+        }
+      ],
+      "context_annotations": [
+        {
+          "domain": "Technology",
+          "entity": "growth marketers",
+          "count": 3
+        }
+      ],
+      "avg_engagement": {
+        "like": 38.0,
+        "reply": 0,
+        "repost": 0,
+        "bookmark": 0
+      }
+    },
+    "persona_card": {
+      "archetype": "growth marketers",
+      "one_liner": "A growth marketer",
+      "ranked_interests": [
+        "growth marketers",
+        "startups"
+      ],
+      "preferred_formats": [
+        "threads"
+      ],
+      "tone_affinity": "candid",
+      "conversion_levers": [
+        "proof"
+      ],
+      "summary": "A member of growth marketers."
+    },
+    "embedding": null
+  },
+  {
+    "schema_version": "1.0",
+    "seed_account_id": "demo",
+    "relationship": "follower",
+    "enrichment_tier": 2,
+    "user_id": "u39",
+    "handle": "@user39",
+    "display_name": "User 39",
+    "profile_url": "https://x.com/user39",
+    "profile_image_url": "https://img/x.png",
+    "account_age_days": 139,
+    "verified": false,
+    "verified_type": null,
+    "location": null,
+    "url": null,
+    "bio": "crypto builders \u00b7 building things \u00b7 post 39",
+    "metrics": {
+      "followers_count": 507,
+      "following_count": 89,
+      "tweet_count": 195,
+      "listed_count": 3
+    },
+    "seed_engagement": null,
+    "content": {
+      "sample_posts": [
+        {
+          "text": "thoughts on crypto builders #39",
+          "type": "original",
+          "created_at": "2026-08-05T00:00:00Z",
+          "mentions": [],
+          "hashtags": [],
+          "referenced_user": null,
+          "metrics": {
+            "like": 39.0,
+            "reply": 1.0,
+            "repost": 0,
+            "bookmark": 0
+          }
+        }
+      ],
+      "context_annotations": [
+        {
+          "domain": "Technology",
+          "entity": "crypto builders",
+          "count": 3
+        }
+      ],
+      "avg_engagement": {
+        "like": 39.0,
+        "reply": 0,
+        "repost": 0,
+        "bookmark": 0
+      }
+    },
+    "persona_card": {
+      "archetype": "crypto builders",
+      "one_liner": "A crypto builder",
+      "ranked_interests": [
+        "crypto builders",
+        "startups"
+      ],
+      "preferred_formats": [
+        "threads"
+      ],
+      "tone_affinity": "candid",
+      "conversion_levers": [
+        "proof"
+      ],
+      "summary": "A member of crypto builders."
+    },
+    "embedding": null
+  },
+  {
+    "schema_version": "1.0",
+    "seed_account_id": "demo",
+    "relationship": "follower",
+    "enrichment_tier": 1,
+    "user_id": "u40",
+    "handle": "@user40",
+    "display_name": "User 40",
+    "profile_url": "https://x.com/user40",
+    "profile_image_url": "https://img/x.png",
+    "account_age_days": 140,
+    "verified": false,
+    "verified_type": null,
+    "location": null,
+    "url": null,
+    "bio": "design-first founders \u00b7 building things \u00b7 post 40",
+    "metrics": {
+      "followers_count": 520,
+      "following_count": 90,
+      "tweet_count": 200,
+      "listed_count": 0
+    },
+    "seed_engagement": null,
+    "content": null,
+    "persona_card": null,
+    "embedding": null
+  },
+  {
+    "schema_version": "1.0",
+    "seed_account_id": "demo",
+    "relationship": "follower",
+    "enrichment_tier": 2,
+    "user_id": "u41",
+    "handle": "@user41",
+    "display_name": "User 41",
+    "profile_url": "https://x.com/user41",
+    "profile_image_url": "https://img/x.png",
+    "account_age_days": 141,
+    "verified": false,
+    "verified_type": null,
+    "location": null,
+    "url": null,
+    "bio": "data scientists \u00b7 building things \u00b7 post 41",
+    "metrics": {
+      "followers_count": 533,
+      "following_count": 91,
+      "tweet_count": 205,
+      "listed_count": 1
+    },
+    "seed_engagement": null,
+    "content": {
+      "sample_posts": [
+        {
+          "text": "thoughts on data scientists #41",
+          "type": "original",
+          "created_at": "2026-08-05T00:00:00Z",
+          "mentions": [],
+          "hashtags": [],
+          "referenced_user": null,
+          "metrics": {
+            "like": 41.0,
+            "reply": 1.0,
+            "repost": 0,
+            "bookmark": 0
+          }
+        }
+      ],
+      "context_annotations": [
+        {
+          "domain": "Technology",
+          "entity": "data scientists",
+          "count": 3
+        }
+      ],
+      "avg_engagement": {
+        "like": 41.0,
+        "reply": 0,
+        "repost": 0,
+        "bookmark": 0
+      }
+    },
+    "persona_card": {
+      "archetype": "data scientists",
+      "one_liner": "A data scientist",
+      "ranked_interests": [
+        "data scientists",
+        "startups"
+      ],
+      "preferred_formats": [
+        "threads"
+      ],
+      "tone_affinity": "candid",
+      "conversion_levers": [
+        "proof"
+      ],
+      "summary": "A member of data scientists."
+    },
+    "embedding": null
+  },
+  {
+    "schema_version": "1.0",
+    "seed_account_id": "demo",
+    "relationship": "follower",
+    "enrichment_tier": 2,
+    "user_id": "u42",
+    "handle": "@user42",
+    "display_name": "User 42",
+    "profile_url": "https://x.com/user42",
+    "profile_image_url": "https://img/x.png",
+    "account_age_days": 142,
+    "verified": true,
+    "verified_type": null,
+    "location": null,
+    "url": null,
+    "bio": "AI-skeptic engineers \u00b7 building things \u00b7 post 42",
+    "metrics": {
+      "followers_count": 546,
+      "following_count": 92,
+      "tweet_count": 210,
+      "listed_count": 2
+    },
+    "seed_engagement": null,
+    "content": {
+      "sample_posts": [
+        {
+          "text": "thoughts on AI-skeptic engineers #42",
+          "type": "original",
+          "created_at": "2026-08-05T00:00:00Z",
+          "mentions": [],
+          "hashtags": [],
+          "referenced_user": null,
+          "metrics": {
+            "like": 42.0,
+            "reply": 1.0,
+            "repost": 0,
+            "bookmark": 0
+          }
+        }
+      ],
+      "context_annotations": [
+        {
+          "domain": "Technology",
+          "entity": "AI-skeptic engineers",
+          "count": 3
+        }
+      ],
+      "avg_engagement": {
+        "like": 42.0,
+        "reply": 0,
+        "repost": 0,
+        "bookmark": 0
+      }
+    },
+    "persona_card": {
+      "archetype": "AI-skeptic engineers",
+      "one_liner": "A AI-skeptic engineer",
+      "ranked_interests": [
+        "AI-skeptic engineers",
+        "startups"
+      ],
+      "preferred_formats": [
+        "threads"
+      ],
+      "tone_affinity": "candid",
+      "conversion_levers": [
+        "proof"
+      ],
+      "summary": "A member of AI-skeptic engineers."
+    },
+    "embedding": null
+  },
+  {
+    "schema_version": "1.0",
+    "seed_account_id": "demo",
+    "relationship": "follower",
+    "enrichment_tier": 2,
+    "user_id": "u43",
+    "handle": "@user43",
+    "display_name": "User 43",
+    "profile_url": "https://x.com/user43",
+    "profile_image_url": "https://img/x.png",
+    "account_age_days": 143,
+    "verified": false,
+    "verified_type": null,
+    "location": null,
+    "url": null,
+    "bio": "indie hackers \u00b7 building things \u00b7 post 43",
+    "metrics": {
+      "followers_count": 559,
+      "following_count": 93,
+      "tweet_count": 215,
+      "listed_count": 3
+    },
+    "seed_engagement": null,
+    "content": {
+      "sample_posts": [
+        {
+          "text": "thoughts on indie hackers #43",
+          "type": "original",
+          "created_at": "2026-08-05T00:00:00Z",
+          "mentions": [],
+          "hashtags": [],
+          "referenced_user": null,
+          "metrics": {
+            "like": 43.0,
+            "reply": 1.0,
+            "repost": 0,
+            "bookmark": 0
+          }
+        }
+      ],
+      "context_annotations": [
+        {
+          "domain": "Technology",
+          "entity": "indie hackers",
+          "count": 3
+        }
+      ],
+      "avg_engagement": {
+        "like": 43.0,
+        "reply": 0,
+        "repost": 0,
+        "bookmark": 0
+      }
+    },
+    "persona_card": {
+      "archetype": "indie hackers",
+      "one_liner": "A indie hacker",
+      "ranked_interests": [
+        "indie hackers",
+        "startups"
+      ],
+      "preferred_formats": [
+        "threads"
+      ],
+      "tone_affinity": "candid",
+      "conversion_levers": [
+        "proof"
+      ],
+      "summary": "A member of indie hackers."
+    },
+    "embedding": null
+  },
+  {
+    "schema_version": "1.0",
+    "seed_account_id": "demo",
+    "relationship": "follower",
+    "enrichment_tier": 2,
+    "user_id": "u44",
+    "handle": "@user44",
+    "display_name": "User 44",
+    "profile_url": "https://x.com/user44",
+    "profile_image_url": "https://img/x.png",
+    "account_age_days": 144,
+    "verified": false,
+    "verified_type": null,
+    "location": null,
+    "url": null,
+    "bio": "growth marketers \u00b7 building things \u00b7 post 44",
+    "metrics": {
+      "followers_count": 572,
+      "following_count": 94,
+      "tweet_count": 220,
+      "listed_count": 0
+    },
+    "seed_engagement": null,
+    "content": {
+      "sample_posts": [
+        {
+          "text": "thoughts on growth marketers #44",
+          "type": "original",
+          "created_at": "2026-08-05T00:00:00Z",
+          "mentions": [],
+          "hashtags": [],
+          "referenced_user": null,
+          "metrics": {
+            "like": 44.0,
+            "reply": 1.0,
+            "repost": 0,
+            "bookmark": 0
+          }
+        }
+      ],
+      "context_annotations": [
+        {
+          "domain": "Technology",
+          "entity": "growth marketers",
+          "count": 3
+        }
+      ],
+      "avg_engagement": {
+        "like": 44.0,
+        "reply": 0,
+        "repost": 0,
+        "bookmark": 0
+      }
+    },
+    "persona_card": {
+      "archetype": "growth marketers",
+      "one_liner": "A growth marketer",
+      "ranked_interests": [
+        "growth marketers",
+        "startups"
+      ],
+      "preferred_formats": [
+        "threads"
+      ],
+      "tone_affinity": "candid",
+      "conversion_levers": [
+        "proof"
+      ],
+      "summary": "A member of growth marketers."
+    },
+    "embedding": null
+  },
+  {
+    "schema_version": "1.0",
+    "seed_account_id": "demo",
+    "relationship": "follower",
+    "enrichment_tier": 1,
+    "user_id": "u45",
+    "handle": "@user45",
+    "display_name": "User 45",
+    "profile_url": "https://x.com/user45",
+    "profile_image_url": "https://img/x.png",
+    "account_age_days": 145,
+    "verified": false,
+    "verified_type": null,
+    "location": null,
+    "url": null,
+    "bio": "crypto builders \u00b7 building things \u00b7 post 45",
+    "metrics": {
+      "followers_count": 585,
+      "following_count": 95,
+      "tweet_count": 225,
+      "listed_count": 1
+    },
+    "seed_engagement": null,
+    "content": null,
+    "persona_card": null,
+    "embedding": null
+  },
+  {
+    "schema_version": "1.0",
+    "seed_account_id": "demo",
+    "relationship": "follower",
+    "enrichment_tier": 2,
+    "user_id": "u46",
+    "handle": "@user46",
+    "display_name": "User 46",
+    "profile_url": "https://x.com/user46",
+    "profile_image_url": "https://img/x.png",
+    "account_age_days": 146,
+    "verified": false,
+    "verified_type": null,
+    "location": null,
+    "url": null,
+    "bio": "design-first founders \u00b7 building things \u00b7 post 46",
+    "metrics": {
+      "followers_count": 598,
+      "following_count": 96,
+      "tweet_count": 230,
+      "listed_count": 2
+    },
+    "seed_engagement": null,
+    "content": {
+      "sample_posts": [
+        {
+          "text": "thoughts on design-first founders #46",
+          "type": "original",
+          "created_at": "2026-08-05T00:00:00Z",
+          "mentions": [],
+          "hashtags": [],
+          "referenced_user": null,
+          "metrics": {
+            "like": 46.0,
+            "reply": 1.0,
+            "repost": 0,
+            "bookmark": 0
+          }
+        }
+      ],
+      "context_annotations": [
+        {
+          "domain": "Technology",
+          "entity": "design-first founders",
+          "count": 3
+        }
+      ],
+      "avg_engagement": {
+        "like": 46.0,
+        "reply": 0,
+        "repost": 0,
+        "bookmark": 0
+      }
+    },
+    "persona_card": {
+      "archetype": "design-first founders",
+      "one_liner": "A design-first founder",
+      "ranked_interests": [
+        "design-first founders",
+        "startups"
+      ],
+      "preferred_formats": [
+        "threads"
+      ],
+      "tone_affinity": "candid",
+      "conversion_levers": [
+        "proof"
+      ],
+      "summary": "A member of design-first founders."
+    },
+    "embedding": null
+  },
+  {
+    "schema_version": "1.0",
+    "seed_account_id": "demo",
+    "relationship": "follower",
+    "enrichment_tier": 2,
+    "user_id": "u47",
+    "handle": "@user47",
+    "display_name": "User 47",
+    "profile_url": "https://x.com/user47",
+    "profile_image_url": "https://img/x.png",
+    "account_age_days": 147,
+    "verified": false,
+    "verified_type": null,
+    "location": null,
+    "url": null,
+    "bio": "data scientists \u00b7 building things \u00b7 post 47",
+    "metrics": {
+      "followers_count": 611,
+      "following_count": 97,
+      "tweet_count": 235,
+      "listed_count": 3
+    },
+    "seed_engagement": null,
+    "content": {
+      "sample_posts": [
+        {
+          "text": "thoughts on data scientists #47",
+          "type": "original",
+          "created_at": "2026-08-05T00:00:00Z",
+          "mentions": [],
+          "hashtags": [],
+          "referenced_user": null,
+          "metrics": {
+            "like": 47.0,
+            "reply": 1.0,
+            "repost": 0,
+            "bookmark": 0
+          }
+        }
+      ],
+      "context_annotations": [
+        {
+          "domain": "Technology",
+          "entity": "data scientists",
+          "count": 3
+        }
+      ],
+      "avg_engagement": {
+        "like": 47.0,
+        "reply": 0,
+        "repost": 0,
+        "bookmark": 0
+      }
+    },
+    "persona_card": {
+      "archetype": "data scientists",
+      "one_liner": "A data scientist",
+      "ranked_interests": [
+        "data scientists",
+        "startups"
+      ],
+      "preferred_formats": [
+        "threads"
+      ],
+      "tone_affinity": "candid",
+      "conversion_levers": [
+        "proof"
+      ],
+      "summary": "A member of data scientists."
+    },
+    "embedding": null
+  },
+  {
+    "schema_version": "1.0",
+    "seed_account_id": "demo",
+    "relationship": "follower",
+    "enrichment_tier": 2,
+    "user_id": "u48",
+    "handle": "@user48",
+    "display_name": "User 48",
+    "profile_url": "https://x.com/user48",
+    "profile_image_url": "https://img/x.png",
+    "account_age_days": 148,
+    "verified": false,
+    "verified_type": null,
+    "location": null,
+    "url": null,
+    "bio": "AI-skeptic engineers \u00b7 building things \u00b7 post 48",
+    "metrics": {
+      "followers_count": 624,
+      "following_count": 98,
+      "tweet_count": 240,
+      "listed_count": 0
+    },
+    "seed_engagement": null,
+    "content": {
+      "sample_posts": [
+        {
+          "text": "thoughts on AI-skeptic engineers #48",
+          "type": "original",
+          "created_at": "2026-08-05T00:00:00Z",
+          "mentions": [],
+          "hashtags": [],
+          "referenced_user": null,
+          "metrics": {
+            "like": 48.0,
+            "reply": 1.0,
+            "repost": 0,
+            "bookmark": 0
+          }
+        }
+      ],
+      "context_annotations": [
+        {
+          "domain": "Technology",
+          "entity": "AI-skeptic engineers",
+          "count": 3
+        }
+      ],
+      "avg_engagement": {
+        "like": 48.0,
+        "reply": 0,
+        "repost": 0,
+        "bookmark": 0
+      }
+    },
+    "persona_card": {
+      "archetype": "AI-skeptic engineers",
+      "one_liner": "A AI-skeptic engineer",
+      "ranked_interests": [
+        "AI-skeptic engineers",
+        "startups"
+      ],
+      "preferred_formats": [
+        "threads"
+      ],
+      "tone_affinity": "candid",
+      "conversion_levers": [
+        "proof"
+      ],
+      "summary": "A member of AI-skeptic engineers."
+    },
+    "embedding": null
+  },
+  {
+    "schema_version": "1.0",
+    "seed_account_id": "demo",
+    "relationship": "follower",
+    "enrichment_tier": 2,
+    "user_id": "u49",
+    "handle": "@user49",
+    "display_name": "User 49",
+    "profile_url": "https://x.com/user49",
+    "profile_image_url": "https://img/x.png",
+    "account_age_days": 149,
+    "verified": true,
+    "verified_type": null,
+    "location": null,
+    "url": null,
+    "bio": "indie hackers \u00b7 building things \u00b7 post 49",
+    "metrics": {
+      "followers_count": 637,
+      "following_count": 99,
+      "tweet_count": 245,
+      "listed_count": 1
+    },
+    "seed_engagement": null,
+    "content": {
+      "sample_posts": [
+        {
+          "text": "thoughts on indie hackers #49",
+          "type": "original",
+          "created_at": "2026-08-05T00:00:00Z",
+          "mentions": [],
+          "hashtags": [],
+          "referenced_user": null,
+          "metrics": {
+            "like": 49.0,
+            "reply": 1.0,
+            "repost": 0,
+            "bookmark": 0
+          }
+        }
+      ],
+      "context_annotations": [
+        {
+          "domain": "Technology",
+          "entity": "indie hackers",
+          "count": 3
+        }
+      ],
+      "avg_engagement": {
+        "like": 49.0,
+        "reply": 0,
+        "repost": 0,
+        "bookmark": 0
+      }
+    },
+    "persona_card": {
+      "archetype": "indie hackers",
+      "one_liner": "A indie hacker",
+      "ranked_interests": [
+        "indie hackers",
+        "startups"
+      ],
+      "preferred_formats": [
+        "threads"
+      ],
+      "tone_affinity": "candid",
+      "conversion_levers": [
+        "proof"
+      ],
+      "summary": "A member of indie hackers."
+    },
+    "embedding": null
+  },
+  {
+    "schema_version": "1.0",
+    "seed_account_id": "demo",
+    "relationship": "follower",
+    "enrichment_tier": 1,
+    "user_id": "u50",
+    "handle": "@user50",
+    "display_name": "User 50",
+    "profile_url": "https://x.com/user50",
+    "profile_image_url": "https://img/x.png",
+    "account_age_days": 150,
+    "verified": false,
+    "verified_type": null,
+    "location": null,
+    "url": null,
+    "bio": "growth marketers \u00b7 building things \u00b7 post 50",
+    "metrics": {
+      "followers_count": 650,
+      "following_count": 100,
+      "tweet_count": 250,
+      "listed_count": 2
+    },
+    "seed_engagement": null,
+    "content": null,
+    "persona_card": null,
+    "embedding": null
+  },
+  {
+    "schema_version": "1.0",
+    "seed_account_id": "demo",
+    "relationship": "follower",
+    "enrichment_tier": 2,
+    "user_id": "u51",
+    "handle": "@user51",
+    "display_name": "User 51",
+    "profile_url": "https://x.com/user51",
+    "profile_image_url": "https://img/x.png",
+    "account_age_days": 151,
+    "verified": false,
+    "verified_type": null,
+    "location": null,
+    "url": null,
+    "bio": "crypto builders \u00b7 building things \u00b7 post 51",
+    "metrics": {
+      "followers_count": 663,
+      "following_count": 101,
+      "tweet_count": 255,
+      "listed_count": 3
+    },
+    "seed_engagement": null,
+    "content": {
+      "sample_posts": [
+        {
+          "text": "thoughts on crypto builders #51",
+          "type": "original",
+          "created_at": "2026-08-05T00:00:00Z",
+          "mentions": [],
+          "hashtags": [],
+          "referenced_user": null,
+          "metrics": {
+            "like": 51.0,
+            "reply": 1.0,
+            "repost": 0,
+            "bookmark": 0
+          }
+        }
+      ],
+      "context_annotations": [
+        {
+          "domain": "Technology",
+          "entity": "crypto builders",
+          "count": 3
+        }
+      ],
+      "avg_engagement": {
+        "like": 51.0,
+        "reply": 0,
+        "repost": 0,
+        "bookmark": 0
+      }
+    },
+    "persona_card": {
+      "archetype": "crypto builders",
+      "one_liner": "A crypto builder",
+      "ranked_interests": [
+        "crypto builders",
+        "startups"
+      ],
+      "preferred_formats": [
+        "threads"
+      ],
+      "tone_affinity": "candid",
+      "conversion_levers": [
+        "proof"
+      ],
+      "summary": "A member of crypto builders."
+    },
+    "embedding": null
+  },
+  {
+    "schema_version": "1.0",
+    "seed_account_id": "demo",
+    "relationship": "follower",
+    "enrichment_tier": 2,
+    "user_id": "u52",
+    "handle": "@user52",
+    "display_name": "User 52",
+    "profile_url": "https://x.com/user52",
+    "profile_image_url": "https://img/x.png",
+    "account_age_days": 152,
+    "verified": false,
+    "verified_type": null,
+    "location": null,
+    "url": null,
+    "bio": "design-first founders \u00b7 building things \u00b7 post 52",
+    "metrics": {
+      "followers_count": 676,
+      "following_count": 102,
+      "tweet_count": 260,
+      "listed_count": 0
+    },
+    "seed_engagement": null,
+    "content": {
+      "sample_posts": [
+        {
+          "text": "thoughts on design-first founders #52",
+          "type": "original",
+          "created_at": "2026-08-05T00:00:00Z",
+          "mentions": [],
+          "hashtags": [],
+          "referenced_user": null,
+          "metrics": {
+            "like": 52.0,
+            "reply": 1.0,
+            "repost": 0,
+            "bookmark": 0
+          }
+        }
+      ],
+      "context_annotations": [
+        {
+          "domain": "Technology",
+          "entity": "design-first founders",
+          "count": 3
+        }
+      ],
+      "avg_engagement": {
+        "like": 52.0,
+        "reply": 0,
+        "repost": 0,
+        "bookmark": 0
+      }
+    },
+    "persona_card": {
+      "archetype": "design-first founders",
+      "one_liner": "A design-first founder",
+      "ranked_interests": [
+        "design-first founders",
+        "startups"
+      ],
+      "preferred_formats": [
+        "threads"
+      ],
+      "tone_affinity": "candid",
+      "conversion_levers": [
+        "proof"
+      ],
+      "summary": "A member of design-first founders."
+    },
+    "embedding": null
+  },
+  {
+    "schema_version": "1.0",
+    "seed_account_id": "demo",
+    "relationship": "follower",
+    "enrichment_tier": 2,
+    "user_id": "u53",
+    "handle": "@user53",
+    "display_name": "User 53",
+    "profile_url": "https://x.com/user53",
+    "profile_image_url": "https://img/x.png",
+    "account_age_days": 153,
+    "verified": false,
+    "verified_type": null,
+    "location": null,
+    "url": null,
+    "bio": "data scientists \u00b7 building things \u00b7 post 53",
+    "metrics": {
+      "followers_count": 689,
+      "following_count": 103,
+      "tweet_count": 265,
+      "listed_count": 1
+    },
+    "seed_engagement": null,
+    "content": {
+      "sample_posts": [
+        {
+          "text": "thoughts on data scientists #53",
+          "type": "original",
+          "created_at": "2026-08-05T00:00:00Z",
+          "mentions": [],
+          "hashtags": [],
+          "referenced_user": null,
+          "metrics": {
+            "like": 53.0,
+            "reply": 1.0,
+            "repost": 0,
+            "bookmark": 0
+          }
+        }
+      ],
+      "context_annotations": [
+        {
+          "domain": "Technology",
+          "entity": "data scientists",
+          "count": 3
+        }
+      ],
+      "avg_engagement": {
+        "like": 53.0,
+        "reply": 0,
+        "repost": 0,
+        "bookmark": 0
+      }
+    },
+    "persona_card": {
+      "archetype": "data scientists",
+      "one_liner": "A data scientist",
+      "ranked_interests": [
+        "data scientists",
+        "startups"
+      ],
+      "preferred_formats": [
+        "threads"
+      ],
+      "tone_affinity": "candid",
+      "conversion_levers": [
+        "proof"
+      ],
+      "summary": "A member of data scientists."
+    },
+    "embedding": null
+  },
+  {
+    "schema_version": "1.0",
+    "seed_account_id": "demo",
+    "relationship": "follower",
+    "enrichment_tier": 2,
+    "user_id": "u54",
+    "handle": "@user54",
+    "display_name": "User 54",
+    "profile_url": "https://x.com/user54",
+    "profile_image_url": "https://img/x.png",
+    "account_age_days": 154,
+    "verified": false,
+    "verified_type": null,
+    "location": null,
+    "url": null,
+    "bio": "AI-skeptic engineers \u00b7 building things \u00b7 post 54",
+    "metrics": {
+      "followers_count": 702,
+      "following_count": 104,
+      "tweet_count": 270,
+      "listed_count": 2
+    },
+    "seed_engagement": null,
+    "content": {
+      "sample_posts": [
+        {
+          "text": "thoughts on AI-skeptic engineers #54",
+          "type": "original",
+          "created_at": "2026-08-05T00:00:00Z",
+          "mentions": [],
+          "hashtags": [],
+          "referenced_user": null,
+          "metrics": {
+            "like": 54.0,
+            "reply": 1.0,
+            "repost": 0,
+            "bookmark": 0
+          }
+        }
+      ],
+      "context_annotations": [
+        {
+          "domain": "Technology",
+          "entity": "AI-skeptic engineers",
+          "count": 3
+        }
+      ],
+      "avg_engagement": {
+        "like": 54.0,
+        "reply": 0,
+        "repost": 0,
+        "bookmark": 0
+      }
+    },
+    "persona_card": {
+      "archetype": "AI-skeptic engineers",
+      "one_liner": "A AI-skeptic engineer",
+      "ranked_interests": [
+        "AI-skeptic engineers",
+        "startups"
+      ],
+      "preferred_formats": [
+        "threads"
+      ],
+      "tone_affinity": "candid",
+      "conversion_levers": [
+        "proof"
+      ],
+      "summary": "A member of AI-skeptic engineers."
+    },
+    "embedding": null
+  },
+  {
+    "schema_version": "1.0",
+    "seed_account_id": "demo",
+    "relationship": "follower",
+    "enrichment_tier": 1,
+    "user_id": "u55",
+    "handle": "@user55",
+    "display_name": "User 55",
+    "profile_url": "https://x.com/user55",
+    "profile_image_url": "https://img/x.png",
+    "account_age_days": 155,
+    "verified": false,
+    "verified_type": null,
+    "location": null,
+    "url": null,
+    "bio": "indie hackers \u00b7 building things \u00b7 post 55",
+    "metrics": {
+      "followers_count": 715,
+      "following_count": 105,
+      "tweet_count": 275,
+      "listed_count": 3
+    },
+    "seed_engagement": null,
+    "content": null,
+    "persona_card": null,
+    "embedding": null
+  },
+  {
+    "schema_version": "1.0",
+    "seed_account_id": "demo",
+    "relationship": "follower",
+    "enrichment_tier": 2,
+    "user_id": "u56",
+    "handle": "@user56",
+    "display_name": "User 56",
+    "profile_url": "https://x.com/user56",
+    "profile_image_url": "https://img/x.png",
+    "account_age_days": 156,
+    "verified": true,
+    "verified_type": null,
+    "location": null,
+    "url": null,
+    "bio": "growth marketers \u00b7 building things \u00b7 post 56",
+    "metrics": {
+      "followers_count": 728,
+      "following_count": 106,
+      "tweet_count": 280,
+      "listed_count": 0
+    },
+    "seed_engagement": null,
+    "content": {
+      "sample_posts": [
+        {
+          "text": "thoughts on growth marketers #56",
+          "type": "original",
+          "created_at": "2026-08-05T00:00:00Z",
+          "mentions": [],
+          "hashtags": [],
+          "referenced_user": null,
+          "metrics": {
+            "like": 56.0,
+            "reply": 1.0,
+            "repost": 0,
+            "bookmark": 0
+          }
+        }
+      ],
+      "context_annotations": [
+        {
+          "domain": "Technology",
+          "entity": "growth marketers",
+          "count": 3
+        }
+      ],
+      "avg_engagement": {
+        "like": 56.0,
+        "reply": 0,
+        "repost": 0,
+        "bookmark": 0
+      }
+    },
+    "persona_card": {
+      "archetype": "growth marketers",
+      "one_liner": "A growth marketer",
+      "ranked_interests": [
+        "growth marketers",
+        "startups"
+      ],
+      "preferred_formats": [
+        "threads"
+      ],
+      "tone_affinity": "candid",
+      "conversion_levers": [
+        "proof"
+      ],
+      "summary": "A member of growth marketers."
+    },
+    "embedding": null
+  },
+  {
+    "schema_version": "1.0",
+    "seed_account_id": "demo",
+    "relationship": "follower",
+    "enrichment_tier": 2,
+    "user_id": "u57",
+    "handle": "@user57",
+    "display_name": "User 57",
+    "profile_url": "https://x.com/user57",
+    "profile_image_url": "https://img/x.png",
+    "account_age_days": 157,
+    "verified": false,
+    "verified_type": null,
+    "location": null,
+    "url": null,
+    "bio": "crypto builders \u00b7 building things \u00b7 post 57",
+    "metrics": {
+      "followers_count": 741,
+      "following_count": 107,
+      "tweet_count": 285,
+      "listed_count": 1
+    },
+    "seed_engagement": null,
+    "content": {
+      "sample_posts": [
+        {
+          "text": "thoughts on crypto builders #57",
+          "type": "original",
+          "created_at": "2026-08-05T00:00:00Z",
+          "mentions": [],
+          "hashtags": [],
+          "referenced_user": null,
+          "metrics": {
+            "like": 57.0,
+            "reply": 1.0,
+            "repost": 0,
+            "bookmark": 0
+          }
+        }
+      ],
+      "context_annotations": [
+        {
+          "domain": "Technology",
+          "entity": "crypto builders",
+          "count": 3
+        }
+      ],
+      "avg_engagement": {
+        "like": 57.0,
+        "reply": 0,
+        "repost": 0,
+        "bookmark": 0
+      }
+    },
+    "persona_card": {
+      "archetype": "crypto builders",
+      "one_liner": "A crypto builder",
+      "ranked_interests": [
+        "crypto builders",
+        "startups"
+      ],
+      "preferred_formats": [
+        "threads"
+      ],
+      "tone_affinity": "candid",
+      "conversion_levers": [
+        "proof"
+      ],
+      "summary": "A member of crypto builders."
+    },
+    "embedding": null
+  },
+  {
+    "schema_version": "1.0",
+    "seed_account_id": "demo",
+    "relationship": "follower",
+    "enrichment_tier": 2,
+    "user_id": "u58",
+    "handle": "@user58",
+    "display_name": "User 58",
+    "profile_url": "https://x.com/user58",
+    "profile_image_url": "https://img/x.png",
+    "account_age_days": 158,
+    "verified": false,
+    "verified_type": null,
+    "location": null,
+    "url": null,
+    "bio": "design-first founders \u00b7 building things \u00b7 post 58",
+    "metrics": {
+      "followers_count": 754,
+      "following_count": 108,
+      "tweet_count": 290,
+      "listed_count": 2
+    },
+    "seed_engagement": null,
+    "content": {
+      "sample_posts": [
+        {
+          "text": "thoughts on design-first founders #58",
+          "type": "original",
+          "created_at": "2026-08-05T00:00:00Z",
+          "mentions": [],
+          "hashtags": [],
+          "referenced_user": null,
+          "metrics": {
+            "like": 58.0,
+            "reply": 1.0,
+            "repost": 0,
+            "bookmark": 0
+          }
+        }
+      ],
+      "context_annotations": [
+        {
+          "domain": "Technology",
+          "entity": "design-first founders",
+          "count": 3
+        }
+      ],
+      "avg_engagement": {
+        "like": 58.0,
+        "reply": 0,
+        "repost": 0,
+        "bookmark": 0
+      }
+    },
+    "persona_card": {
+      "archetype": "design-first founders",
+      "one_liner": "A design-first founder",
+      "ranked_interests": [
+        "design-first founders",
+        "startups"
+      ],
+      "preferred_formats": [
+        "threads"
+      ],
+      "tone_affinity": "candid",
+      "conversion_levers": [
+        "proof"
+      ],
+      "summary": "A member of design-first founders."
+    },
+    "embedding": null
+  },
+  {
+    "schema_version": "1.0",
+    "seed_account_id": "demo",
+    "relationship": "follower",
+    "enrichment_tier": 2,
+    "user_id": "u59",
+    "handle": "@user59",
+    "display_name": "User 59",
+    "profile_url": "https://x.com/user59",
+    "profile_image_url": "https://img/x.png",
+    "account_age_days": 159,
+    "verified": false,
+    "verified_type": null,
+    "location": null,
+    "url": null,
+    "bio": "data scientists \u00b7 building things \u00b7 post 59",
+    "metrics": {
+      "followers_count": 767,
+      "following_count": 109,
+      "tweet_count": 295,
+      "listed_count": 3
+    },
+    "seed_engagement": null,
+    "content": {
+      "sample_posts": [
+        {
+          "text": "thoughts on data scientists #59",
+          "type": "original",
+          "created_at": "2026-08-05T00:00:00Z",
+          "mentions": [],
+          "hashtags": [],
+          "referenced_user": null,
+          "metrics": {
+            "like": 59.0,
+            "reply": 1.0,
+            "repost": 0,
+            "bookmark": 0
+          }
+        }
+      ],
+      "context_annotations": [
+        {
+          "domain": "Technology",
+          "entity": "data scientists",
+          "count": 3
+        }
+      ],
+      "avg_engagement": {
+        "like": 59.0,
+        "reply": 0,
+        "repost": 0,
+        "bookmark": 0
+      }
+    },
+    "persona_card": {
+      "archetype": "data scientists",
+      "one_liner": "A data scientist",
+      "ranked_interests": [
+        "data scientists",
+        "startups"
+      ],
+      "preferred_formats": [
+        "threads"
+      ],
+      "tone_affinity": "candid",
+      "conversion_levers": [
+        "proof"
+      ],
+      "summary": "A member of data scientists."
+    },
+    "embedding": null
+  },
+  {
+    "schema_version": "1.0",
+    "seed_account_id": "demo",
+    "relationship": "follower",
+    "enrichment_tier": 1,
+    "user_id": "u60",
+    "handle": "@user60",
+    "display_name": "User 60",
+    "profile_url": "https://x.com/user60",
+    "profile_image_url": "https://img/x.png",
+    "account_age_days": 160,
+    "verified": false,
+    "verified_type": null,
+    "location": null,
+    "url": null,
+    "bio": "AI-skeptic engineers \u00b7 building things \u00b7 post 60",
+    "metrics": {
+      "followers_count": 780,
+      "following_count": 110,
+      "tweet_count": 300,
+      "listed_count": 0
+    },
+    "seed_engagement": null,
+    "content": null,
+    "persona_card": null,
+    "embedding": null
+  },
+  {
+    "schema_version": "1.0",
+    "seed_account_id": "demo",
+    "relationship": "follower",
+    "enrichment_tier": 2,
+    "user_id": "u61",
+    "handle": "@user61",
+    "display_name": "User 61",
+    "profile_url": "https://x.com/user61",
+    "profile_image_url": "https://img/x.png",
+    "account_age_days": 161,
+    "verified": false,
+    "verified_type": null,
+    "location": null,
+    "url": null,
+    "bio": "indie hackers \u00b7 building things \u00b7 post 61",
+    "metrics": {
+      "followers_count": 793,
+      "following_count": 111,
+      "tweet_count": 305,
+      "listed_count": 1
+    },
+    "seed_engagement": null,
+    "content": {
+      "sample_posts": [
+        {
+          "text": "thoughts on indie hackers #61",
+          "type": "original",
+          "created_at": "2026-08-05T00:00:00Z",
+          "mentions": [],
+          "hashtags": [],
+          "referenced_user": null,
+          "metrics": {
+            "like": 61.0,
+            "reply": 1.0,
+            "repost": 0,
+            "bookmark": 0
+          }
+        }
+      ],
+      "context_annotations": [
+        {
+          "domain": "Technology",
+          "entity": "indie hackers",
+          "count": 3
+        }
+      ],
+      "avg_engagement": {
+        "like": 61.0,
+        "reply": 0,
+        "repost": 0,
+        "bookmark": 0
+      }
+    },
+    "persona_card": {
+      "archetype": "indie hackers",
+      "one_liner": "A indie hacker",
+      "ranked_interests": [
+        "indie hackers",
+        "startups"
+      ],
+      "preferred_formats": [
+        "threads"
+      ],
+      "tone_affinity": "candid",
+      "conversion_levers": [
+        "proof"
+      ],
+      "summary": "A member of indie hackers."
+    },
+    "embedding": null
+  },
+  {
+    "schema_version": "1.0",
+    "seed_account_id": "demo",
+    "relationship": "follower",
+    "enrichment_tier": 2,
+    "user_id": "u62",
+    "handle": "@user62",
+    "display_name": "User 62",
+    "profile_url": "https://x.com/user62",
+    "profile_image_url": "https://img/x.png",
+    "account_age_days": 162,
+    "verified": false,
+    "verified_type": null,
+    "location": null,
+    "url": null,
+    "bio": "growth marketers \u00b7 building things \u00b7 post 62",
+    "metrics": {
+      "followers_count": 806,
+      "following_count": 112,
+      "tweet_count": 310,
+      "listed_count": 2
+    },
+    "seed_engagement": null,
+    "content": {
+      "sample_posts": [
+        {
+          "text": "thoughts on growth marketers #62",
+          "type": "original",
+          "created_at": "2026-08-05T00:00:00Z",
+          "mentions": [],
+          "hashtags": [],
+          "referenced_user": null,
+          "metrics": {
+            "like": 62.0,
+            "reply": 1.0,
+            "repost": 0,
+            "bookmark": 0
+          }
+        }
+      ],
+      "context_annotations": [
+        {
+          "domain": "Technology",
+          "entity": "growth marketers",
+          "count": 3
+        }
+      ],
+      "avg_engagement": {
+        "like": 62.0,
+        "reply": 0,
+        "repost": 0,
+        "bookmark": 0
+      }
+    },
+    "persona_card": {
+      "archetype": "growth marketers",
+      "one_liner": "A growth marketer",
+      "ranked_interests": [
+        "growth marketers",
+        "startups"
+      ],
+      "preferred_formats": [
+        "threads"
+      ],
+      "tone_affinity": "candid",
+      "conversion_levers": [
+        "proof"
+      ],
+      "summary": "A member of growth marketers."
+    },
+    "embedding": null
+  },
+  {
+    "schema_version": "1.0",
+    "seed_account_id": "demo",
+    "relationship": "follower",
+    "enrichment_tier": 2,
+    "user_id": "u63",
+    "handle": "@user63",
+    "display_name": "User 63",
+    "profile_url": "https://x.com/user63",
+    "profile_image_url": "https://img/x.png",
+    "account_age_days": 163,
+    "verified": true,
+    "verified_type": null,
+    "location": null,
+    "url": null,
+    "bio": "crypto builders \u00b7 building things \u00b7 post 63",
+    "metrics": {
+      "followers_count": 819,
+      "following_count": 113,
+      "tweet_count": 315,
+      "listed_count": 3
+    },
+    "seed_engagement": null,
+    "content": {
+      "sample_posts": [
+        {
+          "text": "thoughts on crypto builders #63",
+          "type": "original",
+          "created_at": "2026-08-05T00:00:00Z",
+          "mentions": [],
+          "hashtags": [],
+          "referenced_user": null,
+          "metrics": {
+            "like": 63.0,
+            "reply": 1.0,
+            "repost": 0,
+            "bookmark": 0
+          }
+        }
+      ],
+      "context_annotations": [
+        {
+          "domain": "Technology",
+          "entity": "crypto builders",
+          "count": 3
+        }
+      ],
+      "avg_engagement": {
+        "like": 63.0,
+        "reply": 0,
+        "repost": 0,
+        "bookmark": 0
+      }
+    },
+    "persona_card": {
+      "archetype": "crypto builders",
+      "one_liner": "A crypto builder",
+      "ranked_interests": [
+        "crypto builders",
+        "startups"
+      ],
+      "preferred_formats": [
+        "threads"
+      ],
+      "tone_affinity": "candid",
+      "conversion_levers": [
+        "proof"
+      ],
+      "summary": "A member of crypto builders."
+    },
+    "embedding": null
+  },
+  {
+    "schema_version": "1.0",
+    "seed_account_id": "demo",
+    "relationship": "follower",
+    "enrichment_tier": 2,
+    "user_id": "u64",
+    "handle": "@user64",
+    "display_name": "User 64",
+    "profile_url": "https://x.com/user64",
+    "profile_image_url": "https://img/x.png",
+    "account_age_days": 164,
+    "verified": false,
+    "verified_type": null,
+    "location": null,
+    "url": null,
+    "bio": "design-first founders \u00b7 building things \u00b7 post 64",
+    "metrics": {
+      "followers_count": 832,
+      "following_count": 114,
+      "tweet_count": 320,
+      "listed_count": 0
+    },
+    "seed_engagement": null,
+    "content": {
+      "sample_posts": [
+        {
+          "text": "thoughts on design-first founders #64",
+          "type": "original",
+          "created_at": "2026-08-05T00:00:00Z",
+          "mentions": [],
+          "hashtags": [],
+          "referenced_user": null,
+          "metrics": {
+            "like": 64.0,
+            "reply": 1.0,
+            "repost": 0,
+            "bookmark": 0
+          }
+        }
+      ],
+      "context_annotations": [
+        {
+          "domain": "Technology",
+          "entity": "design-first founders",
+          "count": 3
+        }
+      ],
+      "avg_engagement": {
+        "like": 64.0,
+        "reply": 0,
+        "repost": 0,
+        "bookmark": 0
+      }
+    },
+    "persona_card": {
+      "archetype": "design-first founders",
+      "one_liner": "A design-first founder",
+      "ranked_interests": [
+        "design-first founders",
+        "startups"
+      ],
+      "preferred_formats": [
+        "threads"
+      ],
+      "tone_affinity": "candid",
+      "conversion_levers": [
+        "proof"
+      ],
+      "summary": "A member of design-first founders."
+    },
+    "embedding": null
+  },
+  {
+    "schema_version": "1.0",
+    "seed_account_id": "demo",
+    "relationship": "follower",
+    "enrichment_tier": 1,
+    "user_id": "u65",
+    "handle": "@user65",
+    "display_name": "User 65",
+    "profile_url": "https://x.com/user65",
+    "profile_image_url": "https://img/x.png",
+    "account_age_days": 165,
+    "verified": false,
+    "verified_type": null,
+    "location": null,
+    "url": null,
+    "bio": "data scientists \u00b7 building things \u00b7 post 65",
+    "metrics": {
+      "followers_count": 845,
+      "following_count": 115,
+      "tweet_count": 325,
+      "listed_count": 1
+    },
+    "seed_engagement": null,
+    "content": null,
+    "persona_card": null,
+    "embedding": null
+  },
+  {
+    "schema_version": "1.0",
+    "seed_account_id": "demo",
+    "relationship": "follower",
+    "enrichment_tier": 2,
+    "user_id": "u66",
+    "handle": "@user66",
+    "display_name": "User 66",
+    "profile_url": "https://x.com/user66",
+    "profile_image_url": "https://img/x.png",
+    "account_age_days": 166,
+    "verified": false,
+    "verified_type": null,
+    "location": null,
+    "url": null,
+    "bio": "AI-skeptic engineers \u00b7 building things \u00b7 post 66",
+    "metrics": {
+      "followers_count": 858,
+      "following_count": 116,
+      "tweet_count": 330,
+      "listed_count": 2
+    },
+    "seed_engagement": null,
+    "content": {
+      "sample_posts": [
+        {
+          "text": "thoughts on AI-skeptic engineers #66",
+          "type": "original",
+          "created_at": "2026-08-05T00:00:00Z",
+          "mentions": [],
+          "hashtags": [],
+          "referenced_user": null,
+          "metrics": {
+            "like": 66.0,
+            "reply": 1.0,
+            "repost": 0,
+            "bookmark": 0
+          }
+        }
+      ],
+      "context_annotations": [
+        {
+          "domain": "Technology",
+          "entity": "AI-skeptic engineers",
+          "count": 3
+        }
+      ],
+      "avg_engagement": {
+        "like": 66.0,
+        "reply": 0,
+        "repost": 0,
+        "bookmark": 0
+      }
+    },
+    "persona_card": {
+      "archetype": "AI-skeptic engineers",
+      "one_liner": "A AI-skeptic engineer",
+      "ranked_interests": [
+        "AI-skeptic engineers",
+        "startups"
+      ],
+      "preferred_formats": [
+        "threads"
+      ],
+      "tone_affinity": "candid",
+      "conversion_levers": [
+        "proof"
+      ],
+      "summary": "A member of AI-skeptic engineers."
+    },
+    "embedding": null
+  },
+  {
+    "schema_version": "1.0",
+    "seed_account_id": "demo",
+    "relationship": "follower",
+    "enrichment_tier": 2,
+    "user_id": "u67",
+    "handle": "@user67",
+    "display_name": "User 67",
+    "profile_url": "https://x.com/user67",
+    "profile_image_url": "https://img/x.png",
+    "account_age_days": 167,
+    "verified": false,
+    "verified_type": null,
+    "location": null,
+    "url": null,
+    "bio": "indie hackers \u00b7 building things \u00b7 post 67",
+    "metrics": {
+      "followers_count": 871,
+      "following_count": 117,
+      "tweet_count": 335,
+      "listed_count": 3
+    },
+    "seed_engagement": null,
+    "content": {
+      "sample_posts": [
+        {
+          "text": "thoughts on indie hackers #67",
+          "type": "original",
+          "created_at": "2026-08-05T00:00:00Z",
+          "mentions": [],
+          "hashtags": [],
+          "referenced_user": null,
+          "metrics": {
+            "like": 67.0,
+            "reply": 1.0,
+            "repost": 0,
+            "bookmark": 0
+          }
+        }
+      ],
+      "context_annotations": [
+        {
+          "domain": "Technology",
+          "entity": "indie hackers",
+          "count": 3
+        }
+      ],
+      "avg_engagement": {
+        "like": 67.0,
+        "reply": 0,
+        "repost": 0,
+        "bookmark": 0
+      }
+    },
+    "persona_card": {
+      "archetype": "indie hackers",
+      "one_liner": "A indie hacker",
+      "ranked_interests": [
+        "indie hackers",
+        "startups"
+      ],
+      "preferred_formats": [
+        "threads"
+      ],
+      "tone_affinity": "candid",
+      "conversion_levers": [
+        "proof"
+      ],
+      "summary": "A member of indie hackers."
+    },
+    "embedding": null
+  },
+  {
+    "schema_version": "1.0",
+    "seed_account_id": "demo",
+    "relationship": "follower",
+    "enrichment_tier": 2,
+    "user_id": "u68",
+    "handle": "@user68",
+    "display_name": "User 68",
+    "profile_url": "https://x.com/user68",
+    "profile_image_url": "https://img/x.png",
+    "account_age_days": 168,
+    "verified": false,
+    "verified_type": null,
+    "location": null,
+    "url": null,
+    "bio": "growth marketers \u00b7 building things \u00b7 post 68",
+    "metrics": {
+      "followers_count": 884,
+      "following_count": 118,
+      "tweet_count": 340,
+      "listed_count": 0
+    },
+    "seed_engagement": null,
+    "content": {
+      "sample_posts": [
+        {
+          "text": "thoughts on growth marketers #68",
+          "type": "original",
+          "created_at": "2026-08-05T00:00:00Z",
+          "mentions": [],
+          "hashtags": [],
+          "referenced_user": null,
+          "metrics": {
+            "like": 68.0,
+            "reply": 1.0,
+            "repost": 0,
+            "bookmark": 0
+          }
+        }
+      ],
+      "context_annotations": [
+        {
+          "domain": "Technology",
+          "entity": "growth marketers",
+          "count": 3
+        }
+      ],
+      "avg_engagement": {
+        "like": 68.0,
+        "reply": 0,
+        "repost": 0,
+        "bookmark": 0
+      }
+    },
+    "persona_card": {
+      "archetype": "growth marketers",
+      "one_liner": "A growth marketer",
+      "ranked_interests": [
+        "growth marketers",
+        "startups"
+      ],
+      "preferred_formats": [
+        "threads"
+      ],
+      "tone_affinity": "candid",
+      "conversion_levers": [
+        "proof"
+      ],
+      "summary": "A member of growth marketers."
+    },
+    "embedding": null
+  },
+  {
+    "schema_version": "1.0",
+    "seed_account_id": "demo",
+    "relationship": "follower",
+    "enrichment_tier": 2,
+    "user_id": "u69",
+    "handle": "@user69",
+    "display_name": "User 69",
+    "profile_url": "https://x.com/user69",
+    "profile_image_url": "https://img/x.png",
+    "account_age_days": 169,
+    "verified": false,
+    "verified_type": null,
+    "location": null,
+    "url": null,
+    "bio": "crypto builders \u00b7 building things \u00b7 post 69",
+    "metrics": {
+      "followers_count": 897,
+      "following_count": 119,
+      "tweet_count": 345,
+      "listed_count": 1
+    },
+    "seed_engagement": null,
+    "content": {
+      "sample_posts": [
+        {
+          "text": "thoughts on crypto builders #69",
+          "type": "original",
+          "created_at": "2026-08-05T00:00:00Z",
+          "mentions": [],
+          "hashtags": [],
+          "referenced_user": null,
+          "metrics": {
+            "like": 69.0,
+            "reply": 1.0,
+            "repost": 0,
+            "bookmark": 0
+          }
+        }
+      ],
+      "context_annotations": [
+        {
+          "domain": "Technology",
+          "entity": "crypto builders",
+          "count": 3
+        }
+      ],
+      "avg_engagement": {
+        "like": 69.0,
+        "reply": 0,
+        "repost": 0,
+        "bookmark": 0
+      }
+    },
+    "persona_card": {
+      "archetype": "crypto builders",
+      "one_liner": "A crypto builder",
+      "ranked_interests": [
+        "crypto builders",
+        "startups"
+      ],
+      "preferred_formats": [
+        "threads"
+      ],
+      "tone_affinity": "candid",
+      "conversion_levers": [
+        "proof"
+      ],
+      "summary": "A member of crypto builders."
+    },
+    "embedding": null
+  },
+  {
+    "schema_version": "1.0",
+    "seed_account_id": "demo",
+    "relationship": "follower",
+    "enrichment_tier": 1,
+    "user_id": "u70",
+    "handle": "@user70",
+    "display_name": "User 70",
+    "profile_url": "https://x.com/user70",
+    "profile_image_url": "https://img/x.png",
+    "account_age_days": 170,
+    "verified": true,
+    "verified_type": null,
+    "location": null,
+    "url": null,
+    "bio": "design-first founders \u00b7 building things \u00b7 post 70",
+    "metrics": {
+      "followers_count": 910,
+      "following_count": 120,
+      "tweet_count": 350,
+      "listed_count": 2
+    },
+    "seed_engagement": null,
+    "content": null,
+    "persona_card": null,
+    "embedding": null
+  },
+  {
+    "schema_version": "1.0",
+    "seed_account_id": "demo",
+    "relationship": "follower",
+    "enrichment_tier": 2,
+    "user_id": "u71",
+    "handle": "@user71",
+    "display_name": "User 71",
+    "profile_url": "https://x.com/user71",
+    "profile_image_url": "https://img/x.png",
+    "account_age_days": 171,
+    "verified": false,
+    "verified_type": null,
+    "location": null,
+    "url": null,
+    "bio": "data scientists \u00b7 building things \u00b7 post 71",
+    "metrics": {
+      "followers_count": 923,
+      "following_count": 121,
+      "tweet_count": 355,
+      "listed_count": 3
+    },
+    "seed_engagement": null,
+    "content": {
+      "sample_posts": [
+        {
+          "text": "thoughts on data scientists #71",
+          "type": "original",
+          "created_at": "2026-08-05T00:00:00Z",
+          "mentions": [],
+          "hashtags": [],
+          "referenced_user": null,
+          "metrics": {
+            "like": 71.0,
+            "reply": 1.0,
+            "repost": 0,
+            "bookmark": 0
+          }
+        }
+      ],
+      "context_annotations": [
+        {
+          "domain": "Technology",
+          "entity": "data scientists",
+          "count": 3
+        }
+      ],
+      "avg_engagement": {
+        "like": 71.0,
+        "reply": 0,
+        "repost": 0,
+        "bookmark": 0
+      }
+    },
+    "persona_card": {
+      "archetype": "data scientists",
+      "one_liner": "A data scientist",
+      "ranked_interests": [
+        "data scientists",
+        "startups"
+      ],
+      "preferred_formats": [
+        "threads"
+      ],
+      "tone_affinity": "candid",
+      "conversion_levers": [
+        "proof"
+      ],
+      "summary": "A member of data scientists."
+    },
+    "embedding": null
+  },
+  {
+    "schema_version": "1.0",
+    "seed_account_id": "demo",
+    "relationship": "follower",
+    "enrichment_tier": 2,
+    "user_id": "u72",
+    "handle": "@user72",
+    "display_name": "User 72",
+    "profile_url": "https://x.com/user72",
+    "profile_image_url": "https://img/x.png",
+    "account_age_days": 172,
+    "verified": false,
+    "verified_type": null,
+    "location": null,
+    "url": null,
+    "bio": "AI-skeptic engineers \u00b7 building things \u00b7 post 72",
+    "metrics": {
+      "followers_count": 936,
+      "following_count": 122,
+      "tweet_count": 360,
+      "listed_count": 0
+    },
+    "seed_engagement": null,
+    "content": {
+      "sample_posts": [
+        {
+          "text": "thoughts on AI-skeptic engineers #72",
+          "type": "original",
+          "created_at": "2026-08-05T00:00:00Z",
+          "mentions": [],
+          "hashtags": [],
+          "referenced_user": null,
+          "metrics": {
+            "like": 72.0,
+            "reply": 1.0,
+            "repost": 0,
+            "bookmark": 0
+          }
+        }
+      ],
+      "context_annotations": [
+        {
+          "domain": "Technology",
+          "entity": "AI-skeptic engineers",
+          "count": 3
+        }
+      ],
+      "avg_engagement": {
+        "like": 72.0,
+        "reply": 0,
+        "repost": 0,
+        "bookmark": 0
+      }
+    },
+    "persona_card": {
+      "archetype": "AI-skeptic engineers",
+      "one_liner": "A AI-skeptic engineer",
+      "ranked_interests": [
+        "AI-skeptic engineers",
+        "startups"
+      ],
+      "preferred_formats": [
+        "threads"
+      ],
+      "tone_affinity": "candid",
+      "conversion_levers": [
+        "proof"
+      ],
+      "summary": "A member of AI-skeptic engineers."
+    },
+    "embedding": null
+  },
+  {
+    "schema_version": "1.0",
+    "seed_account_id": "demo",
+    "relationship": "follower",
+    "enrichment_tier": 2,
+    "user_id": "u73",
+    "handle": "@user73",
+    "display_name": "User 73",
+    "profile_url": "https://x.com/user73",
+    "profile_image_url": "https://img/x.png",
+    "account_age_days": 173,
+    "verified": false,
+    "verified_type": null,
+    "location": null,
+    "url": null,
+    "bio": "indie hackers \u00b7 building things \u00b7 post 73",
+    "metrics": {
+      "followers_count": 949,
+      "following_count": 123,
+      "tweet_count": 365,
+      "listed_count": 1
+    },
+    "seed_engagement": null,
+    "content": {
+      "sample_posts": [
+        {
+          "text": "thoughts on indie hackers #73",
+          "type": "original",
+          "created_at": "2026-08-05T00:00:00Z",
+          "mentions": [],
+          "hashtags": [],
+          "referenced_user": null,
+          "metrics": {
+            "like": 73.0,
+            "reply": 1.0,
+            "repost": 0,
+            "bookmark": 0
+          }
+        }
+      ],
+      "context_annotations": [
+        {
+          "domain": "Technology",
+          "entity": "indie hackers",
+          "count": 3
+        }
+      ],
+      "avg_engagement": {
+        "like": 73.0,
+        "reply": 0,
+        "repost": 0,
+        "bookmark": 0
+      }
+    },
+    "persona_card": {
+      "archetype": "indie hackers",
+      "one_liner": "A indie hacker",
+      "ranked_interests": [
+        "indie hackers",
+        "startups"
+      ],
+      "preferred_formats": [
+        "threads"
+      ],
+      "tone_affinity": "candid",
+      "conversion_levers": [
+        "proof"
+      ],
+      "summary": "A member of indie hackers."
+    },
+    "embedding": null
+  },
+  {
+    "schema_version": "1.0",
+    "seed_account_id": "demo",
+    "relationship": "follower",
+    "enrichment_tier": 2,
+    "user_id": "u74",
+    "handle": "@user74",
+    "display_name": "User 74",
+    "profile_url": "https://x.com/user74",
+    "profile_image_url": "https://img/x.png",
+    "account_age_days": 174,
+    "verified": false,
+    "verified_type": null,
+    "location": null,
+    "url": null,
+    "bio": "growth marketers \u00b7 building things \u00b7 post 74",
+    "metrics": {
+      "followers_count": 962,
+      "following_count": 124,
+      "tweet_count": 370,
+      "listed_count": 2
+    },
+    "seed_engagement": null,
+    "content": {
+      "sample_posts": [
+        {
+          "text": "thoughts on growth marketers #74",
+          "type": "original",
+          "created_at": "2026-08-05T00:00:00Z",
+          "mentions": [],
+          "hashtags": [],
+          "referenced_user": null,
+          "metrics": {
+            "like": 74.0,
+            "reply": 1.0,
+            "repost": 0,
+            "bookmark": 0
+          }
+        }
+      ],
+      "context_annotations": [
+        {
+          "domain": "Technology",
+          "entity": "growth marketers",
+          "count": 3
+        }
+      ],
+      "avg_engagement": {
+        "like": 74.0,
+        "reply": 0,
+        "repost": 0,
+        "bookmark": 0
+      }
+    },
+    "persona_card": {
+      "archetype": "growth marketers",
+      "one_liner": "A growth marketer",
+      "ranked_interests": [
+        "growth marketers",
+        "startups"
+      ],
+      "preferred_formats": [
+        "threads"
+      ],
+      "tone_affinity": "candid",
+      "conversion_levers": [
+        "proof"
+      ],
+      "summary": "A member of growth marketers."
+    },
+    "embedding": null
+  },
+  {
+    "schema_version": "1.0",
+    "seed_account_id": "demo",
+    "relationship": "follower",
+    "enrichment_tier": 1,
+    "user_id": "u75",
+    "handle": "@user75",
+    "display_name": "User 75",
+    "profile_url": "https://x.com/user75",
+    "profile_image_url": "https://img/x.png",
+    "account_age_days": 175,
+    "verified": false,
+    "verified_type": null,
+    "location": null,
+    "url": null,
+    "bio": "crypto builders \u00b7 building things \u00b7 post 75",
+    "metrics": {
+      "followers_count": 975,
+      "following_count": 125,
+      "tweet_count": 375,
+      "listed_count": 3
+    },
+    "seed_engagement": null,
+    "content": null,
+    "persona_card": null,
+    "embedding": null
+  },
+  {
+    "schema_version": "1.0",
+    "seed_account_id": "demo",
+    "relationship": "follower",
+    "enrichment_tier": 2,
+    "user_id": "u76",
+    "handle": "@user76",
+    "display_name": "User 76",
+    "profile_url": "https://x.com/user76",
+    "profile_image_url": "https://img/x.png",
+    "account_age_days": 176,
+    "verified": false,
+    "verified_type": null,
+    "location": null,
+    "url": null,
+    "bio": "design-first founders \u00b7 building things \u00b7 post 76",
+    "metrics": {
+      "followers_count": 988,
+      "following_count": 126,
+      "tweet_count": 380,
+      "listed_count": 0
+    },
+    "seed_engagement": null,
+    "content": {
+      "sample_posts": [
+        {
+          "text": "thoughts on design-first founders #76",
+          "type": "original",
+          "created_at": "2026-08-05T00:00:00Z",
+          "mentions": [],
+          "hashtags": [],
+          "referenced_user": null,
+          "metrics": {
+            "like": 76.0,
+            "reply": 1.0,
+            "repost": 0,
+            "bookmark": 0
+          }
+        }
+      ],
+      "context_annotations": [
+        {
+          "domain": "Technology",
+          "entity": "design-first founders",
+          "count": 3
+        }
+      ],
+      "avg_engagement": {
+        "like": 76.0,
+        "reply": 0,
+        "repost": 0,
+        "bookmark": 0
+      }
+    },
+    "persona_card": {
+      "archetype": "design-first founders",
+      "one_liner": "A design-first founder",
+      "ranked_interests": [
+        "design-first founders",
+        "startups"
+      ],
+      "preferred_formats": [
+        "threads"
+      ],
+      "tone_affinity": "candid",
+      "conversion_levers": [
+        "proof"
+      ],
+      "summary": "A member of design-first founders."
+    },
+    "embedding": null
+  },
+  {
+    "schema_version": "1.0",
+    "seed_account_id": "demo",
+    "relationship": "follower",
+    "enrichment_tier": 2,
+    "user_id": "u77",
+    "handle": "@user77",
+    "display_name": "User 77",
+    "profile_url": "https://x.com/user77",
+    "profile_image_url": "https://img/x.png",
+    "account_age_days": 177,
+    "verified": true,
+    "verified_type": null,
+    "location": null,
+    "url": null,
+    "bio": "data scientists \u00b7 building things \u00b7 post 77",
+    "metrics": {
+      "followers_count": 1001,
+      "following_count": 127,
+      "tweet_count": 385,
+      "listed_count": 1
+    },
+    "seed_engagement": null,
+    "content": {
+      "sample_posts": [
+        {
+          "text": "thoughts on data scientists #77",
+          "type": "original",
+          "created_at": "2026-08-05T00:00:00Z",
+          "mentions": [],
+          "hashtags": [],
+          "referenced_user": null,
+          "metrics": {
+            "like": 77.0,
+            "reply": 1.0,
+            "repost": 0,
+            "bookmark": 0
+          }
+        }
+      ],
+      "context_annotations": [
+        {
+          "domain": "Technology",
+          "entity": "data scientists",
+          "count": 3
+        }
+      ],
+      "avg_engagement": {
+        "like": 77.0,
+        "reply": 0,
+        "repost": 0,
+        "bookmark": 0
+      }
+    },
+    "persona_card": {
+      "archetype": "data scientists",
+      "one_liner": "A data scientist",
+      "ranked_interests": [
+        "data scientists",
+        "startups"
+      ],
+      "preferred_formats": [
+        "threads"
+      ],
+      "tone_affinity": "candid",
+      "conversion_levers": [
+        "proof"
+      ],
+      "summary": "A member of data scientists."
+    },
+    "embedding": null
+  },
+  {
+    "schema_version": "1.0",
+    "seed_account_id": "demo",
+    "relationship": "follower",
+    "enrichment_tier": 2,
+    "user_id": "u78",
+    "handle": "@user78",
+    "display_name": "User 78",
+    "profile_url": "https://x.com/user78",
+    "profile_image_url": "https://img/x.png",
+    "account_age_days": 178,
+    "verified": false,
+    "verified_type": null,
+    "location": null,
+    "url": null,
+    "bio": "AI-skeptic engineers \u00b7 building things \u00b7 post 78",
+    "metrics": {
+      "followers_count": 1014,
+      "following_count": 128,
+      "tweet_count": 390,
+      "listed_count": 2
+    },
+    "seed_engagement": null,
+    "content": {
+      "sample_posts": [
+        {
+          "text": "thoughts on AI-skeptic engineers #78",
+          "type": "original",
+          "created_at": "2026-08-05T00:00:00Z",
+          "mentions": [],
+          "hashtags": [],
+          "referenced_user": null,
+          "metrics": {
+            "like": 78.0,
+            "reply": 1.0,
+            "repost": 0,
+            "bookmark": 0
+          }
+        }
+      ],
+      "context_annotations": [
+        {
+          "domain": "Technology",
+          "entity": "AI-skeptic engineers",
+          "count": 3
+        }
+      ],
+      "avg_engagement": {
+        "like": 78.0,
+        "reply": 0,
+        "repost": 0,
+        "bookmark": 0
+      }
+    },
+    "persona_card": {
+      "archetype": "AI-skeptic engineers",
+      "one_liner": "A AI-skeptic engineer",
+      "ranked_interests": [
+        "AI-skeptic engineers",
+        "startups"
+      ],
+      "preferred_formats": [
+        "threads"
+      ],
+      "tone_affinity": "candid",
+      "conversion_levers": [
+        "proof"
+      ],
+      "summary": "A member of AI-skeptic engineers."
+    },
+    "embedding": null
+  },
+  {
+    "schema_version": "1.0",
+    "seed_account_id": "demo",
+    "relationship": "follower",
+    "enrichment_tier": 2,
+    "user_id": "u79",
+    "handle": "@user79",
+    "display_name": "User 79",
+    "profile_url": "https://x.com/user79",
+    "profile_image_url": "https://img/x.png",
+    "account_age_days": 179,
+    "verified": false,
+    "verified_type": null,
+    "location": null,
+    "url": null,
+    "bio": "indie hackers \u00b7 building things \u00b7 post 79",
+    "metrics": {
+      "followers_count": 1027,
+      "following_count": 129,
+      "tweet_count": 395,
+      "listed_count": 3
+    },
+    "seed_engagement": null,
+    "content": {
+      "sample_posts": [
+        {
+          "text": "thoughts on indie hackers #79",
+          "type": "original",
+          "created_at": "2026-08-05T00:00:00Z",
+          "mentions": [],
+          "hashtags": [],
+          "referenced_user": null,
+          "metrics": {
+            "like": 79.0,
+            "reply": 1.0,
+            "repost": 0,
+            "bookmark": 0
+          }
+        }
+      ],
+      "context_annotations": [
+        {
+          "domain": "Technology",
+          "entity": "indie hackers",
+          "count": 3
+        }
+      ],
+      "avg_engagement": {
+        "like": 79.0,
+        "reply": 0,
+        "repost": 0,
+        "bookmark": 0
+      }
+    },
+    "persona_card": {
+      "archetype": "indie hackers",
+      "one_liner": "A indie hacker",
+      "ranked_interests": [
+        "indie hackers",
+        "startups"
+      ],
+      "preferred_formats": [
+        "threads"
+      ],
+      "tone_affinity": "candid",
+      "conversion_levers": [
+        "proof"
+      ],
+      "summary": "A member of indie hackers."
+    },
+    "embedding": null
+  },
+  {
+    "schema_version": "1.0",
+    "seed_account_id": "demo",
+    "relationship": "follower",
+    "enrichment_tier": 1,
+    "user_id": "u80",
+    "handle": "@user80",
+    "display_name": "User 80",
+    "profile_url": "https://x.com/user80",
+    "profile_image_url": "https://img/x.png",
+    "account_age_days": 180,
+    "verified": false,
+    "verified_type": null,
+    "location": null,
+    "url": null,
+    "bio": "growth marketers \u00b7 building things \u00b7 post 80",
+    "metrics": {
+      "followers_count": 1040,
+      "following_count": 130,
+      "tweet_count": 400,
+      "listed_count": 0
+    },
+    "seed_engagement": null,
+    "content": null,
+    "persona_card": null,
+    "embedding": null
+  },
+  {
+    "schema_version": "1.0",
+    "seed_account_id": "demo",
+    "relationship": "follower",
+    "enrichment_tier": 2,
+    "user_id": "u81",
+    "handle": "@user81",
+    "display_name": "User 81",
+    "profile_url": "https://x.com/user81",
+    "profile_image_url": "https://img/x.png",
+    "account_age_days": 181,
+    "verified": false,
+    "verified_type": null,
+    "location": null,
+    "url": null,
+    "bio": "crypto builders \u00b7 building things \u00b7 post 81",
+    "metrics": {
+      "followers_count": 1053,
+      "following_count": 131,
+      "tweet_count": 405,
+      "listed_count": 1
+    },
+    "seed_engagement": null,
+    "content": {
+      "sample_posts": [
+        {
+          "text": "thoughts on crypto builders #81",
+          "type": "original",
+          "created_at": "2026-08-05T00:00:00Z",
+          "mentions": [],
+          "hashtags": [],
+          "referenced_user": null,
+          "metrics": {
+            "like": 81.0,
+            "reply": 1.0,
+            "repost": 0,
+            "bookmark": 0
+          }
+        }
+      ],
+      "context_annotations": [
+        {
+          "domain": "Technology",
+          "entity": "crypto builders",
+          "count": 3
+        }
+      ],
+      "avg_engagement": {
+        "like": 81.0,
+        "reply": 0,
+        "repost": 0,
+        "bookmark": 0
+      }
+    },
+    "persona_card": {
+      "archetype": "crypto builders",
+      "one_liner": "A crypto builder",
+      "ranked_interests": [
+        "crypto builders",
+        "startups"
+      ],
+      "preferred_formats": [
+        "threads"
+      ],
+      "tone_affinity": "candid",
+      "conversion_levers": [
+        "proof"
+      ],
+      "summary": "A member of crypto builders."
+    },
+    "embedding": null
+  },
+  {
+    "schema_version": "1.0",
+    "seed_account_id": "demo",
+    "relationship": "follower",
+    "enrichment_tier": 2,
+    "user_id": "u82",
+    "handle": "@user82",
+    "display_name": "User 82",
+    "profile_url": "https://x.com/user82",
+    "profile_image_url": "https://img/x.png",
+    "account_age_days": 182,
+    "verified": false,
+    "verified_type": null,
+    "location": null,
+    "url": null,
+    "bio": "design-first founders \u00b7 building things \u00b7 post 82",
+    "metrics": {
+      "followers_count": 1066,
+      "following_count": 132,
+      "tweet_count": 410,
+      "listed_count": 2
+    },
+    "seed_engagement": null,
+    "content": {
+      "sample_posts": [
+        {
+          "text": "thoughts on design-first founders #82",
+          "type": "original",
+          "created_at": "2026-08-05T00:00:00Z",
+          "mentions": [],
+          "hashtags": [],
+          "referenced_user": null,
+          "metrics": {
+            "like": 82.0,
+            "reply": 1.0,
+            "repost": 0,
+            "bookmark": 0
+          }
+        }
+      ],
+      "context_annotations": [
+        {
+          "domain": "Technology",
+          "entity": "design-first founders",
+          "count": 3
+        }
+      ],
+      "avg_engagement": {
+        "like": 82.0,
+        "reply": 0,
+        "repost": 0,
+        "bookmark": 0
+      }
+    },
+    "persona_card": {
+      "archetype": "design-first founders",
+      "one_liner": "A design-first founder",
+      "ranked_interests": [
+        "design-first founders",
+        "startups"
+      ],
+      "preferred_formats": [
+        "threads"
+      ],
+      "tone_affinity": "candid",
+      "conversion_levers": [
+        "proof"
+      ],
+      "summary": "A member of design-first founders."
+    },
+    "embedding": null
+  },
+  {
+    "schema_version": "1.0",
+    "seed_account_id": "demo",
+    "relationship": "follower",
+    "enrichment_tier": 2,
+    "user_id": "u83",
+    "handle": "@user83",
+    "display_name": "User 83",
+    "profile_url": "https://x.com/user83",
+    "profile_image_url": "https://img/x.png",
+    "account_age_days": 183,
+    "verified": false,
+    "verified_type": null,
+    "location": null,
+    "url": null,
+    "bio": "data scientists \u00b7 building things \u00b7 post 83",
+    "metrics": {
+      "followers_count": 1079,
+      "following_count": 133,
+      "tweet_count": 415,
+      "listed_count": 3
+    },
+    "seed_engagement": null,
+    "content": {
+      "sample_posts": [
+        {
+          "text": "thoughts on data scientists #83",
+          "type": "original",
+          "created_at": "2026-08-05T00:00:00Z",
+          "mentions": [],
+          "hashtags": [],
+          "referenced_user": null,
+          "metrics": {
+            "like": 83.0,
+            "reply": 1.0,
+            "repost": 0,
+            "bookmark": 0
+          }
+        }
+      ],
+      "context_annotations": [
+        {
+          "domain": "Technology",
+          "entity": "data scientists",
+          "count": 3
+        }
+      ],
+      "avg_engagement": {
+        "like": 83.0,
+        "reply": 0,
+        "repost": 0,
+        "bookmark": 0
+      }
+    },
+    "persona_card": {
+      "archetype": "data scientists",
+      "one_liner": "A data scientist",
+      "ranked_interests": [
+        "data scientists",
+        "startups"
+      ],
+      "preferred_formats": [
+        "threads"
+      ],
+      "tone_affinity": "candid",
+      "conversion_levers": [
+        "proof"
+      ],
+      "summary": "A member of data scientists."
+    },
+    "embedding": null
+  },
+  {
+    "schema_version": "1.0",
+    "seed_account_id": "demo",
+    "relationship": "follower",
+    "enrichment_tier": 2,
+    "user_id": "u84",
+    "handle": "@user84",
+    "display_name": "User 84",
+    "profile_url": "https://x.com/user84",
+    "profile_image_url": "https://img/x.png",
+    "account_age_days": 184,
+    "verified": true,
+    "verified_type": null,
+    "location": null,
+    "url": null,
+    "bio": "AI-skeptic engineers \u00b7 building things \u00b7 post 84",
+    "metrics": {
+      "followers_count": 1092,
+      "following_count": 134,
+      "tweet_count": 420,
+      "listed_count": 0
+    },
+    "seed_engagement": null,
+    "content": {
+      "sample_posts": [
+        {
+          "text": "thoughts on AI-skeptic engineers #84",
+          "type": "original",
+          "created_at": "2026-08-05T00:00:00Z",
+          "mentions": [],
+          "hashtags": [],
+          "referenced_user": null,
+          "metrics": {
+            "like": 84.0,
+            "reply": 1.0,
+            "repost": 0,
+            "bookmark": 0
+          }
+        }
+      ],
+      "context_annotations": [
+        {
+          "domain": "Technology",
+          "entity": "AI-skeptic engineers",
+          "count": 3
+        }
+      ],
+      "avg_engagement": {
+        "like": 84.0,
+        "reply": 0,
+        "repost": 0,
+        "bookmark": 0
+      }
+    },
+    "persona_card": {
+      "archetype": "AI-skeptic engineers",
+      "one_liner": "A AI-skeptic engineer",
+      "ranked_interests": [
+        "AI-skeptic engineers",
+        "startups"
+      ],
+      "preferred_formats": [
+        "threads"
+      ],
+      "tone_affinity": "candid",
+      "conversion_levers": [
+        "proof"
+      ],
+      "summary": "A member of AI-skeptic engineers."
+    },
+    "embedding": null
+  },
+  {
+    "schema_version": "1.0",
+    "seed_account_id": "demo",
+    "relationship": "follower",
+    "enrichment_tier": 1,
+    "user_id": "u85",
+    "handle": "@user85",
+    "display_name": "User 85",
+    "profile_url": "https://x.com/user85",
+    "profile_image_url": "https://img/x.png",
+    "account_age_days": 185,
+    "verified": false,
+    "verified_type": null,
+    "location": null,
+    "url": null,
+    "bio": "indie hackers \u00b7 building things \u00b7 post 85",
+    "metrics": {
+      "followers_count": 1105,
+      "following_count": 135,
+      "tweet_count": 425,
+      "listed_count": 1
+    },
+    "seed_engagement": null,
+    "content": null,
+    "persona_card": null,
+    "embedding": null
+  },
+  {
+    "schema_version": "1.0",
+    "seed_account_id": "demo",
+    "relationship": "follower",
+    "enrichment_tier": 2,
+    "user_id": "u86",
+    "handle": "@user86",
+    "display_name": "User 86",
+    "profile_url": "https://x.com/user86",
+    "profile_image_url": "https://img/x.png",
+    "account_age_days": 186,
+    "verified": false,
+    "verified_type": null,
+    "location": null,
+    "url": null,
+    "bio": "growth marketers \u00b7 building things \u00b7 post 86",
+    "metrics": {
+      "followers_count": 1118,
+      "following_count": 136,
+      "tweet_count": 430,
+      "listed_count": 2
+    },
+    "seed_engagement": null,
+    "content": {
+      "sample_posts": [
+        {
+          "text": "thoughts on growth marketers #86",
+          "type": "original",
+          "created_at": "2026-08-05T00:00:00Z",
+          "mentions": [],
+          "hashtags": [],
+          "referenced_user": null,
+          "metrics": {
+            "like": 86.0,
+            "reply": 1.0,
+            "repost": 0,
+            "bookmark": 0
+          }
+        }
+      ],
+      "context_annotations": [
+        {
+          "domain": "Technology",
+          "entity": "growth marketers",
+          "count": 3
+        }
+      ],
+      "avg_engagement": {
+        "like": 86.0,
+        "reply": 0,
+        "repost": 0,
+        "bookmark": 0
+      }
+    },
+    "persona_card": {
+      "archetype": "growth marketers",
+      "one_liner": "A growth marketer",
+      "ranked_interests": [
+        "growth marketers",
+        "startups"
+      ],
+      "preferred_formats": [
+        "threads"
+      ],
+      "tone_affinity": "candid",
+      "conversion_levers": [
+        "proof"
+      ],
+      "summary": "A member of growth marketers."
+    },
+    "embedding": null
+  },
+  {
+    "schema_version": "1.0",
+    "seed_account_id": "demo",
+    "relationship": "follower",
+    "enrichment_tier": 2,
+    "user_id": "u87",
+    "handle": "@user87",
+    "display_name": "User 87",
+    "profile_url": "https://x.com/user87",
+    "profile_image_url": "https://img/x.png",
+    "account_age_days": 187,
+    "verified": false,
+    "verified_type": null,
+    "location": null,
+    "url": null,
+    "bio": "crypto builders \u00b7 building things \u00b7 post 87",
+    "metrics": {
+      "followers_count": 1131,
+      "following_count": 137,
+      "tweet_count": 435,
+      "listed_count": 3
+    },
+    "seed_engagement": null,
+    "content": {
+      "sample_posts": [
+        {
+          "text": "thoughts on crypto builders #87",
+          "type": "original",
+          "created_at": "2026-08-05T00:00:00Z",
+          "mentions": [],
+          "hashtags": [],
+          "referenced_user": null,
+          "metrics": {
+            "like": 87.0,
+            "reply": 1.0,
+            "repost": 0,
+            "bookmark": 0
+          }
+        }
+      ],
+      "context_annotations": [
+        {
+          "domain": "Technology",
+          "entity": "crypto builders",
+          "count": 3
+        }
+      ],
+      "avg_engagement": {
+        "like": 87.0,
+        "reply": 0,
+        "repost": 0,
+        "bookmark": 0
+      }
+    },
+    "persona_card": {
+      "archetype": "crypto builders",
+      "one_liner": "A crypto builder",
+      "ranked_interests": [
+        "crypto builders",
+        "startups"
+      ],
+      "preferred_formats": [
+        "threads"
+      ],
+      "tone_affinity": "candid",
+      "conversion_levers": [
+        "proof"
+      ],
+      "summary": "A member of crypto builders."
+    },
+    "embedding": null
+  },
+  {
+    "schema_version": "1.0",
+    "seed_account_id": "demo",
+    "relationship": "follower",
+    "enrichment_tier": 2,
+    "user_id": "u88",
+    "handle": "@user88",
+    "display_name": "User 88",
+    "profile_url": "https://x.com/user88",
+    "profile_image_url": "https://img/x.png",
+    "account_age_days": 188,
+    "verified": false,
+    "verified_type": null,
+    "location": null,
+    "url": null,
+    "bio": "design-first founders \u00b7 building things \u00b7 post 88",
+    "metrics": {
+      "followers_count": 1144,
+      "following_count": 138,
+      "tweet_count": 440,
+      "listed_count": 0
+    },
+    "seed_engagement": null,
+    "content": {
+      "sample_posts": [
+        {
+          "text": "thoughts on design-first founders #88",
+          "type": "original",
+          "created_at": "2026-08-05T00:00:00Z",
+          "mentions": [],
+          "hashtags": [],
+          "referenced_user": null,
+          "metrics": {
+            "like": 88.0,
+            "reply": 1.0,
+            "repost": 0,
+            "bookmark": 0
+          }
+        }
+      ],
+      "context_annotations": [
+        {
+          "domain": "Technology",
+          "entity": "design-first founders",
+          "count": 3
+        }
+      ],
+      "avg_engagement": {
+        "like": 88.0,
+        "reply": 0,
+        "repost": 0,
+        "bookmark": 0
+      }
+    },
+    "persona_card": {
+      "archetype": "design-first founders",
+      "one_liner": "A design-first founder",
+      "ranked_interests": [
+        "design-first founders",
+        "startups"
+      ],
+      "preferred_formats": [
+        "threads"
+      ],
+      "tone_affinity": "candid",
+      "conversion_levers": [
+        "proof"
+      ],
+      "summary": "A member of design-first founders."
+    },
+    "embedding": null
+  },
+  {
+    "schema_version": "1.0",
+    "seed_account_id": "demo",
+    "relationship": "follower",
+    "enrichment_tier": 2,
+    "user_id": "u89",
+    "handle": "@user89",
+    "display_name": "User 89",
+    "profile_url": "https://x.com/user89",
+    "profile_image_url": "https://img/x.png",
+    "account_age_days": 189,
+    "verified": false,
+    "verified_type": null,
+    "location": null,
+    "url": null,
+    "bio": "data scientists \u00b7 building things \u00b7 post 89",
+    "metrics": {
+      "followers_count": 1157,
+      "following_count": 139,
+      "tweet_count": 445,
+      "listed_count": 1
+    },
+    "seed_engagement": null,
+    "content": {
+      "sample_posts": [
+        {
+          "text": "thoughts on data scientists #89",
+          "type": "original",
+          "created_at": "2026-08-05T00:00:00Z",
+          "mentions": [],
+          "hashtags": [],
+          "referenced_user": null,
+          "metrics": {
+            "like": 89.0,
+            "reply": 1.0,
+            "repost": 0,
+            "bookmark": 0
+          }
+        }
+      ],
+      "context_annotations": [
+        {
+          "domain": "Technology",
+          "entity": "data scientists",
+          "count": 3
+        }
+      ],
+      "avg_engagement": {
+        "like": 89.0,
+        "reply": 0,
+        "repost": 0,
+        "bookmark": 0
+      }
+    },
+    "persona_card": {
+      "archetype": "data scientists",
+      "one_liner": "A data scientist",
+      "ranked_interests": [
+        "data scientists",
+        "startups"
+      ],
+      "preferred_formats": [
+        "threads"
+      ],
+      "tone_affinity": "candid",
+      "conversion_levers": [
+        "proof"
+      ],
+      "summary": "A member of data scientists."
+    },
+    "embedding": null
+  },
+  {
+    "schema_version": "1.0",
+    "seed_account_id": "demo",
+    "relationship": "follower",
+    "enrichment_tier": 1,
+    "user_id": "u90",
+    "handle": "@user90",
+    "display_name": "User 90",
+    "profile_url": "https://x.com/user90",
+    "profile_image_url": "https://img/x.png",
+    "account_age_days": 190,
+    "verified": false,
+    "verified_type": null,
+    "location": null,
+    "url": null,
+    "bio": "AI-skeptic engineers \u00b7 building things \u00b7 post 90",
+    "metrics": {
+      "followers_count": 1170,
+      "following_count": 140,
+      "tweet_count": 450,
+      "listed_count": 2
+    },
+    "seed_engagement": null,
+    "content": null,
+    "persona_card": null,
+    "embedding": null
+  },
+  {
+    "schema_version": "1.0",
+    "seed_account_id": "demo",
+    "relationship": "follower",
+    "enrichment_tier": 2,
+    "user_id": "u91",
+    "handle": "@user91",
+    "display_name": "User 91",
+    "profile_url": "https://x.com/user91",
+    "profile_image_url": "https://img/x.png",
+    "account_age_days": 191,
+    "verified": true,
+    "verified_type": null,
+    "location": null,
+    "url": null,
+    "bio": "indie hackers \u00b7 building things \u00b7 post 91",
+    "metrics": {
+      "followers_count": 1183,
+      "following_count": 141,
+      "tweet_count": 455,
+      "listed_count": 3
+    },
+    "seed_engagement": null,
+    "content": {
+      "sample_posts": [
+        {
+          "text": "thoughts on indie hackers #91",
+          "type": "original",
+          "created_at": "2026-08-05T00:00:00Z",
+          "mentions": [],
+          "hashtags": [],
+          "referenced_user": null,
+          "metrics": {
+            "like": 91.0,
+            "reply": 1.0,
+            "repost": 0,
+            "bookmark": 0
+          }
+        }
+      ],
+      "context_annotations": [
+        {
+          "domain": "Technology",
+          "entity": "indie hackers",
+          "count": 3
+        }
+      ],
+      "avg_engagement": {
+        "like": 91.0,
+        "reply": 0,
+        "repost": 0,
+        "bookmark": 0
+      }
+    },
+    "persona_card": {
+      "archetype": "indie hackers",
+      "one_liner": "A indie hacker",
+      "ranked_interests": [
+        "indie hackers",
+        "startups"
+      ],
+      "preferred_formats": [
+        "threads"
+      ],
+      "tone_affinity": "candid",
+      "conversion_levers": [
+        "proof"
+      ],
+      "summary": "A member of indie hackers."
+    },
+    "embedding": null
+  },
+  {
+    "schema_version": "1.0",
+    "seed_account_id": "demo",
+    "relationship": "follower",
+    "enrichment_tier": 2,
+    "user_id": "u92",
+    "handle": "@user92",
+    "display_name": "User 92",
+    "profile_url": "https://x.com/user92",
+    "profile_image_url": "https://img/x.png",
+    "account_age_days": 192,
+    "verified": false,
+    "verified_type": null,
+    "location": null,
+    "url": null,
+    "bio": "growth marketers \u00b7 building things \u00b7 post 92",
+    "metrics": {
+      "followers_count": 1196,
+      "following_count": 142,
+      "tweet_count": 460,
+      "listed_count": 0
+    },
+    "seed_engagement": null,
+    "content": {
+      "sample_posts": [
+        {
+          "text": "thoughts on growth marketers #92",
+          "type": "original",
+          "created_at": "2026-08-05T00:00:00Z",
+          "mentions": [],
+          "hashtags": [],
+          "referenced_user": null,
+          "metrics": {
+            "like": 92.0,
+            "reply": 1.0,
+            "repost": 0,
+            "bookmark": 0
+          }
+        }
+      ],
+      "context_annotations": [
+        {
+          "domain": "Technology",
+          "entity": "growth marketers",
+          "count": 3
+        }
+      ],
+      "avg_engagement": {
+        "like": 92.0,
+        "reply": 0,
+        "repost": 0,
+        "bookmark": 0
+      }
+    },
+    "persona_card": {
+      "archetype": "growth marketers",
+      "one_liner": "A growth marketer",
+      "ranked_interests": [
+        "growth marketers",
+        "startups"
+      ],
+      "preferred_formats": [
+        "threads"
+      ],
+      "tone_affinity": "candid",
+      "conversion_levers": [
+        "proof"
+      ],
+      "summary": "A member of growth marketers."
+    },
+    "embedding": null
+  },
+  {
+    "schema_version": "1.0",
+    "seed_account_id": "demo",
+    "relationship": "follower",
+    "enrichment_tier": 2,
+    "user_id": "u93",
+    "handle": "@user93",
+    "display_name": "User 93",
+    "profile_url": "https://x.com/user93",
+    "profile_image_url": "https://img/x.png",
+    "account_age_days": 193,
+    "verified": false,
+    "verified_type": null,
+    "location": null,
+    "url": null,
+    "bio": "crypto builders \u00b7 building things \u00b7 post 93",
+    "metrics": {
+      "followers_count": 1209,
+      "following_count": 143,
+      "tweet_count": 465,
+      "listed_count": 1
+    },
+    "seed_engagement": null,
+    "content": {
+      "sample_posts": [
+        {
+          "text": "thoughts on crypto builders #93",
+          "type": "original",
+          "created_at": "2026-08-05T00:00:00Z",
+          "mentions": [],
+          "hashtags": [],
+          "referenced_user": null,
+          "metrics": {
+            "like": 93.0,
+            "reply": 1.0,
+            "repost": 0,
+            "bookmark": 0
+          }
+        }
+      ],
+      "context_annotations": [
+        {
+          "domain": "Technology",
+          "entity": "crypto builders",
+          "count": 3
+        }
+      ],
+      "avg_engagement": {
+        "like": 93.0,
+        "reply": 0,
+        "repost": 0,
+        "bookmark": 0
+      }
+    },
+    "persona_card": {
+      "archetype": "crypto builders",
+      "one_liner": "A crypto builder",
+      "ranked_interests": [
+        "crypto builders",
+        "startups"
+      ],
+      "preferred_formats": [
+        "threads"
+      ],
+      "tone_affinity": "candid",
+      "conversion_levers": [
+        "proof"
+      ],
+      "summary": "A member of crypto builders."
+    },
+    "embedding": null
+  },
+  {
+    "schema_version": "1.0",
+    "seed_account_id": "demo",
+    "relationship": "follower",
+    "enrichment_tier": 2,
+    "user_id": "u94",
+    "handle": "@user94",
+    "display_name": "User 94",
+    "profile_url": "https://x.com/user94",
+    "profile_image_url": "https://img/x.png",
+    "account_age_days": 194,
+    "verified": false,
+    "verified_type": null,
+    "location": null,
+    "url": null,
+    "bio": "design-first founders \u00b7 building things \u00b7 post 94",
+    "metrics": {
+      "followers_count": 1222,
+      "following_count": 144,
+      "tweet_count": 470,
+      "listed_count": 2
+    },
+    "seed_engagement": null,
+    "content": {
+      "sample_posts": [
+        {
+          "text": "thoughts on design-first founders #94",
+          "type": "original",
+          "created_at": "2026-08-05T00:00:00Z",
+          "mentions": [],
+          "hashtags": [],
+          "referenced_user": null,
+          "metrics": {
+            "like": 94.0,
+            "reply": 1.0,
+            "repost": 0,
+            "bookmark": 0
+          }
+        }
+      ],
+      "context_annotations": [
+        {
+          "domain": "Technology",
+          "entity": "design-first founders",
+          "count": 3
+        }
+      ],
+      "avg_engagement": {
+        "like": 94.0,
+        "reply": 0,
+        "repost": 0,
+        "bookmark": 0
+      }
+    },
+    "persona_card": {
+      "archetype": "design-first founders",
+      "one_liner": "A design-first founder",
+      "ranked_interests": [
+        "design-first founders",
+        "startups"
+      ],
+      "preferred_formats": [
+        "threads"
+      ],
+      "tone_affinity": "candid",
+      "conversion_levers": [
+        "proof"
+      ],
+      "summary": "A member of design-first founders."
+    },
+    "embedding": null
+  },
+  {
+    "schema_version": "1.0",
+    "seed_account_id": "demo",
+    "relationship": "follower",
+    "enrichment_tier": 1,
+    "user_id": "u95",
+    "handle": "@user95",
+    "display_name": "User 95",
+    "profile_url": "https://x.com/user95",
+    "profile_image_url": "https://img/x.png",
+    "account_age_days": 195,
+    "verified": false,
+    "verified_type": null,
+    "location": null,
+    "url": null,
+    "bio": "data scientists \u00b7 building things \u00b7 post 95",
+    "metrics": {
+      "followers_count": 1235,
+      "following_count": 145,
+      "tweet_count": 475,
+      "listed_count": 3
+    },
+    "seed_engagement": null,
+    "content": null,
+    "persona_card": null,
+    "embedding": null
+  },
+  {
+    "schema_version": "1.0",
+    "seed_account_id": "demo",
+    "relationship": "follower",
+    "enrichment_tier": 2,
+    "user_id": "u96",
+    "handle": "@user96",
+    "display_name": "User 96",
+    "profile_url": "https://x.com/user96",
+    "profile_image_url": "https://img/x.png",
+    "account_age_days": 196,
+    "verified": false,
+    "verified_type": null,
+    "location": null,
+    "url": null,
+    "bio": "AI-skeptic engineers \u00b7 building things \u00b7 post 96",
+    "metrics": {
+      "followers_count": 1248,
+      "following_count": 146,
+      "tweet_count": 480,
+      "listed_count": 0
+    },
+    "seed_engagement": null,
+    "content": {
+      "sample_posts": [
+        {
+          "text": "thoughts on AI-skeptic engineers #96",
+          "type": "original",
+          "created_at": "2026-08-05T00:00:00Z",
+          "mentions": [],
+          "hashtags": [],
+          "referenced_user": null,
+          "metrics": {
+            "like": 96.0,
+            "reply": 1.0,
+            "repost": 0,
+            "bookmark": 0
+          }
+        }
+      ],
+      "context_annotations": [
+        {
+          "domain": "Technology",
+          "entity": "AI-skeptic engineers",
+          "count": 3
+        }
+      ],
+      "avg_engagement": {
+        "like": 96.0,
+        "reply": 0,
+        "repost": 0,
+        "bookmark": 0
+      }
+    },
+    "persona_card": {
+      "archetype": "AI-skeptic engineers",
+      "one_liner": "A AI-skeptic engineer",
+      "ranked_interests": [
+        "AI-skeptic engineers",
+        "startups"
+      ],
+      "preferred_formats": [
+        "threads"
+      ],
+      "tone_affinity": "candid",
+      "conversion_levers": [
+        "proof"
+      ],
+      "summary": "A member of AI-skeptic engineers."
+    },
+    "embedding": null
+  },
+  {
+    "schema_version": "1.0",
+    "seed_account_id": "demo",
+    "relationship": "follower",
+    "enrichment_tier": 2,
+    "user_id": "u97",
+    "handle": "@user97",
+    "display_name": "User 97",
+    "profile_url": "https://x.com/user97",
+    "profile_image_url": "https://img/x.png",
+    "account_age_days": 197,
+    "verified": false,
+    "verified_type": null,
+    "location": null,
+    "url": null,
+    "bio": "indie hackers \u00b7 building things \u00b7 post 97",
+    "metrics": {
+      "followers_count": 1261,
+      "following_count": 147,
+      "tweet_count": 485,
+      "listed_count": 1
+    },
+    "seed_engagement": null,
+    "content": {
+      "sample_posts": [
+        {
+          "text": "thoughts on indie hackers #97",
+          "type": "original",
+          "created_at": "2026-08-05T00:00:00Z",
+          "mentions": [],
+          "hashtags": [],
+          "referenced_user": null,
+          "metrics": {
+            "like": 97.0,
+            "reply": 1.0,
+            "repost": 0,
+            "bookmark": 0
+          }
+        }
+      ],
+      "context_annotations": [
+        {
+          "domain": "Technology",
+          "entity": "indie hackers",
+          "count": 3
+        }
+      ],
+      "avg_engagement": {
+        "like": 97.0,
+        "reply": 0,
+        "repost": 0,
+        "bookmark": 0
+      }
+    },
+    "persona_card": {
+      "archetype": "indie hackers",
+      "one_liner": "A indie hacker",
+      "ranked_interests": [
+        "indie hackers",
+        "startups"
+      ],
+      "preferred_formats": [
+        "threads"
+      ],
+      "tone_affinity": "candid",
+      "conversion_levers": [
+        "proof"
+      ],
+      "summary": "A member of indie hackers."
+    },
+    "embedding": null
+  },
+  {
+    "schema_version": "1.0",
+    "seed_account_id": "demo",
+    "relationship": "follower",
+    "enrichment_tier": 2,
+    "user_id": "u98",
+    "handle": "@user98",
+    "display_name": "User 98",
+    "profile_url": "https://x.com/user98",
+    "profile_image_url": "https://img/x.png",
+    "account_age_days": 198,
+    "verified": true,
+    "verified_type": null,
+    "location": null,
+    "url": null,
+    "bio": "growth marketers \u00b7 building things \u00b7 post 98",
+    "metrics": {
+      "followers_count": 1274,
+      "following_count": 148,
+      "tweet_count": 490,
+      "listed_count": 2
+    },
+    "seed_engagement": null,
+    "content": {
+      "sample_posts": [
+        {
+          "text": "thoughts on growth marketers #98",
+          "type": "original",
+          "created_at": "2026-08-05T00:00:00Z",
+          "mentions": [],
+          "hashtags": [],
+          "referenced_user": null,
+          "metrics": {
+            "like": 98.0,
+            "reply": 1.0,
+            "repost": 0,
+            "bookmark": 0
+          }
+        }
+      ],
+      "context_annotations": [
+        {
+          "domain": "Technology",
+          "entity": "growth marketers",
+          "count": 3
+        }
+      ],
+      "avg_engagement": {
+        "like": 98.0,
+        "reply": 0,
+        "repost": 0,
+        "bookmark": 0
+      }
+    },
+    "persona_card": {
+      "archetype": "growth marketers",
+      "one_liner": "A growth marketer",
+      "ranked_interests": [
+        "growth marketers",
+        "startups"
+      ],
+      "preferred_formats": [
+        "threads"
+      ],
+      "tone_affinity": "candid",
+      "conversion_levers": [
+        "proof"
+      ],
+      "summary": "A member of growth marketers."
+    },
+    "embedding": null
+  },
+  {
+    "schema_version": "1.0",
+    "seed_account_id": "demo",
+    "relationship": "follower",
+    "enrichment_tier": 2,
+    "user_id": "u99",
+    "handle": "@user99",
+    "display_name": "User 99",
+    "profile_url": "https://x.com/user99",
+    "profile_image_url": "https://img/x.png",
+    "account_age_days": 199,
+    "verified": false,
+    "verified_type": null,
+    "location": null,
+    "url": null,
+    "bio": "crypto builders \u00b7 building things \u00b7 post 99",
+    "metrics": {
+      "followers_count": 1287,
+      "following_count": 149,
+      "tweet_count": 495,
+      "listed_count": 3
+    },
+    "seed_engagement": null,
+    "content": {
+      "sample_posts": [
+        {
+          "text": "thoughts on crypto builders #99",
+          "type": "original",
+          "created_at": "2026-08-05T00:00:00Z",
+          "mentions": [],
+          "hashtags": [],
+          "referenced_user": null,
+          "metrics": {
+            "like": 99.0,
+            "reply": 1.0,
+            "repost": 0,
+            "bookmark": 0
+          }
+        }
+      ],
+      "context_annotations": [
+        {
+          "domain": "Technology",
+          "entity": "crypto builders",
+          "count": 3
+        }
+      ],
+      "avg_engagement": {
+        "like": 99.0,
+        "reply": 0,
+        "repost": 0,
+        "bookmark": 0
+      }
+    },
+    "persona_card": {
+      "archetype": "crypto builders",
+      "one_liner": "A crypto builder",
+      "ranked_interests": [
+        "crypto builders",
+        "startups"
+      ],
+      "preferred_formats": [
+        "threads"
+      ],
+      "tone_affinity": "candid",
+      "conversion_levers": [
+        "proof"
+      ],
+      "summary": "A member of crypto builders."
+    },
+    "embedding": null
+  }
+]

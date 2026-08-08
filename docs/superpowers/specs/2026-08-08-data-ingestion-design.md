@@ -16,7 +16,7 @@ metering, fixtures, and a FastAPI surface the rest of the team builds against.
 Grok Imagine (C), UI (D). We expose a stubbed `/clusters` endpoint returning
 fixtures so C/D are unblocked from minute one.
 
-**Seed-agnostic:** the pipeline takes *any* account ID — the founder's own
+**Seed-agnostic:** the pipeline takes _any_ account ID — the founder's own
 account or a competitor/adjacent account — enabling the discovery flow with no
 code change.
 
@@ -24,17 +24,17 @@ code change.
 
 ### X API — pay-as-you-go metered credits (budget: $250 total)
 
-| Resource | Cost | Notes |
-| --- | --- | --- |
-| Followers/following read | **$0.010 / record** (owned $0.001) | most expensive read; 1000/page; 300 req/15min |
-| User read | $0.010 / record | **returned inline in followers response — no separate call** |
-| Post read | **$0.005 / record** (owned $0.001) | timeline `max_results` 5–100; ~3,200-post history cap |
-| Post create (plain) | $0.015 | teammate D's deploy step |
-| Post create **with URL** | **$0.200** | ⚠️ avoid links in posted content where possible |
+| Resource                 | Cost                               | Notes                                                        |
+| ------------------------ | ---------------------------------- | ------------------------------------------------------------ |
+| Followers/following read | **$0.010 / record** (owned $0.001) | most expensive read; 1000/page; 300 req/15min                |
+| User read                | $0.010 / record                    | **returned inline in followers response — no separate call** |
+| Post read                | **$0.005 / record** (owned $0.001) | timeline `max_results` 5–100; ~3,200-post history cap        |
+| Post create (plain)      | $0.015                             | teammate D's deploy step                                     |
+| Post create **with URL** | **$0.200**                         | ⚠️ avoid links in posted content where possible              |
 
 - **24h UTC dedup:** re-reading the same resource within a day is **free**. Caching
   is literal money — every call is cache-checked first.
-- **`liked_tweets` returns only the *authenticated user's own* likes** (private-Likes
+- **`liked_tweets` returns only the _authenticated user's own_ likes** (private-Likes
   change). Not viable for arbitrary followers → **likes dropped from ingestion.**
   Reposts/replies still arrive via the timeline.
 - Spend-cap hit surfaces as HTTP **403 "billing cycle spend cap"** (not a 429);
@@ -126,44 +126,63 @@ through the cost meter, which checks the ledger and hard-stops before the $250 c
 ```jsonc
 {
   "schema_version": "1.0",
-  "seed_account_id": "…",          // whose audience this belongs to (founder OR discovery seed)
-  "relationship": "follower",      // follower | following | seed_topic
-  "enrichment_tier": 2,            // 1 = bio-only (cheap, ~80% of audience) · 2 = deep (sampled)
+  "seed_account_id": "…", // whose audience this belongs to (founder OR discovery seed)
+  "relationship": "follower", // follower | following | seed_topic
+  "enrichment_tier": 2, // 1 = bio-only (cheap, ~80% of audience) · 2 = deep (sampled)
 
   // ── Identity (ALWAYS present — tier 1 + 2) ──
-  "user_id": "…", "handle": "@…", "display_name": "…",
-  "profile_url": "https://x.com/…",   // direct link to the X profile
-  "account_age_days": 3120, "verified": true, "verified_type": "blue",
-  "location": "SF", "url": "…", "profile_image_url": "…",
+  "user_id": "…",
+  "handle": "@…",
+  "display_name": "…",
+  "profile_url": "https://x.com/…", // direct link to the X profile
+  "account_age_days": 3120,
+  "verified": true,
+  "verified_type": "blue",
+  "location": "SF",
+  "url": "…",
+  "profile_image_url": "…",
 
   // ── Bio (ALWAYS present) — raw text ──
   "bio": "…",
 
   // ── Metrics (ALWAYS present) — raw counts, stored for ranking, NOT embedded ──
   "metrics": {
-    "followers_count": 0, "following_count": 0, "tweet_count": 0, "listed_count": 0
+    "followers_count": 0,
+    "following_count": 0,
+    "tweet_count": 0,
+    "listed_count": 0,
   },
 
   // ── Seed engagement (NULLABLE) — how this user engages with the seed account.
   //     Populated from the co-engagement fetch; drives "most-engaged" ranking + stratification. ──
   "seed_engagement": {
-    "likes_on_seed_posts": 0, "replies": 0, "reposts": 0,
-    "last_engaged_at": "ISO-8601 | null"
+    "likes_on_seed_posts": 0,
+    "replies": 0,
+    "reposts": 0,
+    "last_engaged_at": "ISO-8601 | null",
   },
 
   // ── Content signature (NULLABLE — tier 2 only; null for tier 1) ──
   "content": {
-    "sample_posts": [ {
-      "text": "…",
-      "type": "original|reply|repost|quote",
-      "created_at": "…",
-      "mentions": [ {"id":"…","handle":"@…"} ],      // from entities.mentions — anchor signal
-      "hashtags": ["…"],                               // from entities.hashtags
-      "referenced_user": {"id":"…","handle":"@…"},     // WHO was replied-to/reposted/quoted (null if original)
-      "metrics": {"like":0,"reply":0,"repost":0,"bookmark":0}
-    } ],
-    "context_annotations": [ {"domain":"Technology","entity":"Artificial Intelligence","count":8} ], // freq-weighted
-    "avg_engagement": {"like":0,"reply":0,"repost":0,"bookmark":0}
+    "sample_posts": [
+      {
+        "text": "…",
+        "type": "original|reply|repost|quote",
+        "created_at": "…",
+        "mentions": [{ "id": "…", "handle": "@…" }], // from entities.mentions — anchor signal
+        "hashtags": ["…"], // from entities.hashtags
+        "referenced_user": { "id": "…", "handle": "@…" }, // WHO was replied-to/reposted/quoted (null if original)
+        "metrics": { "like": 0, "reply": 0, "repost": 0, "bookmark": 0 },
+      },
+    ],
+    "context_annotations": [
+      {
+        "domain": "Technology",
+        "entity": "Artificial Intelligence",
+        "count": 8,
+      },
+    ], // freq-weighted
+    "avg_engagement": { "like": 0, "reply": 0, "repost": 0, "bookmark": 0 },
   },
 
   // ── LLM persona card (NULLABLE — tier 2 only). Grok grok-4.3, strict JSON schema. A owns this. ──
@@ -171,21 +190,21 @@ through the cost meter, which checks the ledger and hard-stops before the $250 c
     "archetype": "AI-skeptic senior engineer",
     "one_liner": "…",
     "ranked_interests": ["…"],
-    "preferred_formats": ["threads","technical breakdowns"],
+    "preferred_formats": ["threads", "technical breakdowns"],
     "tone_affinity": "dry, technical, anti-hype",
-    "conversion_levers": ["benchmarks","open-source proof"],
-    "summary": "3–4 sentence prose persona…"
+    "conversion_levers": ["benchmarks", "open-source proof"],
+    "summary": "3–4 sentence prose persona…",
   },
 
   // ── Embedding (NULLABLE) — B owns the vector: composition, model, re-embedding.
   //     A emits this as null; B populates it. `embedding_version` lets B A/B compositions. ──
   "embedding": {
-    "embedding_version": "v1",              // B-owned; identifies embed_input recipe + model
-    "model": "…",                           // B's choice (local bge/gte or hosted)
+    "embedding_version": "v1", // B-owned; identifies embed_input recipe + model
+    "model": "…", // B's choice (local bge/gte or hosted)
     "dim": 0,
     "embed_input": "<exact text embedded>", // B composes; reproducible
-    "vector": [ /* floats */ ]
-  }
+    "vector": [/* floats */],
+  },
 }
 ```
 
@@ -193,11 +212,11 @@ through the cost meter, which checks the ledger and hard-stops before the $250 c
 
 The vector is B's experimental knob, so B owns `embed_input` composition, model
 choice, and re-embedding; A emits `embedding: null`. A's job is to make sure every
-input B might want is *present in the document* — which is why §4.2 keeps raw
+input B might want is _present in the document_ — which is why §4.2 keeps raw
 `sample_posts` text, `mentions`/`hashtags`, and `context_annotations` rather than
 only LLM-generated fields.
 
-Composition note (B's call, recorded here): embedding *only* LLM text
+Composition note (B's call, recorded here): embedding _only_ LLM text
 (`summary` + `ranked_interests` + `context_annotations` + `bio`) risks
 homogenizing the space — persona cards share the model's register, which blurs
 clusters. Raw `sample_posts` text carries the natural variance (voice, vocabulary,
@@ -215,11 +234,19 @@ document or forcing a second lookup:
 
 ```jsonc
 {
-  "user_id": "…", "handle": "@…", "display_name": "…",
-  "profile_url": "https://x.com/…", "profile_image_url": "…",
-  "bio": "…", "verified": true,
+  "user_id": "…",
+  "handle": "@…",
+  "display_name": "…",
+  "profile_url": "https://x.com/…",
+  "profile_image_url": "…",
+  "bio": "…",
+  "verified": true,
   "followers_count": 0,
-  "top_sample_post": { "text": "…", "type": "original", "metrics": {"like":0,"repost":0} }
+  "top_sample_post": {
+    "text": "…",
+    "type": "original",
+    "metrics": { "like": 0, "repost": 0 },
+  },
 }
 ```
 
@@ -234,14 +261,14 @@ fixtures of this exact shape so C/D build from minute one. Every cluster is
   "schema_version": "1.0",
   "seed_account_id": "…",
   "cluster_id": "c-ai-skeptics",
-  "label": "AI-skeptic senior engineers",      // Grok-generated
-  "persona_card": { /* representative persona_card for the tribe */ },
-  "size": 214,                                  // members in this cluster
-  "share_of_audience": 0.18,                    // fraction of sampled audience
-  "engagement_index": 0.72,                     // avg engagement, for "biggest/most-engaged" ranking
-  "centroid": [ /* floats, B's embedding dim */ ],
-  "exemplars": [ /* ProfileCard[] — the real faces of the tribe, for the UI */ ],
-  "member_ids": [ "…" ]                         // full membership (join back to personas)
+  "label": "AI-skeptic senior engineers", // Grok-generated
+  "persona_card": {/* representative persona_card for the tribe */},
+  "size": 214, // members in this cluster
+  "share_of_audience": 0.18, // fraction of sampled audience
+  "engagement_index": 0.72, // avg engagement, for "biggest/most-engaged" ranking
+  "centroid": [/* floats, B's embedding dim */],
+  "exemplars": [/* ProfileCard[] — the real faces of the tribe, for the UI */],
+  "member_ids": ["…"], // full membership (join back to personas)
 }
 ```
 
@@ -256,20 +283,21 @@ job state (survives restarts; drives `/ingest/{id}` progress):
 
 ```jsonc
 {
-  "job_id": "uuid",                 // PK
-  "seed": "@somefounder",           // handle or id as given
-  "seed_account_id": "44196397",    // resolved once
-  "relationship": "follower",       // "follower" | "following"
+  "job_id": "uuid", // PK
+  "seed": "@somefounder", // handle or id as given
+  "seed_account_id": "44196397", // resolved once
+  "relationship": "follower", // "follower" | "following"
   "params": { "sample_pct": 0.2, "max_followers": 1000, "posts_per_user": 10 },
-  "status": "queued",               // queued | running | done | failed | paused_budget
-  "phase": "enrich",               // resolve | fetch_followers | co_engage | sample | enrich | done
+  "status": "queued", // queued | running | done | failed | paused_budget
+  "phase": "enrich", // resolve | fetch_followers | co_engage | sample | enrich | done
   "progress": { "discovered": 0, "sampled": 0, "enriched": 0, "failed": 0 },
-  "member_ids": [ "…" ],           // sampled set (stable across restarts)
-  "next_token": "…",               // checkpoint for resumable follower pagination
-  "cost_usd": 0.0,                  // running spend for this job
-  "budget_cap_usd": 200,            // soft-limit snapshot at start
+  "member_ids": ["…"], // sampled set (stable across restarts)
+  "next_token": "…", // checkpoint for resumable follower pagination
+  "cost_usd": 0.0, // running spend for this job
+  "budget_cap_usd": 200, // soft-limit snapshot at start
   "error": null,
-  "created_at": "…", "updated_at": "…"
+  "created_at": "…",
+  "updated_at": "…",
 }
 ```
 
@@ -277,14 +305,15 @@ job state (survives restarts; drives `/ingest/{id}` progress):
 
 ```jsonc
 {
-  "id": "uuid", "job_id": "uuid | null",
-  "provider": "x",                  // "x" | "xai" | "openai"
-  "resource": "followers",          // followers | user | post | grok_card | embedding | post_create
-  "count": 100,                     // records/units in the call
-  "unit_cost_usd": 0.010,
-  "total_usd": 1.00,
-  "dedup_hit": false,               // true = served from 24h cache, $0
-  "created_at": "…"
+  "id": "uuid",
+  "job_id": "uuid | null",
+  "provider": "x", // "x" | "xai" | "openai"
+  "resource": "followers", // followers | user | post | grok_card | embedding | post_create
+  "count": 100, // records/units in the call
+  "unit_cost_usd": 0.01,
+  "total_usd": 1.0,
+  "dedup_hit": false, // true = served from 24h cache, $0
+  "created_at": "…",
 }
 ```
 
@@ -302,7 +331,7 @@ budget-capped **sample is promoted to tier 2** with deep enrichment.
   verified; skip protected/empty accounts. Adds `content` (fetch `posts_per_user`
   posts, default 10, 20 if budget allows) + `persona_card`.
 - **Seed co-engagement (core, cheap):** fetch `liking_users` + `retweeted_by` for the
-  seed's ~25 recent posts (~$50, bounded) → populates `seed_engagement` on matching
+  seed's ~~25 recent posts (~~$50, bounded) → populates `seed_engagement` on matching
   followers **and** drives tier-2 stratification. Distinct from the stretch
   community-detection graph (§12).
 - Post typing: distinguish original/reply/repost/quote via `referenced_tweets[].type`;
@@ -316,6 +345,7 @@ request. **Infra = a `jobs` table (durable state) + one in-process asyncio worke
 loop.** No Celery/Redis/broker.
 
 **Worker loop** (started at FastAPI startup):
+
 - Claims the oldest `queued` job, or resumes a `running` job left over from a crash.
 - Runs one job at a time (serialized → clean budget accounting, no rate-limit thrash).
 - Enriches members with bounded concurrency (semaphore ~5–8 in flight); tweepy's
@@ -323,6 +353,7 @@ loop.** No Celery/Redis/broker.
 - Checkpoints `progress`/`next_token` to the job row continuously.
 
 **Phases (each idempotent + cache-checked):**
+
 1. `resolve` — seed handle → id (1 cached lookup)
 2. `fetch_followers` — paginated; each `raw_user` cached; `next_token` checkpointed →
    resumable mid-fetch. Each follower is written as a **tier-1** persona
@@ -350,15 +381,15 @@ and free.
 
 ## 7. API surface (FastAPI)
 
-| Endpoint | Method | Purpose |
-| --- | --- | --- |
-| `/ingest` | POST | body `{seed, relationship?, sample_pct?, max_followers?, posts_per_user?, force?}` → creates a `queued` job, returns `{job_id, status}` |
-| `/ingest/{job_id}` | GET | job status + phase + progress + running cost |
-| `/ingest` | GET | list recent jobs |
-| `/personas` | GET | list/query persisted `PersonaDocument`s (paginated) |
-| `/clusters` | GET | **stub** returning fixture clusters so C/D are unblocked |
-| `/budget` | GET | spend to date, remaining, per-resource breakdown |
-| `/health` | GET | liveness + DB + config check |
+| Endpoint           | Method | Purpose                                                                                                                                 |
+| ------------------ | ------ | --------------------------------------------------------------------------------------------------------------------------------------- |
+| `/ingest`          | POST   | body `{seed, relationship?, sample_pct?, max_followers?, posts_per_user?, force?}` → creates a `queued` job, returns `{job_id, status}` |
+| `/ingest/{job_id}` | GET    | job status + phase + progress + running cost                                                                                            |
+| `/ingest`          | GET    | list recent jobs                                                                                                                        |
+| `/personas`        | GET    | list/query persisted `PersonaDocument`s (paginated)                                                                                     |
+| `/clusters`        | GET    | **stub** returning fixture clusters so C/D are unblocked                                                                                |
+| `/budget`          | GET    | spend to date, remaining, per-resource breakdown                                                                                        |
+| `/health`          | GET    | liveness + DB + config check                                                                                                            |
 
 ## 8. Config (`.env`)
 
@@ -417,11 +448,11 @@ X_API_SPEND_SOFT_LIMIT_USD=200
   compression trick (rank shared anchors, enrich the top ~300, LLM-tag them) is
   elegant but sits downstream of that unaffordable fetch, so it's out for the weekend.
 - **Seed co-engagement fetch is now CORE** (promoted from stretch): fetch
-  `liking_users` + `retweeted_by` for the seed's ~25 recent posts (~$50, bounded,
+  `liking_users` + `retweeted_by` for the seed's ~~25 recent posts (~~$50, bounded,
   per-post not pairwise). It populates `seed_engagement` on `PersonaDocument`s and
   drives tier-2 stratification + the copilot's "most-engaged" command. Also retained
   as a `followers × seed-posts` matrix.
-- **Graph *uses* of that matrix stay stretch:** Leiden/Louvain community detection
+- **Graph _uses_ of that matrix stay stretch:** Leiden/Louvain community detection
   cross-validated against embedding clusters (the SimClusters judge line), Graph RAG
   grounding for focus-group + bridge queries, and galaxy-viz edges. None touch the
   clustering pipeline.
