@@ -6,6 +6,7 @@ import type { AudienceCluster, AudienceSnapshot } from "@/lib/audience/types";
 import type { CampaignVariant, SimEvent, SimResult, SimTally } from "@/lib/simulation/types";
 import { applyEvent, emptyTally, engagementRate } from "@/lib/simulation/types";
 import { XLogo } from "../XLogo";
+import { PostCard } from "./PostCard";
 
 /*
  * The campaign card: target a tribe → review Grok-drafted A/B creative →
@@ -128,6 +129,7 @@ export function CampaignPanel({
   projectId,
   audience,
   xHandle,
+  displayName = null,
   selectedId,
   onSelect,
   onStageChange,
@@ -136,6 +138,7 @@ export function CampaignPanel({
   projectId: string;
   audience: AudienceSnapshot;
   xHandle: string | null;
+  displayName?: string | null;
   selectedId: string | null;
   onSelect: (id: string | null) => void;
   onStageChange?: (stage: PanelStage) => void;
@@ -149,9 +152,12 @@ export function CampaignPanel({
     },
     [onStageChange]
   );
-  const [variants, setVariants] = useState<CampaignVariant[] | null>(null);
-  const [drafting, setDrafting] = useState(false);
+  const [baseline, setBaseline] = useState<CampaignVariant | null>(null);
+  const [tailored, setTailored] = useState<CampaignVariant | null>(null);
+  const [loadingBaseline, setLoadingBaseline] = useState(false);
+  const [tailoring, setTailoring] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const variants: CampaignVariant[] | null = baseline && tailored ? [baseline, tailored] : null;
 
   const [result, setResult] = useState<SimResult | null>(null);
   const [tallyA, setTallyA] = useState<SimTally>(emptyTally());
@@ -171,23 +177,50 @@ export function CampaignPanel({
     if (playback.current) clearInterval(playback.current);
   }, []);
 
-  async function draftVariants(clusterId: string) {
-    setDrafting(true);
+  async function openPost() {
+    setLoadingBaseline(true);
     setError(null);
+    setTailored(null);
     setStage("creative");
     try {
-      const res = await fetch("/api/campaign/variants", {
+      const res = await fetch("/api/campaign/baseline", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ projectId, clusterId }),
+        body: JSON.stringify({ projectId }),
       });
       const json = await res.json();
-      if (!res.ok) throw new Error(json.error ?? "Could not draft variants.");
-      setVariants(json.variants);
+      if (!res.ok) throw new Error(json.error ?? "Could not load your draft post.");
+      setBaseline(json.variant);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Could not draft variants.");
+      setError(err instanceof Error ? err.message : "Could not load your draft post.");
     } finally {
-      setDrafting(false);
+      setLoadingBaseline(false);
+    }
+  }
+
+  async function tailor(clusterId: string) {
+    if (!baseline) return;
+    setTailoring(true);
+    setError(null);
+    try {
+      const res = await fetch("/api/campaign/tailor", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          projectId,
+          clusterId,
+          baselineCopy: baseline.copy,
+          mediaUrl: baseline.mediaUrl,
+          mediaKind: baseline.mediaKind,
+        }),
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error ?? "Could not tailor the post.");
+      setTailored(json.variant);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not tailor the post.");
+    } finally {
+      setTailoring(false);
     }
   }
 
@@ -241,7 +274,7 @@ export function CampaignPanel({
 
   return (
     <aside
-      className="absolute bottom-0 right-0 top-0 flex w-[380px] flex-col overflow-y-auto border-l border-line bg-surface/85 backdrop-blur max-md:inset-x-0 max-md:top-auto max-md:max-h-[62%] max-md:w-full max-md:border-l-0 max-md:border-t"
+      className="absolute bottom-0 right-0 top-0 flex w-110 flex-col overflow-y-auto border-l border-line bg-surface/85 backdrop-blur max-md:inset-x-0 max-md:top-auto max-md:max-h-[62%] max-md:w-full max-md:border-l-0 max-md:border-t"
       aria-label="Campaign"
     >
       {/* ── Target ─────────────────────────────────────────────── */}
@@ -277,7 +310,7 @@ export function CampaignPanel({
           </div>
           <button
             disabled={!cluster}
-            onClick={() => cluster && draftVariants(cluster.id)}
+            onClick={() => cluster && openPost()}
             className="mt-1 flex items-center justify-center gap-1.5 rounded-full bg-fg px-4 py-2.5 text-sm font-semibold text-ground transition-opacity disabled:opacity-40"
           >
             Target this tribe
@@ -301,36 +334,64 @@ export function CampaignPanel({
               <ArrowLeft size={15} strokeWidth={2} />
             </button>
             <div>
-              <h2 className="text-sm font-semibold">Creative for {cluster?.label ?? "this tribe"}</h2>
-              <p className="text-xs text-faint">Two variants. The wind tunnel decides.</p>
+              <h2 className="text-sm font-semibold">Post for {cluster?.label ?? "this tribe"}</h2>
+              <p className="text-xs text-faint">
+                {tailored ? "Two versions. The wind tunnel decides." : "Your draft as it stands today."}
+              </p>
             </div>
           </div>
 
-          {drafting ? (
+          {loadingBaseline ? (
             <div className="flex h-40 items-center justify-center">
-              <Dots label="Grok is drafting tribe-tailored copy" />
+              <Dots label="Assembling your current draft" />
             </div>
-          ) : variants ? (
+          ) : baseline ? (
             <>
-              {variants.map((v) => (
-                <VariantCard key={v.id} variant={v} handle={xHandle} />
-              ))}
-              <div className="mt-1 flex gap-2">
-                <button
-                  onClick={() => cluster && draftVariants(cluster.id)}
-                  className="flex items-center gap-1.5 rounded-full border border-line px-3.5 py-2 text-[13px] font-medium text-muted transition-colors hover:border-line-strong hover:text-fg"
-                >
-                  <RotateCcw size={13} strokeWidth={2} />
-                  Redraft
-                </button>
-                <button
-                  onClick={runSim}
-                  className="flex flex-1 items-center justify-center gap-1.5 rounded-full bg-fg px-4 py-2 text-sm font-semibold text-ground transition-transform hover:scale-[1.02] active:scale-[0.98]"
-                >
-                  <Play size={14} strokeWidth={2.5} />
-                  Run the wind tunnel
-                </button>
-              </div>
+              <PostCard variant={baseline} handle={xHandle} name={displayName} label="Current draft" />
+
+              {tailoring ? (
+                <div className="flex h-24 items-center justify-center">
+                  <Dots label={`Grok is tailoring for ${cluster?.label ?? "this tribe"}`} />
+                </div>
+              ) : tailored ? (
+                <>
+                  <PostCard
+                    variant={tailored}
+                    handle={xHandle}
+                    name={displayName}
+                    label={`Tailored for ${cluster?.label ?? "this tribe"}`}
+                  />
+                  <div className="mt-1 flex gap-2">
+                    <button
+                      onClick={() => cluster && tailor(cluster.id)}
+                      className="flex items-center gap-1.5 rounded-full border border-line px-3.5 py-2 text-[13px] font-medium text-muted transition-colors hover:border-line-strong hover:text-fg"
+                    >
+                      <RotateCcw size={13} strokeWidth={2} />
+                      Redraft
+                    </button>
+                    <button
+                      onClick={runSim}
+                      className="flex flex-1 items-center justify-center gap-1.5 rounded-full bg-fg px-4 py-2 text-sm font-semibold text-ground transition-transform hover:scale-[1.02] active:scale-[0.98]"
+                    >
+                      <Play size={14} strokeWidth={2.5} />
+                      Approve A/B test
+                    </button>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <button
+                    onClick={() => cluster && tailor(cluster.id)}
+                    className="flex items-center justify-center gap-1.5 rounded-full bg-fg px-4 py-2.5 text-sm font-semibold text-ground transition-transform hover:scale-[1.02] active:scale-[0.98]"
+                  >
+                    Tailor for {cluster?.label ?? "this tribe"}
+                    <ArrowRight size={15} strokeWidth={2.5} />
+                  </button>
+                  <p className="text-center text-xs leading-5 text-faint">
+                    Grok rewrites the copy for how this tribe reads. Then you approve the A/B test.
+                  </p>
+                </>
+              )}
             </>
           ) : null}
 
@@ -338,7 +399,7 @@ export function CampaignPanel({
             <div className="rounded-lg border border-danger/40 bg-danger/10 px-3 py-2.5 text-[13px] leading-5 text-danger">
               {error}
               <button
-                onClick={() => cluster && draftVariants(cluster.id)}
+                onClick={() => (baseline ? cluster && tailor(cluster.id) : openPost())}
                 className="ml-2 font-semibold underline underline-offset-2"
               >
                 Try again
@@ -476,7 +537,8 @@ export function CampaignPanel({
                   onClick={() => {
                     setStage("target");
                     setResult(null);
-                    setVariants(null);
+                    setBaseline(null);
+                    setTailored(null);
                     onSelect(null);
                   }}
                   className="flex items-center gap-1.5 rounded-full border border-line px-3.5 py-2 text-[13px] font-medium text-muted transition-colors hover:border-line-strong hover:text-fg"
