@@ -86,12 +86,13 @@ grokathon/
 │   │   │   ├── sampler.py         # stratified sampling + hard caps
 │   │   │   └── clean.py           # raw → content signature
 │   │   ├── enrich/
-│   │   │   ├── persona_card.py    # Grok grok-4.3 structured summarizer (+ template fallback)
-│   │   │   └── embed.py           # OpenAI text-embedding-3-small
-│   │   ├── pipeline.py            # orchestrates fetch→sample→clean→card→embed→persist
+│   │   │   └── persona_card.py    # Grok grok-4.3 structured summarizer (+ template fallback)
+│   │   │                          # (embedding is B's layer — not here)
+│   │   ├── worker.py              # async job worker loop (claims jobs, runs phases)
+│   │   ├── pipeline.py            # orchestrates fetch→co-engage→sample→clean→card→persist
 │   │   ├── store/
 │   │   │   ├── db.py              # SQLAlchemy + pgvector engine/session
-│   │   │   ├── schema.sql         # tables + vector index
+│   │   │   ├── schema.sql         # tables + nullable vector column (B populates)
 │   │   │   └── budget.py          # cost ledger + spend guard (hard stop near cap)
 │   │   └── fixtures/              # synthetic PersonaDocuments for B/C/D
 │   ├── scripts/precompute.py     # pre-ingest demo accounts before demo day
