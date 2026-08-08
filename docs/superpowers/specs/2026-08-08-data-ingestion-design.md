@@ -103,9 +103,9 @@ grokathon/
 ```
 
 **Pipeline stages** (each idempotent + cache-checked):
-`fetch followers → stratified sample → fetch timelines → clean → Grok card → embed → persist`.
-Every X call routes through the cost meter, which checks the ledger and hard-stops
-before the $250 cap.
+`fetch followers (tier 1) → co-engagement → stratified sample → fetch timelines →
+clean → Grok card → persist`. Embedding is B's downstream step. Every X call routes
+through the cost meter, which checks the ledger and hard-stops before the $250 cap.
 
 ## 4. Data model
 
@@ -114,8 +114,9 @@ before the $250 cap.
 - **Raw cache** (`raw_users`, `raw_tweets`): verbatim API JSON as `JSONB`, keyed by
   ID, written once. Powers 24h-dedup, replay, and cost-avoidance. Never re-fetched
   if present.
-- **`personas`**: the derived `PersonaDocument` — structured columns + a
-  `vector(1536)` pgvector column (HNSW index) so B gets similarity search for free.
+- **`personas`**: the derived `PersonaDocument` — structured columns + a **nullable**
+  pgvector column **B owns and populates** (dim per B's model; HNSW index once B fixes
+  the dim). A writes tier-1/tier-2 rows with `vector = null`.
 - **`cost_ledger`**: one row per billable API call (resource, count, unit_cost,
   total, timestamp, dedup_hit) → drives `/budget` and the spend guard.
 
@@ -126,30 +127,45 @@ before the $250 cap.
   "schema_version": "1.0",
   "seed_account_id": "…",          // whose audience this belongs to (founder OR discovery seed)
   "relationship": "follower",      // follower | following | seed_topic
+  "enrichment_tier": 2,            // 1 = bio-only (cheap, ~80% of audience) · 2 = deep (sampled)
 
-  // ── Identity ──
+  // ── Identity (ALWAYS present — tier 1 + 2) ──
   "user_id": "…", "handle": "@…", "display_name": "…",
   "profile_url": "https://x.com/…",   // direct link to the X profile
   "account_age_days": 3120, "verified": true, "verified_type": "blue",
   "location": "SF", "url": "…", "profile_image_url": "…",
 
-  // ── Bio (raw text; hashtags/mentions live inline in the string) ──
+  // ── Bio (ALWAYS present) — raw text ──
   "bio": "…",
 
-  // ── Metrics (raw counts — stored for cluster ranking, NOT embedded) ──
+  // ── Metrics (ALWAYS present) — raw counts, stored for ranking, NOT embedded ──
   "metrics": {
     "followers_count": 0, "following_count": 0, "tweet_count": 0, "listed_count": 0
   },
 
-  // ── Content signature (last N posts) ──
+  // ── Seed engagement (NULLABLE) — how this user engages with the seed account.
+  //     Populated from the co-engagement fetch; drives "most-engaged" ranking + stratification. ──
+  "seed_engagement": {
+    "likes_on_seed_posts": 0, "replies": 0, "reposts": 0,
+    "last_engaged_at": "ISO-8601 | null"
+  },
+
+  // ── Content signature (NULLABLE — tier 2 only; null for tier 1) ──
   "content": {
-    "sample_posts": [ { "text": "…", "type": "original|reply|repost|quote",
-                        "created_at": "…", "metrics": {"like":0,"reply":0,"repost":0,"bookmark":0} } ],
-    "context_annotations": [ {"domain":"Technology","entity":"Artificial Intelligence"} ], // X's OWN topic tags
+    "sample_posts": [ {
+      "text": "…",
+      "type": "original|reply|repost|quote",
+      "created_at": "…",
+      "mentions": [ {"id":"…","handle":"@…"} ],      // from entities.mentions — anchor signal
+      "hashtags": ["…"],                               // from entities.hashtags
+      "referenced_user": {"id":"…","handle":"@…"},     // WHO was replied-to/reposted/quoted (null if original)
+      "metrics": {"like":0,"reply":0,"repost":0,"bookmark":0}
+    } ],
+    "context_annotations": [ {"domain":"Technology","entity":"Artificial Intelligence","count":8} ], // freq-weighted
     "avg_engagement": {"like":0,"reply":0,"repost":0,"bookmark":0}
   },
 
-  // ── LLM persona card (Grok grok-4.3, strict JSON schema) ──
+  // ── LLM persona card (NULLABLE — tier 2 only). Grok grok-4.3, strict JSON schema. A owns this. ──
   "persona_card": {
     "archetype": "AI-skeptic senior engineer",
     "one_liner": "…",
@@ -160,23 +176,35 @@ before the $250 cap.
     "summary": "3–4 sentence prose persona…"
   },
 
-  // ── Embedding (Layer A owns this) ──
+  // ── Embedding (NULLABLE) — B owns the vector: composition, model, re-embedding.
+  //     A emits this as null; B populates it. `embedding_version` lets B A/B compositions. ──
   "embedding": {
-    "model": "text-embedding-3-small", "dim": 1536,
-    "embed_input": "<exact text embedded>",     // reproducible
-    "vector": [ /* 1536 floats */ ]
+    "embedding_version": "v1",              // B-owned; identifies embed_input recipe + model
+    "model": "…",                           // B's choice (local bge/gte or hosted)
+    "dim": 0,
+    "embed_input": "<exact text embedded>", // B composes; reproducible
+    "vector": [ /* floats */ ]
   }
 }
 ```
 
-### 4.3 What we embed (`embed_input`)
+### 4.3 What we embed (`embed_input`) — **B owns this**
 
-`embed_input` = **Grok `summary` + `ranked_interests` + `context_annotations` + `bio`**,
-concatenated in a canonical, deterministic order. Rationale: the Grok summary
-carries semantic richness, `context_annotations` are X's own high-signal topic
-labels, and pinning the exact `embed_input` makes embeddings reproducible and cheap
-to re-run. Metrics/engagement are **stored but not embedded** — B weights those
-numerically or as sparse features rather than diluting the dense vector.
+The vector is B's experimental knob, so B owns `embed_input` composition, model
+choice, and re-embedding; A emits `embedding: null`. A's job is to make sure every
+input B might want is *present in the document* — which is why §4.2 keeps raw
+`sample_posts` text, `mentions`/`hashtags`, and `context_annotations` rather than
+only LLM-generated fields.
+
+Composition note (B's call, recorded here): embedding *only* LLM text
+(`summary` + `ranked_interests` + `context_annotations` + `bio`) risks
+homogenizing the space — persona cards share the model's register, which blurs
+clusters. Raw `sample_posts` text carries the natural variance (voice, vocabulary,
+real topics). Recommended starting recipe: **`bio` + 5–8 raw post texts +
+`summary` + `ranked_interests` + `context_annotations`**, iterated behind
+`embedding_version`. Model of record: **local `bge`/`gte` via sentence-transformers**
+(free, offline-safe for demo day, re-embed 10k docs in minutes) — B may swap to a
+hosted model if it tunes better. Metrics/engagement stay **stored but not embedded**.
 
 ### 4.4 `ProfileCard` (compact, reusable X profile snippet)
 
@@ -210,7 +238,7 @@ fixtures of this exact shape so C/D build from minute one. Every cluster is
   "size": 214,                                  // members in this cluster
   "share_of_audience": 0.18,                    // fraction of sampled audience
   "engagement_index": 0.72,                     // avg engagement, for "biggest/most-engaged" ranking
-  "centroid": [ /* 1536 floats */ ],
+  "centroid": [ /* floats, B's embedding dim */ ],
   "exemplars": [ /* ProfileCard[] — the real faces of the tribe, for the UI */ ],
   "member_ids": [ "…" ]                         // full membership (join back to personas)
 }
@@ -233,7 +261,7 @@ job state (survives restarts; drives `/ingest/{id}` progress):
   "relationship": "follower",       // "follower" | "following"
   "params": { "sample_pct": 0.2, "max_followers": 1000, "posts_per_user": 10 },
   "status": "queued",               // queued | running | done | failed | paused_budget
-  "phase": "enrich",               // resolve | fetch_followers | sample | enrich | done
+  "phase": "enrich",               // resolve | fetch_followers | co_engage | sample | enrich | done
   "progress": { "discovered": 0, "sampled": 0, "enriched": 0, "failed": 0 },
   "member_ids": [ "…" ],           // sampled set (stable across restarts)
   "next_token": "…",               // checkpoint for resumable follower pagination
@@ -259,13 +287,26 @@ job state (survives restarts; drives `/ingest/{id}` progress):
 }
 ```
 
-## 5. Sampling strategy
+## 5. Two-tier enrichment & sampling
 
-- Sample **~20% of followers**, minimum **100**, capped by budget guard.
-- **Stratified** to maximize signal per dollar: prioritize recent-active +
-  high-metric + verified accounts first; skip protected/empty accounts.
-- Per sampled follower, fetch **last 10 posts** (`max_results=10`), including
-  originals/replies/reposts/quotes (distinguish via `referenced_tweets[].type`).
+Every discovered follower becomes a **tier-1** `PersonaDocument` for free — bio,
+identity, and metrics arrive inline in the followers response (no extra call). A
+budget-capped **sample is promoted to tier 2** with deep enrichment.
+
+- **Tier 1 (all followers):** identity + bio + metrics; `content` / `persona_card` /
+  `embedding` null. B assigns these to clusters by bio-embedding → nearest centroid
+  (keys off `enrichment_tier == 1`).
+- **Tier 2 (sample):** ~20% of followers, min 100, budget-capped. **Stratified** by
+  engagement-with-seed first (see co-engagement), then recent-active + high-metric +
+  verified; skip protected/empty accounts. Adds `content` (fetch `posts_per_user`
+  posts, default 10, 20 if budget allows) + `persona_card`.
+- **Seed co-engagement (core, cheap):** fetch `liking_users` + `retweeted_by` for the
+  seed's ~25 recent posts (~$50, bounded) → populates `seed_engagement` on matching
+  followers **and** drives tier-2 stratification. Distinct from the stretch
+  community-detection graph (§12).
+- Post typing: distinguish original/reply/repost/quote via `referenced_tweets[].type`;
+  capture `referenced_user` + `entities` (mentions/hashtags) per post — irreversible
+  if dropped at ingest.
 
 ## 6. Job lifecycle & ingestion worker
 
@@ -282,10 +323,15 @@ loop.** No Celery/Redis/broker.
 
 **Phases (each idempotent + cache-checked):**
 1. `resolve` — seed handle → id (1 cached lookup)
-2. `fetch_followers` — paginated; each `raw_user` cached; `next_token` checkpointed → resumable mid-fetch
-3. `sample` — stratified pick; `member_ids` persisted to the job (stable set)
-4. `enrich` — per member: timeline (cached) → clean → Grok card → embed → **upsert** persona; skips anyone already persisted for this `schema_version`
-5. `done`
+2. `fetch_followers` — paginated; each `raw_user` cached; `next_token` checkpointed →
+   resumable mid-fetch. Each follower is written as a **tier-1** persona
+   (identity + bio + metrics) immediately.
+3. `co_engage` — fetch `liking_users` / `retweeted_by` for the seed's recent posts →
+   populate `seed_engagement` on matching followers
+4. `sample` — stratified pick (engagement-first); `member_ids` persisted (stable set)
+5. `enrich` — per tier-2 member: timeline (cached) → clean → Grok card → **upsert**
+   to tier 2; skips anyone already at tier 2. **Embedding is B's step, not the worker's.**
+6. `done`
 
 **Why it's robust without a queue:** the pipeline is a pure function of cached
 inputs, so re-running is cheap (24h dedup = free) and convergent. A crash mid-job →
@@ -323,10 +369,9 @@ X_AI_BEARER_TOKEN=…
 # X user-context (write path — regenerate before demo day)
 X_OAUTH_CLIENT_ID=…            # for OAuth2 PKCE posting (later)
 X_OAUTH_CLIENT_SECRET=…
-# Grok summarization
+# Grok summarization (A)
 XAI_API_KEY=…
-# Embeddings
-OPENAI_API_KEY=…
+# Embeddings are B's layer (local bge/gte or hosted) — not required by A's backend
 # Storage
 DATABASE_URL=postgresql+psycopg://agentsim:agentsim@localhost:5432/agentsim
 # Budget guard
@@ -370,13 +415,16 @@ X_API_SPEND_SOFT_LIMIT_USD=200
   ($0.010/record → ~$3–5 per follower → thousands for a 1k audience). The anchor
   compression trick (rank shared anchors, enrich the top ~300, LLM-tag them) is
   elegant but sits downstream of that unaffordable fetch, so it's out for the weekend.
-- **The affordable graph is co-engagement** (stretch): fetch `liking_users` +
-  `retweeted_by` for the founder's ~25 recent posts (~$50, bounded) → a
-  `followers × posts` matrix in a separate table (does **not** touch
-  `PersonaDocument`). Reused three ways: Leiden/Louvain community detection
+- **Seed co-engagement fetch is now CORE** (promoted from stretch): fetch
+  `liking_users` + `retweeted_by` for the seed's ~25 recent posts (~$50, bounded,
+  per-post not pairwise). It populates `seed_engagement` on `PersonaDocument`s and
+  drives tier-2 stratification + the copilot's "most-engaged" command. Also retained
+  as a `followers × seed-posts` matrix.
+- **Graph *uses* of that matrix stay stretch:** Leiden/Louvain community detection
   cross-validated against embedding clusters (the SimClusters judge line), Graph RAG
-  grounding for focus-group + bridge queries, and edges for the galaxy viz.
-- **Skip entirely:** node2vec, blended affinity matrices.
+  grounding for focus-group + bridge queries, and galaxy-viz edges. None touch the
+  clustering pipeline.
+- **Skip entirely:** node2vec, blended affinity matrices, per-follower follow-list fetch.
 
 ## 13. Open questions / assumptions
 
