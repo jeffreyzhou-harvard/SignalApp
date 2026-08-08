@@ -1,3 +1,5 @@
+from concurrent.futures import ThreadPoolExecutor
+
 from app.config import settings
 from app.models.persona import PersonaCard, Content
 
@@ -35,3 +37,18 @@ def generate_card(bio: str, content: Content, client=None) -> PersonaCard:
         return completion.choices[0].message.parsed
     except Exception:
         return template_card(bio, content)
+
+
+def generate_cards_concurrent(items, client=None, concurrency: int = 8) -> list[PersonaCard]:
+    """Generate persona cards for many (bio, content) pairs concurrently.
+
+    The Grok call inside `generate_card` is I/O-bound (network), so a thread
+    pool overlaps the calls while the GIL is released on the socket. Results
+    are returned in the same order as `items`; per-item failures already
+    degrade to a template card inside `generate_card`.
+    """
+    if not items:
+        return []
+    workers = max(1, min(concurrency, len(items)))
+    with ThreadPoolExecutor(max_workers=workers) as pool:
+        return list(pool.map(lambda it: generate_card(it[0], it[1], client=client), items))

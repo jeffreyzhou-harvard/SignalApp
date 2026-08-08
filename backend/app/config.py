@@ -31,6 +31,7 @@ class Settings(BaseSettings):
     worker_poll_interval_s: float = 1.0   # background worker job-claim poll cadence
     followers_page_size: int = 1000       # X followers page size (max 1000)
     seed_posts_lookback: int = 25         # recent seed posts scanned for co-engagement
+    enrich_concurrency: int = 8           # parallel Grok persona-card calls during tier-2 enrich
 
 
 settings = Settings()

@@ -1,6 +1,8 @@
+from app.config import settings
 from app.models.job import JobStatus, JobPhase
 from app.store import jobs, budget, personas
 from app.ingest import clean, sampler
+from app.enrich import persona_card
 from app import pipeline
 
 
@@ -46,13 +48,14 @@ def run_job(session, job, xclient, grok_client=None):
         job.progress.sampled = len(job.member_ids)
         jobs.save(session, job); session.commit()
 
-        # enrich tier 2
+        # enrich tier 2 — fetch serially (session-bound), then generate the
+        # I/O-bound Grok cards concurrently, then write results serially.
         job.phase = JobPhase.enrich
+        preps = []
         for uid in job.member_ids:
             try:
-                pipeline.enrich_tier2(session, uid, job.seed_account_id, xclient,
-                                      grok_client, job.params.posts_per_user, engagers, job.job_id)
-                job.progress.enriched += 1
+                prep = pipeline.enrich_tier2_fetch(session, uid, job.seed_account_id, xclient,
+                                                   job.params.posts_per_user, engagers, job.job_id)
             except budget.BudgetExceeded:
                 job.status = JobStatus.paused_budget
                 job.error = "soft budget limit reached"
@@ -61,6 +64,21 @@ def run_job(session, job, xclient, grok_client=None):
             except Exception as e:
                 job.progress.failed += 1
                 job.error = str(e)
+                jobs.save(session, job); session.commit()
+                continue
+            if prep is None:
+                job.progress.enriched += 1      # idempotent skip
+                jobs.save(session, job); session.commit()
+            else:
+                preps.append(prep)
+
+        cards = persona_card.generate_cards_concurrent(
+            [(p.bio, p.content) for p in preps],
+            client=grok_client, concurrency=settings.enrich_concurrency,
+        )
+        for prep, card in zip(preps, cards):
+            pipeline.enrich_tier2_write(session, prep, card)
+            job.progress.enriched += 1
             jobs.save(session, job); session.commit()
 
         job.phase = JobPhase.done
