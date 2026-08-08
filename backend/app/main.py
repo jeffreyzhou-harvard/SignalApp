@@ -1,31 +1,34 @@
 import asyncio
 import contextlib
 import os
+from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, HTTPException
 
 from app.config import settings
 from app.store import db, jobs, personas, budget, clusters_stub
 from app.models.job import IngestRequest
+from app.mcp.server import mcp as mcp_server
 
-app = FastAPI(title="AgentSim Ingestion")
 
-
-@app.on_event("startup")
-def _startup():
+@asynccontextmanager
+async def lifespan(app: FastAPI):
     db.init_db()
+    worker_task = None
     # Never start the live worker loop under pytest — it would make real X calls.
     if not os.environ.get("PYTEST_CURRENT_TEST"):
-        app.state.worker = asyncio.create_task(worker_loop())
-
-
-@app.on_event("shutdown")
-async def _shutdown():
-    worker = getattr(app.state, "worker", None)
-    if worker is not None:
-        worker.cancel()
+        worker_task = asyncio.create_task(worker_loop())
+    # Run the MCP streamable-HTTP session manager for the app's lifetime.
+    async with mcp_server.session_manager.run():
+        yield
+    if worker_task is not None:
+        worker_task.cancel()
         with contextlib.suppress(asyncio.CancelledError):
-            await worker
+            await worker_task
+
+
+app = FastAPI(title="AgentSim Ingestion", lifespan=lifespan)
+app.mount("/mcp", mcp_server.streamable_http_app())
 
 
 async def worker_loop():

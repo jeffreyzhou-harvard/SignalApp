@@ -13,6 +13,8 @@ dependencies = [
   "tweepy>=4.17",
   "openai>=1.30",
   "httpx>=0.27",
+  "mcp>=1.6,<2",
+  "google-genai>=0.8",
 ]
 
 [dependency-groups]
