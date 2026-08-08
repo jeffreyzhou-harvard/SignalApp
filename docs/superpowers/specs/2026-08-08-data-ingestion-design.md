@@ -470,3 +470,26 @@ X_API_SPEND_SOFT_LIMIT_USD=200
 4. **Sample depth** assumed 20% / min 100 / 10 posts each — tunable via `/ingest`
    params and budget guard.
 5. **pgvector index** assumed HNSW; revisit if row counts stay small (flat scan fine).
+
+## 14. Implementation status (as built, 2026-08-08)
+
+**Shipped and verified end-to-end.** All 13 plan tasks implemented (35 tests passing).
+
+- **Schema single source of truth:** the SQLAlchemy ORM in `backend/app/store/db.py`
+  is the only schema definition — the reference `schema.sql` was removed to prevent
+  drift. Apply only via the idempotent CLI (`scripts/init_db.py` / `python -m
+  app.store.db`) or the FastAPI startup hook; never hand-run DDL.
+- **Shared DB:** `DATABASE_URL` points at a Neon Postgres (pgvector) so A ingests
+  once and B/C/D read the same data. Tests are pinned to local Postgres via
+  `tests/conftest.py`.
+- **Grok key alias:** config accepts either `X_AI_API_KEY` (actual .env convention)
+  or `XAI_API_KEY`.
+- **Live run** (`@SChen1249`, app-only bearer): resolved seed → 10 followers (tier-1)
+  → 8 deep-enriched (tier-2 + Grok persona cards) → persisted to Neon; **$0.61**
+  real spend. `curl POST /ingest` is the acceptance path.
+- **Co-engagement limitation:** `liking_users`/`retweeters` require OAuth
+  user-context; on an app-only bearer the `co_engage` phase **degrades gracefully**
+  (leaves `seed_engagement = null`) rather than failing the job. Wiring OAuth
+  user-context is the follow-up to populate `seed_engagement`.
+- **Known gap:** `job.cost_usd` is not synced from the ledger; `/budget` is the
+  accurate spend source.
