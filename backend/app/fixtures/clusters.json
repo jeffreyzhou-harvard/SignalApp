@@ -1,0 +1,612 @@
+[
+  {
+    "schema_version": "1.0",
+    "seed_account_id": "demo",
+    "cluster_id": "c-0",
+    "label": "AI-skeptic engineers",
+    "persona_card": {
+      "archetype": "AI-skeptic engineers",
+      "one_liner": "A AI-skeptic engineer",
+      "ranked_interests": [
+        "AI-skeptic engineers",
+        "startups"
+      ],
+      "preferred_formats": [
+        "threads"
+      ],
+      "tone_affinity": "candid",
+      "conversion_levers": [
+        "proof"
+      ],
+      "summary": "A member of AI-skeptic engineers."
+    },
+    "size": 17,
+    "share_of_audience": 0.17,
+    "engagement_index": 0.5,
+    "centroid": [],
+    "exemplars": [
+      {
+        "user_id": "u0",
+        "handle": "@user0",
+        "display_name": "User 0",
+        "profile_url": "https://x.com/user0",
+        "profile_image_url": "https://img/x.png",
+        "bio": "AI-skeptic engineers \u00b7 building things \u00b7 post 0",
+        "verified": true,
+        "followers_count": 0,
+        "top_sample_post": null
+      },
+      {
+        "user_id": "u6",
+        "handle": "@user6",
+        "display_name": "User 6",
+        "profile_url": "https://x.com/user6",
+        "profile_image_url": "https://img/x.png",
+        "bio": "AI-skeptic engineers \u00b7 building things \u00b7 post 6",
+        "verified": false,
+        "followers_count": 78,
+        "top_sample_post": null
+      },
+      {
+        "user_id": "u12",
+        "handle": "@user12",
+        "display_name": "User 12",
+        "profile_url": "https://x.com/user12",
+        "profile_image_url": "https://img/x.png",
+        "bio": "AI-skeptic engineers \u00b7 building things \u00b7 post 12",
+        "verified": false,
+        "followers_count": 156,
+        "top_sample_post": null
+      },
+      {
+        "user_id": "u18",
+        "handle": "@user18",
+        "display_name": "User 18",
+        "profile_url": "https://x.com/user18",
+        "profile_image_url": "https://img/x.png",
+        "bio": "AI-skeptic engineers \u00b7 building things \u00b7 post 18",
+        "verified": false,
+        "followers_count": 234,
+        "top_sample_post": null
+      },
+      {
+        "user_id": "u24",
+        "handle": "@user24",
+        "display_name": "User 24",
+        "profile_url": "https://x.com/user24",
+        "profile_image_url": "https://img/x.png",
+        "bio": "AI-skeptic engineers \u00b7 building things \u00b7 post 24",
+        "verified": false,
+        "followers_count": 312,
+        "top_sample_post": null
+      }
+    ],
+    "member_ids": [
+      "u0",
+      "u6",
+      "u12",
+      "u18",
+      "u24",
+      "u30",
+      "u36",
+      "u42",
+      "u48",
+      "u54",
+      "u60",
+      "u66",
+      "u72",
+      "u78",
+      "u84",
+      "u90",
+      "u96"
+    ]
+  },
+  {
+    "schema_version": "1.0",
+    "seed_account_id": "demo",
+    "cluster_id": "c-1",
+    "label": "indie hackers",
+    "persona_card": {
+      "archetype": "indie hackers",
+      "one_liner": "A indie hacker",
+      "ranked_interests": [
+        "indie hackers",
+        "startups"
+      ],
+      "preferred_formats": [
+        "threads"
+      ],
+      "tone_affinity": "candid",
+      "conversion_levers": [
+        "proof"
+      ],
+      "summary": "A member of indie hackers."
+    },
+    "size": 17,
+    "share_of_audience": 0.17,
+    "engagement_index": 0.5,
+    "centroid": [],
+    "exemplars": [
+      {
+        "user_id": "u1",
+        "handle": "@user1",
+        "display_name": "User 1",
+        "profile_url": "https://x.com/user1",
+        "profile_image_url": "https://img/x.png",
+        "bio": "indie hackers \u00b7 building things \u00b7 post 1",
+        "verified": false,
+        "followers_count": 13,
+        "top_sample_post": null
+      },
+      {
+        "user_id": "u7",
+        "handle": "@user7",
+        "display_name": "User 7",
+        "profile_url": "https://x.com/user7",
+        "profile_image_url": "https://img/x.png",
+        "bio": "indie hackers \u00b7 building things \u00b7 post 7",
+        "verified": true,
+        "followers_count": 91,
+        "top_sample_post": null
+      },
+      {
+        "user_id": "u13",
+        "handle": "@user13",
+        "display_name": "User 13",
+        "profile_url": "https://x.com/user13",
+        "profile_image_url": "https://img/x.png",
+        "bio": "indie hackers \u00b7 building things \u00b7 post 13",
+        "verified": false,
+        "followers_count": 169,
+        "top_sample_post": null
+      },
+      {
+        "user_id": "u19",
+        "handle": "@user19",
+        "display_name": "User 19",
+        "profile_url": "https://x.com/user19",
+        "profile_image_url": "https://img/x.png",
+        "bio": "indie hackers \u00b7 building things \u00b7 post 19",
+        "verified": false,
+        "followers_count": 247,
+        "top_sample_post": null
+      },
+      {
+        "user_id": "u25",
+        "handle": "@user25",
+        "display_name": "User 25",
+        "profile_url": "https://x.com/user25",
+        "profile_image_url": "https://img/x.png",
+        "bio": "indie hackers \u00b7 building things \u00b7 post 25",
+        "verified": false,
+        "followers_count": 325,
+        "top_sample_post": null
+      }
+    ],
+    "member_ids": [
+      "u1",
+      "u7",
+      "u13",
+      "u19",
+      "u25",
+      "u31",
+      "u37",
+      "u43",
+      "u49",
+      "u55",
+      "u61",
+      "u67",
+      "u73",
+      "u79",
+      "u85",
+      "u91",
+      "u97"
+    ]
+  },
+  {
+    "schema_version": "1.0",
+    "seed_account_id": "demo",
+    "cluster_id": "c-2",
+    "label": "growth marketers",
+    "persona_card": {
+      "archetype": "growth marketers",
+      "one_liner": "A growth marketer",
+      "ranked_interests": [
+        "growth marketers",
+        "startups"
+      ],
+      "preferred_formats": [
+        "threads"
+      ],
+      "tone_affinity": "candid",
+      "conversion_levers": [
+        "proof"
+      ],
+      "summary": "A member of growth marketers."
+    },
+    "size": 17,
+    "share_of_audience": 0.17,
+    "engagement_index": 0.5,
+    "centroid": [],
+    "exemplars": [
+      {
+        "user_id": "u2",
+        "handle": "@user2",
+        "display_name": "User 2",
+        "profile_url": "https://x.com/user2",
+        "profile_image_url": "https://img/x.png",
+        "bio": "growth marketers \u00b7 building things \u00b7 post 2",
+        "verified": false,
+        "followers_count": 26,
+        "top_sample_post": null
+      },
+      {
+        "user_id": "u8",
+        "handle": "@user8",
+        "display_name": "User 8",
+        "profile_url": "https://x.com/user8",
+        "profile_image_url": "https://img/x.png",
+        "bio": "growth marketers \u00b7 building things \u00b7 post 8",
+        "verified": false,
+        "followers_count": 104,
+        "top_sample_post": null
+      },
+      {
+        "user_id": "u14",
+        "handle": "@user14",
+        "display_name": "User 14",
+        "profile_url": "https://x.com/user14",
+        "profile_image_url": "https://img/x.png",
+        "bio": "growth marketers \u00b7 building things \u00b7 post 14",
+        "verified": true,
+        "followers_count": 182,
+        "top_sample_post": null
+      },
+      {
+        "user_id": "u20",
+        "handle": "@user20",
+        "display_name": "User 20",
+        "profile_url": "https://x.com/user20",
+        "profile_image_url": "https://img/x.png",
+        "bio": "growth marketers \u00b7 building things \u00b7 post 20",
+        "verified": false,
+        "followers_count": 260,
+        "top_sample_post": null
+      },
+      {
+        "user_id": "u26",
+        "handle": "@user26",
+        "display_name": "User 26",
+        "profile_url": "https://x.com/user26",
+        "profile_image_url": "https://img/x.png",
+        "bio": "growth marketers \u00b7 building things \u00b7 post 26",
+        "verified": false,
+        "followers_count": 338,
+        "top_sample_post": null
+      }
+    ],
+    "member_ids": [
+      "u2",
+      "u8",
+      "u14",
+      "u20",
+      "u26",
+      "u32",
+      "u38",
+      "u44",
+      "u50",
+      "u56",
+      "u62",
+      "u68",
+      "u74",
+      "u80",
+      "u86",
+      "u92",
+      "u98"
+    ]
+  },
+  {
+    "schema_version": "1.0",
+    "seed_account_id": "demo",
+    "cluster_id": "c-3",
+    "label": "crypto builders",
+    "persona_card": {
+      "archetype": "crypto builders",
+      "one_liner": "A crypto builder",
+      "ranked_interests": [
+        "crypto builders",
+        "startups"
+      ],
+      "preferred_formats": [
+        "threads"
+      ],
+      "tone_affinity": "candid",
+      "conversion_levers": [
+        "proof"
+      ],
+      "summary": "A member of crypto builders."
+    },
+    "size": 17,
+    "share_of_audience": 0.17,
+    "engagement_index": 0.5,
+    "centroid": [],
+    "exemplars": [
+      {
+        "user_id": "u3",
+        "handle": "@user3",
+        "display_name": "User 3",
+        "profile_url": "https://x.com/user3",
+        "profile_image_url": "https://img/x.png",
+        "bio": "crypto builders \u00b7 building things \u00b7 post 3",
+        "verified": false,
+        "followers_count": 39,
+        "top_sample_post": null
+      },
+      {
+        "user_id": "u9",
+        "handle": "@user9",
+        "display_name": "User 9",
+        "profile_url": "https://x.com/user9",
+        "profile_image_url": "https://img/x.png",
+        "bio": "crypto builders \u00b7 building things \u00b7 post 9",
+        "verified": false,
+        "followers_count": 117,
+        "top_sample_post": null
+      },
+      {
+        "user_id": "u15",
+        "handle": "@user15",
+        "display_name": "User 15",
+        "profile_url": "https://x.com/user15",
+        "profile_image_url": "https://img/x.png",
+        "bio": "crypto builders \u00b7 building things \u00b7 post 15",
+        "verified": false,
+        "followers_count": 195,
+        "top_sample_post": null
+      },
+      {
+        "user_id": "u21",
+        "handle": "@user21",
+        "display_name": "User 21",
+        "profile_url": "https://x.com/user21",
+        "profile_image_url": "https://img/x.png",
+        "bio": "crypto builders \u00b7 building things \u00b7 post 21",
+        "verified": true,
+        "followers_count": 273,
+        "top_sample_post": null
+      },
+      {
+        "user_id": "u27",
+        "handle": "@user27",
+        "display_name": "User 27",
+        "profile_url": "https://x.com/user27",
+        "profile_image_url": "https://img/x.png",
+        "bio": "crypto builders \u00b7 building things \u00b7 post 27",
+        "verified": false,
+        "followers_count": 351,
+        "top_sample_post": null
+      }
+    ],
+    "member_ids": [
+      "u3",
+      "u9",
+      "u15",
+      "u21",
+      "u27",
+      "u33",
+      "u39",
+      "u45",
+      "u51",
+      "u57",
+      "u63",
+      "u69",
+      "u75",
+      "u81",
+      "u87",
+      "u93",
+      "u99"
+    ]
+  },
+  {
+    "schema_version": "1.0",
+    "seed_account_id": "demo",
+    "cluster_id": "c-4",
+    "label": "design-first founders",
+    "persona_card": {
+      "archetype": "design-first founders",
+      "one_liner": "A design-first founder",
+      "ranked_interests": [
+        "design-first founders",
+        "startups"
+      ],
+      "preferred_formats": [
+        "threads"
+      ],
+      "tone_affinity": "candid",
+      "conversion_levers": [
+        "proof"
+      ],
+      "summary": "A member of design-first founders."
+    },
+    "size": 16,
+    "share_of_audience": 0.16,
+    "engagement_index": 0.5,
+    "centroid": [],
+    "exemplars": [
+      {
+        "user_id": "u4",
+        "handle": "@user4",
+        "display_name": "User 4",
+        "profile_url": "https://x.com/user4",
+        "profile_image_url": "https://img/x.png",
+        "bio": "design-first founders \u00b7 building things \u00b7 post 4",
+        "verified": false,
+        "followers_count": 52,
+        "top_sample_post": null
+      },
+      {
+        "user_id": "u10",
+        "handle": "@user10",
+        "display_name": "User 10",
+        "profile_url": "https://x.com/user10",
+        "profile_image_url": "https://img/x.png",
+        "bio": "design-first founders \u00b7 building things \u00b7 post 10",
+        "verified": false,
+        "followers_count": 130,
+        "top_sample_post": null
+      },
+      {
+        "user_id": "u16",
+        "handle": "@user16",
+        "display_name": "User 16",
+        "profile_url": "https://x.com/user16",
+        "profile_image_url": "https://img/x.png",
+        "bio": "design-first founders \u00b7 building things \u00b7 post 16",
+        "verified": false,
+        "followers_count": 208,
+        "top_sample_post": null
+      },
+      {
+        "user_id": "u22",
+        "handle": "@user22",
+        "display_name": "User 22",
+        "profile_url": "https://x.com/user22",
+        "profile_image_url": "https://img/x.png",
+        "bio": "design-first founders \u00b7 building things \u00b7 post 22",
+        "verified": false,
+        "followers_count": 286,
+        "top_sample_post": null
+      },
+      {
+        "user_id": "u28",
+        "handle": "@user28",
+        "display_name": "User 28",
+        "profile_url": "https://x.com/user28",
+        "profile_image_url": "https://img/x.png",
+        "bio": "design-first founders \u00b7 building things \u00b7 post 28",
+        "verified": true,
+        "followers_count": 364,
+        "top_sample_post": null
+      }
+    ],
+    "member_ids": [
+      "u4",
+      "u10",
+      "u16",
+      "u22",
+      "u28",
+      "u34",
+      "u40",
+      "u46",
+      "u52",
+      "u58",
+      "u64",
+      "u70",
+      "u76",
+      "u82",
+      "u88",
+      "u94"
+    ]
+  },
+  {
+    "schema_version": "1.0",
+    "seed_account_id": "demo",
+    "cluster_id": "c-5",
+    "label": "data scientists",
+    "persona_card": {
+      "archetype": "data scientists",
+      "one_liner": "A data scientist",
+      "ranked_interests": [
+        "data scientists",
+        "startups"
+      ],
+      "preferred_formats": [
+        "threads"
+      ],
+      "tone_affinity": "candid",
+      "conversion_levers": [
+        "proof"
+      ],
+      "summary": "A member of data scientists."
+    },
+    "size": 16,
+    "share_of_audience": 0.16,
+    "engagement_index": 0.5,
+    "centroid": [],
+    "exemplars": [
+      {
+        "user_id": "u5",
+        "handle": "@user5",
+        "display_name": "User 5",
+        "profile_url": "https://x.com/user5",
+        "profile_image_url": "https://img/x.png",
+        "bio": "data scientists \u00b7 building things \u00b7 post 5",
+        "verified": false,
+        "followers_count": 65,
+        "top_sample_post": null
+      },
+      {
+        "user_id": "u11",
+        "handle": "@user11",
+        "display_name": "User 11",
+        "profile_url": "https://x.com/user11",
+        "profile_image_url": "https://img/x.png",
+        "bio": "data scientists \u00b7 building things \u00b7 post 11",
+        "verified": false,
+        "followers_count": 143,
+        "top_sample_post": null
+      },
+      {
+        "user_id": "u17",
+        "handle": "@user17",
+        "display_name": "User 17",
+        "profile_url": "https://x.com/user17",
+        "profile_image_url": "https://img/x.png",
+        "bio": "data scientists \u00b7 building things \u00b7 post 17",
+        "verified": false,
+        "followers_count": 221,
+        "top_sample_post": null
+      },
+      {
+        "user_id": "u23",
+        "handle": "@user23",
+        "display_name": "User 23",
+        "profile_url": "https://x.com/user23",
+        "profile_image_url": "https://img/x.png",
+        "bio": "data scientists \u00b7 building things \u00b7 post 23",
+        "verified": false,
+        "followers_count": 299,
+        "top_sample_post": null
+      },
+      {
+        "user_id": "u29",
+        "handle": "@user29",
+        "display_name": "User 29",
+        "profile_url": "https://x.com/user29",
+        "profile_image_url": "https://img/x.png",
+        "bio": "data scientists \u00b7 building things \u00b7 post 29",
+        "verified": false,
+        "followers_count": 377,
+        "top_sample_post": null
+      }
+    ],
+    "member_ids": [
+      "u5",
+      "u11",
+      "u17",
+      "u23",
+      "u29",
+      "u35",
+      "u41",
+      "u47",
+      "u53",
+      "u59",
+      "u65",
+      "u71",
+      "u77",
+      "u83",
+      "u89",
+      "u95"
+    ]
+  }
+]

@@ -14,6 +14,15 @@ next-env.d.ts
 .env.local
 .env*.local
 
+# python / backend
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+
+# SDD scratch workspace
+/.superpowers/
+
 # misc
 .DS_Store
 *.tsbuildinfo
