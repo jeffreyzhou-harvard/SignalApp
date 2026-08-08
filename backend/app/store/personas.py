@@ -1,5 +1,5 @@
 from datetime import datetime, timezone
-from sqlalchemy import select
+from sqlalchemy import select, func
 from app.store import db
 from app.models.persona import PersonaDocument
 
@@ -42,6 +42,20 @@ def upsert_persona(session, doc: PersonaDocument) -> None:
 
 def get_persona(session, user_id: str) -> PersonaDocument | None:
     row = session.get(db.PersonaRow, user_id)
+    return PersonaDocument(**row.doc) if row else None
+
+
+def find_persona(session, handle_or_id: str) -> PersonaDocument | None:
+    """Resolve a persona by numeric user id OR @handle (case-insensitive, '@' optional)."""
+    raw = handle_or_id.strip()
+    if raw.isdigit():
+        return get_persona(session, raw)
+    name = raw.lstrip("@").lower()
+    row = session.execute(
+        select(db.PersonaRow).where(
+            func.lower(func.replace(db.PersonaRow.doc["handle"].astext, "@", "")) == name
+        )
+    ).scalars().first()
     return PersonaDocument(**row.doc) if row else None
 
 
