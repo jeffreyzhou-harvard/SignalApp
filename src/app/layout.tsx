@@ -8,7 +8,7 @@ const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"]
 export const metadata: Metadata = {
   title: "AgentSim",
   description:
-    "A wind tunnel for product launches on X — cluster your audience, brief the copilot, ship tailored creative.",
+    "A wind tunnel for product launches on X: cluster your audience, brief the copilot, ship tailored creative.",
   icons: { icon: "/AgentSim.png" },
 };
 

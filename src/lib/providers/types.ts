@@ -37,7 +37,11 @@ export interface ImageGenOptions {
   prompt: string;
   model?: string;
   n?: number;
+  /** e.g. "1:1", "16:9", "2:3", "auto" — see the provider's docs for the full set. */
   aspectRatio?: string;
+  resolution?: "1k" | "2k";
+  /** Source images (public URLs or data URIs). When present, providers edit/ground on them. */
+  sourceImages?: string[];
   signal?: AbortSignal;
 }
 
@@ -52,4 +56,31 @@ export interface ImageProvider {
   label: string;
   defaultModel: string;
   generate(opts: ImageGenOptions): Promise<GeneratedImage[]>;
+}
+
+export interface VideoGenOptions {
+  prompt: string;
+  model?: string;
+  /** Seconds, 1–15. */
+  duration?: number;
+  aspectRatio?: string;
+  resolution?: "480p" | "720p" | "1080p";
+  /** Source image (public URL or data URI) used as the starting frame. */
+  sourceImage?: string;
+  signal?: AbortSignal;
+}
+
+export interface GeneratedVideo {
+  /** Base64-encoded video bytes (no data: prefix). */
+  b64: string;
+  mime: string;
+  duration?: number;
+}
+
+/** Async media generation (video is poll-based on most backends). */
+export interface VideoProvider {
+  id: string;
+  label: string;
+  defaultModel: string;
+  generate(opts: VideoGenOptions): Promise<GeneratedVideo>;
 }

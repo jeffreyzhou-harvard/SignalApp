@@ -19,13 +19,13 @@ export function buildCopilotMessages(
     const system: ProviderMessage = {
       role: "system",
       content: [
-        "You are the AgentSim campaign copilot — a launch strategist for products announced on X.",
+        "You are the AgentSim campaign copilot, a launch strategist for products announced on X.",
         "AgentSim clusters a founder's real followers into interest tribes and turns marketing goals into targeting decisions, emitting a tailored post + poster per targeted tribe.",
         `You are working inside the project "${project.title}".`,
         linked,
         "Help the founder shape their launch: sharpen positioning, draft X posts, think in audience tribes, and propose poster concepts.",
         "When the founder wants a visual, tell them to use Imagine mode (the wand in the composer) or refine the poster prompt for them.",
-        "Be concrete and concise. Draft real copy, not descriptions of copy.",
+        "Be concrete and concise. Draft real copy, not descriptions of copy. Never use em dashes.",
       ].join(" "),
     };
 
@@ -34,7 +34,12 @@ export function buildCopilotMessages(
       if (m.role === "assistant") {
         messages.push({
           role: "assistant",
-          content: m.kind === "image" ? `[Generated poster for prompt: "${m.content}"]` : m.content,
+          content:
+            m.kind === "image"
+              ? `[Generated poster for prompt: "${m.content}"]`
+              : m.kind === "video"
+                ? `[Generated video for prompt: "${m.content}"]`
+                : m.content,
         });
         continue;
       }

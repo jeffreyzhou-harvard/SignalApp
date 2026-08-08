@@ -95,7 +95,7 @@ export function ProjectsHome() {
           <button
             onClick={() => setShowSettings(true)}
             aria-label="Settings"
-            title={settings?.xAccount ? `Settings — @${settings.xAccount.handle}` : "Settings — link your X account"}
+            title={settings?.xAccount ? `Settings · @${settings.xAccount.handle}` : "Settings · link your X account"}
             className="rounded-lg border border-line p-2 text-muted transition-colors hover:border-line-strong hover:text-fg md:hidden"
           >
             <Settings size={16} strokeWidth={2} />
@@ -105,7 +105,7 @@ export function ProjectsHome() {
         {loadError ? (
           <div className="flex flex-1 flex-col items-center justify-center gap-3 px-6 pb-24 text-center">
             <p className="text-sm font-medium">Couldn’t load your projects.</p>
-            <p className="text-[13px] text-muted">The server didn’t answer — it may still be starting.</p>
+            <p className="text-[13px] text-muted">The server didn’t answer. It may still be starting.</p>
             <button
               onClick={load}
               className="mt-2 rounded-full bg-fg px-5 py-2 text-sm font-semibold text-ground"

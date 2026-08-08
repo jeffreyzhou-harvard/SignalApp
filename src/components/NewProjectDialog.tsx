@@ -40,7 +40,7 @@ export function NewProjectDialog({ onClose }: { onClose: () => void }) {
           id="project-title"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
-          placeholder="e.g. Nova API launch — September"
+          placeholder="e.g. Nova API launch, September"
           autoComplete="off"
           className="mt-2 w-full rounded-lg border border-line bg-raised px-3.5 py-2.5 text-sm placeholder:text-faint focus:border-accent focus:outline-none"
         />

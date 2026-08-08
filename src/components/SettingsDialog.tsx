@@ -48,7 +48,7 @@ export function SettingsDialog({
           <h3 className="text-sm font-semibold">X account</h3>
         </div>
         <p className="mt-1.5 text-[13px] leading-5 text-muted">
-          Your projects hang off this account — the copilot targets its audience and remembers it
+          Your projects hang off this account. The copilot targets its audience and remembers it
           across sessions.
         </p>
 
@@ -108,7 +108,7 @@ export function SettingsDialog({
         {error && <p className="mt-2 text-[13px] text-danger">{error}</p>}
         {!linked && (
           <p className="mt-3 text-xs leading-5 text-faint">
-            Stored locally for now — X sign-in (OAuth) drops into this same slot later.
+            Stored locally for now. X sign-in (OAuth) drops into this same slot later.
           </p>
         )}
       </section>
@@ -126,7 +126,7 @@ export function SettingsDialog({
           </div>
         </dl>
         <p className="mt-2.5 text-xs leading-5 text-faint">
-          Providers are pluggable — set AI_TEXT_PROVIDER / AI_IMAGE_PROVIDER in .env.local to swap
+          Providers are pluggable: set AI_TEXT_PROVIDER / AI_IMAGE_PROVIDER in .env.local to swap
           them.
         </p>
       </section>

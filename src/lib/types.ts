@@ -15,7 +15,7 @@ export interface Project {
 }
 
 export type MessageRole = "user" | "assistant";
-export type MessageKind = "text" | "image";
+export type MessageKind = "text" | "image" | "video";
 
 export interface ChatMessage {
   id: string;
@@ -24,7 +24,7 @@ export interface ChatMessage {
   kind: MessageKind;
   /** Text content, or the prompt that produced an image message. */
   content: string;
-  /** Attached (user) or generated (assistant) image URLs. */
+  /** Attached (user) or generated (assistant) media URLs (images or videos). */
   images: string[];
   /** Provider/model that produced an assistant message. */
   model?: string;

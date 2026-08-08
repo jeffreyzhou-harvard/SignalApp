@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 import { getStorage } from "@/lib/storage";
-import { getImageProvider, getTextProvider } from "@/lib/providers/registry";
+import { getImageProvider, getTextProvider, getVideoProvider } from "@/lib/providers/registry";
 import { buildCopilotMessages } from "@/lib/copilot";
+import { applyStyle } from "@/lib/styles";
 import type { ChatMessage } from "@/lib/types";
 
 export const runtime = "nodejs";
@@ -12,7 +13,18 @@ interface ChatRequest {
   text: string;
   images?: string[];
   mode?: "text" | "imagine";
+  /** Which media Imagine mode produces. Defaults to image. */
+  mediaType?: "image" | "video";
+  /** Image aspect ratio (xAI enum) and resolution. */
+  aspectRatio?: string;
+  resolution?: "1k" | "2k";
+  /** Style preset id from src/lib/styles.ts. */
+  style?: string;
 }
+
+const VALID_RATIOS = new Set([
+  "auto", "1:1", "16:9", "9:16", "4:3", "3:4", "3:2", "2:3", "2:1", "1:2", "19.5:9", "9:19.5", "20:9", "9:20",
+]);
 
 export async function POST(req: Request) {
   const body = (await req.json().catch(() => null)) as ChatRequest | null;
@@ -42,29 +54,61 @@ export async function POST(req: Request) {
 
   if (mode === "imagine") {
     try {
-      const provider = getImageProvider();
-      const generated = await provider.generate({ prompt, aspectRatio: "1:1" });
+      const mediaType = body.mediaType === "video" ? "video" : "image";
+      const styledPrompt = applyStyle(prompt, body.style);
       const urls: string[] = [];
-      for (const img of generated) {
-        const url = await storage.saveFile(crypto.randomUUID(), Buffer.from(img.b64, "base64"), img.mime);
-        urls.push(url);
+      let modelUsed: string;
+
+      // Attached uploads ground the render: image mode edits on them, video mode
+      // animates from the first one as its starting frame.
+      const sources: string[] = [];
+      for (const url of userMessage.images.slice(0, 3)) {
+        const name = url.split("/").pop();
+        if (!name) continue;
+        const file = await storage.readFile(name);
+        if (file) sources.push(`data:${file.mime};base64,${file.bytes.toString("base64")}`);
       }
+
+      if (mediaType === "video") {
+        const provider = getVideoProvider();
+        const video = await provider.generate({ prompt: styledPrompt, sourceImage: sources[0] });
+        urls.push(await storage.saveFile(crypto.randomUUID(), Buffer.from(video.b64, "base64"), video.mime));
+        modelUsed = provider.defaultModel;
+      } else {
+        const provider = getImageProvider();
+        const aspectRatio =
+          body.aspectRatio && VALID_RATIOS.has(body.aspectRatio) ? body.aspectRatio : "auto";
+        const resolution = body.resolution === "2k" ? "2k" : "1k";
+        const generated = await provider.generate({
+          prompt: styledPrompt,
+          aspectRatio,
+          resolution,
+          sourceImages: sources,
+        });
+        for (const img of generated) {
+          urls.push(await storage.saveFile(crypto.randomUUID(), Buffer.from(img.b64, "base64"), img.mime));
+        }
+        modelUsed = provider.defaultModel;
+      }
+
       const assistant: ChatMessage = {
         id: crypto.randomUUID(),
         projectId: project.id,
         role: "assistant",
-        kind: "image",
+        kind: mediaType,
         content: prompt,
         images: urls,
-        model: provider.defaultModel,
+        model: modelUsed,
         createdAt: new Date().toISOString(),
       };
       await storage.appendMessage(assistant);
-      await storage.updateProject(project.id, { thumbnail: urls[0] ?? null });
+      if (mediaType === "image") {
+        await storage.updateProject(project.id, { thumbnail: urls[0] ?? null });
+      }
       return NextResponse.json({ message: assistant });
     } catch (err) {
       return NextResponse.json(
-        { error: err instanceof Error ? err.message : "Image generation failed." },
+        { error: err instanceof Error ? err.message : "Media generation failed." },
         { status: 502 }
       );
     }

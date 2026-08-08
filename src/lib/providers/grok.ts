@@ -1,9 +1,12 @@
 import type {
   GeneratedImage,
+  GeneratedVideo,
   ImageGenOptions,
   ImageProvider,
   TextProvider,
   TextStreamOptions,
+  VideoGenOptions,
+  VideoProvider,
 } from "./types";
 
 const XAI_BASE_URL = process.env.XAI_BASE_URL ?? "https://api.x.ai/v1";
@@ -76,23 +79,35 @@ export const grokText: TextProvider = {
 export const grokImagine: ImageProvider = {
   id: "grok-imagine",
   label: "Grok Imagine",
-  defaultModel: process.env.XAI_IMAGE_MODEL ?? "grok-imagine-image",
+  defaultModel: process.env.XAI_IMAGE_MODEL ?? "grok-imagine-image-quality",
 
-  async generate({ prompt, model, n, aspectRatio, signal }: ImageGenOptions): Promise<GeneratedImage[]> {
-    const res = await fetch(`${XAI_BASE_URL}/images/generations`, {
+  async generate({ prompt, model, n, aspectRatio, resolution, sourceImages, signal }: ImageGenOptions): Promise<GeneratedImage[]> {
+    // With a source image the call becomes an edit: the upload grounds the render.
+    // The edits endpoint documents a single source image; extras are ignored here.
+    const editing = !!sourceImages?.length;
+    const endpoint = editing ? "images/edits" : "images/generations";
+    const body = editing
+      ? {
+          model: model ?? grokImagine.defaultModel,
+          prompt,
+          image: { url: sourceImages![0], type: "image_url" },
+        }
+      : {
+          model: model ?? grokImagine.defaultModel,
+          prompt,
+          n: n ?? 1,
+          ...(aspectRatio ? { aspect_ratio: aspectRatio } : {}),
+          ...(resolution ? { resolution } : {}),
+          response_format: "b64_json",
+        };
+    const res = await fetch(`${XAI_BASE_URL}/${endpoint}`, {
       method: "POST",
       signal,
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${apiKey()}`,
       },
-      body: JSON.stringify({
-        model: model ?? grokImagine.defaultModel,
-        prompt,
-        n: n ?? 1,
-        ...(aspectRatio ? { aspect_ratio: aspectRatio } : {}),
-        response_format: "b64_json",
-      }),
+      body: JSON.stringify(body),
     });
 
     if (!res.ok) {
@@ -115,5 +130,64 @@ export const grokImagine: ImageProvider = {
     }
     if (images.length === 0) throw new Error("Grok Imagine returned no images.");
     return images;
+  },
+};
+
+const VIDEO_POLL_MS = 5000;
+const VIDEO_TIMEOUT_MS = 4 * 60 * 1000;
+
+/** Grok Imagine video: async request + poll until done, then download. */
+export const grokImagineVideo: VideoProvider = {
+  id: "grok-imagine-video",
+  label: "Grok Imagine Video",
+  defaultModel: process.env.XAI_VIDEO_MODEL ?? "grok-imagine-video-1.5",
+
+  async generate({ prompt, model, duration, aspectRatio, resolution, sourceImage, signal }: VideoGenOptions): Promise<GeneratedVideo> {
+    const start = await fetch(`${XAI_BASE_URL}/videos/generations`, {
+      method: "POST",
+      signal,
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${apiKey()}`,
+      },
+      body: JSON.stringify({
+        model: model ?? grokImagineVideo.defaultModel,
+        prompt,
+        duration: duration ?? 6,
+        // Image-to-video defaults to the source's aspect ratio; only force one without a source.
+        ...(sourceImage ? { image: { url: sourceImage } } : { aspect_ratio: aspectRatio ?? "16:9" }),
+        resolution: resolution ?? "720p",
+      }),
+    });
+    if (!start.ok) {
+      const detail = await start.text().catch(() => "");
+      throw new Error(`Grok Imagine video error ${start.status}: ${detail.slice(0, 400)}`);
+    }
+    const { request_id: requestId } = await start.json();
+    if (!requestId) throw new Error("Grok Imagine video returned no request_id.");
+
+    const deadline = Date.now() + VIDEO_TIMEOUT_MS;
+    while (Date.now() < deadline) {
+      await new Promise((r) => setTimeout(r, VIDEO_POLL_MS));
+      const poll = await fetch(`${XAI_BASE_URL}/videos/${requestId}`, {
+        signal,
+        headers: { Authorization: `Bearer ${apiKey()}` },
+      });
+      if (!poll.ok) continue;
+      const json = await poll.json();
+      if (json.status === "done" && json.video?.url) {
+        const vidRes = await fetch(json.video.url, { signal });
+        if (!vidRes.ok) throw new Error(`Could not download the generated video (${vidRes.status}).`);
+        const buf = Buffer.from(await vidRes.arrayBuffer());
+        return {
+          b64: buf.toString("base64"),
+          mime: vidRes.headers.get("content-type") ?? "video/mp4",
+          duration: json.video.duration,
+        };
+      }
+      if (json.status === "failed") throw new Error("Grok Imagine video generation failed.");
+      if (json.status === "expired") throw new Error("Grok Imagine video request expired.");
+    }
+    throw new Error("Grok Imagine video timed out. Try a shorter duration.");
   },
 };
