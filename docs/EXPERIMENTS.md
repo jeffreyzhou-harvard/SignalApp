@@ -18,6 +18,23 @@ Fast-pass matrix (≈14 runs): E1 arms A–E (KMeans fixed) → E2 sparse weight
 
 **Provisional default: arm C + sparse 0.2 + UMAP→HDBSCAN**, KMeans k=8 kept as fallback. Re-verify the full matrix on real ingest with the Gemini embedder before freezing — fixture tribes are planted, so real-data numbers will be lower and could reorder E2/E3.
 
+### v3 round (engaged-with content + FT arm) — IN PROGRESS
+
+Data upgrade landed first: 192/200 @ishand personas backfilled with `referenced_text` (parent bodies of posts they replied to / quoted / reposted — 1,553 parent tweets, ~$8). New ingests store it natively. Taxonomy re-scored with engaged evidence included.
+
+**Standing rule (per team decision): every feature-representation change re-runs the full algorithm sweep** — KMeans k-sweep, UMAP+HDBSCAN, agglomerative. "KMeans wins" was a claim about discrete tag vectors, not a law; richer dense blocks (FT) may re-favor density methods. Tags-file reuse makes the sweep nearly free.
+
+Results (baseline 0.542 = T4-vectors):
+
+| Config | Stability | k |
+|---|---|---|
+| FT + KMeans | .447 | 8 |
+| **FT + UMAP→HDBSCAN** | **.624** | 10 (+ periphery flag) |
+| FT + agglomerative | .585 | 7 |
+| F text-only + HDBSCAN | .595 | 2 (collapsed — taxonomy still needed) |
+
+**referenced_text works: +15% stability**, and the algorithm ranking INVERTED — HDBSCAN went from collapsing on discrete tags (.046) to winning on the enriched dense block (.624), while KMeans dropped below baseline. The standing re-sweep rule caught it; without it we'd have shipped the worse config. Winner's tribes: ML Research Engineers, Agentic AI Devs, Open Source Contributors, SF Talent Network, Crypto VC Investors, Grok xAI Users, SpaceX/Tesla fans, + an honest periphery catch-all. Not yet activated in Neon (pending review — teammates consume the active run).
+
 ### Real-data results (@ishand, 200 deep-enriched, Gemini embedder) — CONFIRMED
 
 | Config | Stability | Purity | k |
