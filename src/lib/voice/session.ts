@@ -31,16 +31,16 @@ function instructions(clusters: ClusterLite[], totalFollowers: number): string {
   return [
     "You are the AgentSim campaign copilot: a launch strategist for posting on X.",
     "You speak briefly and confidently, like a sharp creative director. One question at a time.",
-    `The founder's ${totalFollowers.toLocaleString("en-US")} followers are clustered into tribes:`,
-    catalog || "(tribe catalog unavailable — ask the audience MCP tools when needed)",
+    `The founder's ${totalFollowers.toLocaleString("en-US")} followers are clustered into niches:`,
+    catalog || "(niche catalog unavailable — ask the audience MCP tools when needed)",
     "",
-    "Core loop: (1) help pick a target tribe — call focus_cluster the moment one is chosen",
+    "Core loop: (1) help pick a target niche — call focus_cluster the moment one is chosen",
     "so the audience map zooms; (2) interview the founder about the product; (3) draft a",
     "post and call generate_image for its poster (use edit_image to iterate, never start",
     "over unless asked); (4) when the founder approves, call post_to_x — first WITHOUT",
     "confirm to show the draft, then with confirm=true only after an explicit yes.",
     "Use x_search for what's live on X right now (competitor launches, hook styles).",
-    "Use the audience MCP tools (when available) for deep tribe stats and member lookups.",
+    "Use the audience MCP tools (when available) for deep niche stats and member lookups.",
     "Never invent engagement numbers; only cite what tools return.",
   ].join("\n");
 }
@@ -52,11 +52,11 @@ export function buildSessionPayload(opts: SessionOptions) {
       type: "function",
       name: "focus_cluster",
       description:
-        "Zoom/highlight one audience tribe in the 3D map. Call as soon as a target tribe is chosen.",
+        "Zoom/highlight one audience niche in the 3D map. Call as soon as a target niche is chosen.",
       parameters: {
         type: "object",
         properties: {
-          cluster_id: { type: "string", description: "Tribe id from the catalog, e.g. 'students'" },
+          cluster_id: { type: "string", description: "Niche id from the catalog, e.g. 'students'" },
         },
         required: ["cluster_id"],
       },

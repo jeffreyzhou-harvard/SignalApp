@@ -12,7 +12,7 @@ describe("buildSessionPayload", () => {
     expect(p.session.instructions.length).toBeGreaterThan(50);
   });
 
-  it("inlines the tribe catalog into instructions", () => {
+  it("inlines the niche catalog into instructions", () => {
     const p = buildSessionPayload({ clusters, totalFollowers: 18442 });
     expect(p.session.instructions).toContain("students");
     expect(p.session.instructions).toContain("4,388");
