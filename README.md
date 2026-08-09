@@ -6,10 +6,11 @@
 
 # Signal
 
-**A wind tunnel for product launches on X.**
+**Simulated audiences and A/B testing for product launches on X.**
 
-Your followers' bios, posts, and engagement, embedded into constellations.
-One launch, engagement-tuned for every niche.
+For solo founders and marketing teams who live on X. Your followers bios, posts, and
+engagement embedded into a living graph. We generate and A/B test different launches
+for simulated populations so every post hits maximum engagement.
 
 [How It Works](#how-it-works) ·
 [Getting Started](#getting-started) ·
