@@ -38,8 +38,8 @@ body {
 /* Logo rendered through a mask so the mark takes any color. */
 .logo-mask {
   background-color: currentColor;
-  mask: url("/AgentSim.png") no-repeat center / contain;
-  -webkit-mask: url("/AgentSim.png") no-repeat center / contain;
+  mask: url("/signal-mark.png") no-repeat center / contain;
+  -webkit-mask: url("/signal-mark.png") no-repeat center / contain;
 }
 
 :focus-visible {

@@ -1,0 +1,16 @@
+<svg viewBox="0 0 96 96" xmlns="http://www.w3.org/2000/svg">
+  <!-- Signal mark: a bright origin broadcasting arcs, with constellation
+       nodes riding the outer wave. Solid silhouette — used via CSS mask. -->
+  <g fill="#fff">
+    <!-- origin node -->
+    <circle cx="22" cy="74" r="11"/>
+    <!-- broadcast arcs -->
+    <path d="M40 74a18 18 0 0 0-18-18v-9a27 27 0 0 1 27 27z"/>
+    <path d="M57 74a35 35 0 0 0-35-35v-9a44 44 0 0 1 44 44z"/>
+    <path d="M74 74a52 52 0 0 0-52-52v-9a61 61 0 0 1 61 61z"/>
+    <!-- constellation nodes on the outer wave -->
+    <circle cx="80" cy="35" r="6.5"/>
+    <circle cx="61" cy="16" r="5"/>
+    <circle cx="86" cy="59" r="5"/>
+  </g>
+</svg>

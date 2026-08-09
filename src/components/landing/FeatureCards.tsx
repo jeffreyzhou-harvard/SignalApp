@@ -316,7 +316,7 @@ const FEATURES = [
     tag: "Audience map",
     windowTitle: "audience.map",
     title: "See who actually follows you.",
-    body: "AgentSim clusters your real followers into interest niches, named, sized, and mapped, so you know exactly who you're talking to.",
+    body: "Signal clusters your real followers into interest niches, named, sized, and mapped, so you know exactly who you're talking to.",
     visual: <MiniGalaxy />,
   },
   {

@@ -1,0 +1,22 @@
+<svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <!-- Favicon / app-icon tile: the Signal mark in accent blue on the app's
+       own near-black, matching the product's OWN-WORLD palette. -->
+  <defs>
+    <radialGradient id="glow" cx="0.32" cy="0.72" r="0.9">
+      <stop offset="0" stop-color="#4da3ff" stop-opacity="0.22"/>
+      <stop offset="1" stop-color="#4da3ff" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="512" height="512" rx="116" fill="#0e0f11"/>
+  <rect x="6" y="6" width="500" height="500" rx="110" fill="none" stroke="#2f343a" stroke-width="4"/>
+  <rect width="512" height="512" rx="116" fill="url(#glow)"/>
+  <g transform="translate(88 88) scale(3.5)" fill="#f2f4f6">
+    <circle cx="22" cy="74" r="11"/>
+    <path d="M40 74a18 18 0 0 0-18-18v-9a27 27 0 0 1 27 27z"/>
+    <path d="M57 74a35 35 0 0 0-35-35v-9a44 44 0 0 1 44 44z"/>
+    <path d="M74 74a52 52 0 0 0-52-52v-9a61 61 0 0 1 61 61z"/>
+    <circle cx="80" cy="35" r="6.5" fill="#4da3ff"/>
+    <circle cx="61" cy="16" r="5" fill="#4da3ff"/>
+    <circle cx="86" cy="59" r="5" fill="#4da3ff"/>
+  </g>
+</svg>

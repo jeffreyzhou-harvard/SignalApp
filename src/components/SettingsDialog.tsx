@@ -159,7 +159,7 @@ export function SettingsDialog({
           {!linked && (
             <p className="mt-3 text-xs leading-5 text-faint">
               {settings?.auth.mode === "redirect"
-                ? "You'll authorize AgentSim to read your audience and post only when you say ship."
+                ? "You'll authorize Signal to read your audience and post only when you say ship."
                 : "Stored locally for now. Sign in with X activates when OAuth credentials are configured."}
             </p>
           )}

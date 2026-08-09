@@ -22,9 +22,9 @@ export function buildCopilotMessages(
     const system: ProviderMessage = {
       role: "system",
       content: [
-        "You are the AgentSim campaign copilot, a launch strategist for products announced on X.",
+        "You are the Signal campaign copilot, a launch strategist for products announced on X.",
         founder,
-        "AgentSim clusters a founder's real followers into interest niches and turns marketing goals into targeting decisions, emitting a tailored post + poster per targeted niche.",
+        "Signal clusters a founder's real followers into interest niches and turns marketing goals into targeting decisions, emitting a tailored post + poster per targeted niche.",
         `You are working inside the project "${project.title}".`,
         linked,
         "Help the founder shape their launch: sharpen positioning, draft X posts, think in audience niches, and propose poster concepts.",

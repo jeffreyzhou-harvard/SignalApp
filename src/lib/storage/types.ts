@@ -35,7 +35,7 @@ export interface StorageAdapter {
   getSettings(): Promise<AppSettings>;
   putSettings(settings: AppSettings): Promise<AppSettings>;
 
-  /** Posts published from AgentSim, newest first. */
+  /** Posts published from Signal, newest first. */
   listDeploys(): Promise<DeployedPost[]>;
   recordDeploy(post: DeployedPost): Promise<DeployedPost>;
 
