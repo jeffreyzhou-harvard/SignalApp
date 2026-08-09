@@ -16,6 +16,40 @@ export interface AudienceCluster {
   center: [number, number, number];
 }
 
+/** Everything the pipeline stores for one account, for the profile card. */
+export interface MemberProfile {
+  location?: string | null;
+  verified?: boolean;
+  verifiedType?: string | null;
+  accountAgeDays?: number | null;
+  /** How they relate to the seed account: "follower" | "engager". */
+  relationship?: string | null;
+  /** 2 = deep (Grok-enriched) persona. */
+  enrichmentTier?: number | null;
+  metrics?: {
+    followers?: number | null;
+    following?: number | null;
+    tweets?: number | null;
+    listed?: number | null;
+  };
+  /** Their engagement with the seed account's posts. */
+  seedEngagement?: { likes?: number | null; reposts?: number | null; replies?: number | null };
+  card?: {
+    archetype?: string;
+    oneLiner?: string;
+    summary?: string;
+    toneAffinity?: string;
+    interests?: string[];
+    conversionLevers?: string[];
+    preferredFormats?: string[];
+  };
+  samplePosts?: string[];
+  /** Canonical X profile URL. */
+  profileUrl?: string | null;
+  confidence?: number | null;
+  periphery?: boolean;
+}
+
 export interface AudienceMember {
   id: number;
   name: string;
@@ -28,6 +62,8 @@ export interface AudienceMember {
   deep?: boolean;
   /** Real X profile link; absent for synthetic members. */
   profileUrl?: string;
+  /** Full stored persona; absent on sample data. */
+  profile?: MemberProfile;
 }
 
 export interface AudienceSnapshot {

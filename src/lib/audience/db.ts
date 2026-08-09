@@ -1,4 +1,4 @@
-import type { AudienceCluster, AudienceMember, AudienceProvider, AudienceSnapshot } from "./types";
+import type { AudienceCluster, AudienceMember, AudienceProvider, AudienceSnapshot, MemberProfile } from "./types";
 import { mockAudience } from "./mock";
 
 /**
@@ -40,7 +40,34 @@ interface BackendMember {
     display_name?: string;
     bio?: string;
     profile_image_url?: string;
-    persona_card?: { one_liner?: string } | null;
+    profile_url?: string;
+    location?: string | null;
+    verified?: boolean;
+    verified_type?: string | null;
+    account_age_days?: number | null;
+    relationship?: string | null;
+    enrichment_tier?: number | null;
+    metrics?: {
+      followers_count?: number | null;
+      following_count?: number | null;
+      tweet_count?: number | null;
+      listed_count?: number | null;
+    } | null;
+    seed_engagement?: {
+      likes_on_seed_posts?: number | null;
+      reposts?: number | null;
+      replies?: number | null;
+    } | null;
+    content?: { sample_posts?: { text?: string }[] } | null;
+    persona_card?: {
+      one_liner?: string;
+      archetype?: string;
+      summary?: string;
+      tone_affinity?: string;
+      ranked_interests?: string[];
+      conversion_levers?: string[];
+      preferred_formats?: string[];
+    } | null;
   } | null;
 }
 
@@ -114,6 +141,48 @@ function mapSnapshot(snap: BackendSnapshot): AudienceSnapshot {
       x += jitter(`${m.user_id}:x`) * 0.6;
       y += jitter(`${m.user_id}:y`) * 0.6;
     }
+    const card = doc?.persona_card ?? null;
+    const profileUrl = doc?.handle
+      ? `https://x.com/${doc.handle.replace(/^@/, "")}`
+      : `https://x.com/intent/user?user_id=${m.user_id}`;
+    const profile: MemberProfile = {
+      location: doc?.location ?? null,
+      verified: doc?.verified ?? false,
+      verifiedType: doc?.verified_type ?? null,
+      accountAgeDays: doc?.account_age_days ?? null,
+      relationship: doc?.relationship ?? null,
+      enrichmentTier: doc?.enrichment_tier ?? null,
+      metrics: {
+        followers: doc?.metrics?.followers_count ?? null,
+        following: doc?.metrics?.following_count ?? null,
+        tweets: doc?.metrics?.tweet_count ?? null,
+        listed: doc?.metrics?.listed_count ?? null,
+      },
+      seedEngagement: {
+        likes: doc?.seed_engagement?.likes_on_seed_posts ?? null,
+        reposts: doc?.seed_engagement?.reposts ?? null,
+        replies: doc?.seed_engagement?.replies ?? null,
+      },
+      card: card?.archetype || card?.summary
+        ? {
+            archetype: card?.archetype,
+            oneLiner: card?.one_liner,
+            summary: card?.summary,
+            toneAffinity: card?.tone_affinity,
+            interests: card?.ranked_interests ?? [],
+            conversionLevers: card?.conversion_levers ?? [],
+            preferredFormats: card?.preferred_formats ?? [],
+          }
+        : undefined,
+      samplePosts: (doc?.content?.sample_posts ?? [])
+        .map((p) => (p.text ?? "").trim())
+        .filter(Boolean)
+        .slice(0, 3)
+        .map((text) => (text.length > 240 ? `${text.slice(0, 240)}…` : text)),
+      profileUrl,
+      confidence: m.confidence,
+      periphery: m.periphery,
+    };
     return {
       id: i,
       name: doc?.display_name || handle.replace(/^@/, ""),
@@ -125,9 +194,8 @@ function mapSnapshot(snap: BackendSnapshot): AudienceSnapshot {
       clusterId: m.cluster_id,
       pos: [x, y, z],
       deep,
-      profileUrl: doc?.handle
-        ? `https://x.com/${doc.handle.replace(/^@/, "")}`
-        : `https://x.com/intent/user?user_id=${m.user_id}`,
+      profileUrl,
+      profile,
     };
   });
 

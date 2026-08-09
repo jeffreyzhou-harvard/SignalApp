@@ -2,9 +2,10 @@
 
 import { useEffect, useState } from "react";
 import { Canvas } from "@react-three/fiber";
-import type { AudienceSnapshot } from "@/lib/audience/types";
+import type { AudienceMember, AudienceSnapshot } from "@/lib/audience/types";
 import { GalaxyScene } from "./Scene";
 import { CampaignPanel, type PanelStage } from "./CampaignPanel";
+import { MemberProfileCard } from "./MemberProfileCard";
 
 /**
  * The audience map + campaign card: the galaxy renders whatever the registered
@@ -30,6 +31,7 @@ export function GalaxyView({
   const [attempt, setAttempt] = useState(0);
   const [stage, setStage] = useState<PanelStage>("target");
   const [simRunning, setSimRunning] = useState(false);
+  const [profileMember, setProfileMember] = useState<AudienceMember | null>(null);
 
   // The voice copilot's focus_cluster tool zooms the map exactly like a click.
   useEffect(() => {
@@ -96,6 +98,7 @@ export function GalaxyView({
             onPick={(id) => {
               if (canRetarget) setSelected(id);
             }}
+            onPickMember={setProfileMember}
           />
         )}
       </Canvas>
@@ -173,6 +176,14 @@ export function GalaxyView({
             />
           )}
 
+          {profileMember && (
+            <MemberProfileCard
+              member={profileMember}
+              cluster={snapshot.clusters.find((c) => c.id === profileMember.clusterId) ?? null}
+              onClose={() => setProfileMember(null)}
+            />
+          )}
+
           {vizOnly &&
             (selectedCluster ? (
               <div className="absolute bottom-5 left-1/2 flex -translate-x-1/2 items-center gap-3 max-md:w-[calc(100%-2rem)]">
@@ -188,7 +199,7 @@ export function GalaxyView({
               </div>
             ) : (
               <p className="absolute bottom-5 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full border border-line bg-surface/70 px-4 py-2 text-xs text-faint backdrop-blur">
-                Click a niche label to zoom · click a follower to open them on X · ⌥&thinsp;drag to orbit
+                Click a niche label to zoom · click a follower for their full profile · ⌥&thinsp;drag to orbit
               </p>
             ))}
         </>

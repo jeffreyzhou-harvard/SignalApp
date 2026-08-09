@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { ArrowLeft, ArrowRight, Bookmark, Bot, Check, ExternalLink, Heart, ImagePlus, MessageCircle, Play, Repeat2, RotateCcw, Send, Sparkles, X } from "lucide-react";
+import { ArrowLeft, ArrowRight, Bookmark, Bot, Check, ExternalLink, Film, Heart, Image as ImageIcon, ImagePlus, MessageCircle, Play, Repeat2, RotateCcw, Send, Sparkles, X } from "lucide-react";
 import type { AudienceCluster, AudienceSnapshot } from "@/lib/audience/types";
 import type { CampaignVariant, SimEvent, SimResult, SimTally } from "@/lib/simulation/types";
 import { applyEvent, emptyTally, engagementRate } from "@/lib/simulation/types";
@@ -161,6 +161,9 @@ export function CampaignPanel({
   const [briefUploading, setBriefUploading] = useState(false);
   const [briefRendering, setBriefRendering] = useState(false);
   const [briefError, setBriefError] = useState<string | null>(null);
+  const [briefKind, setBriefKind] = useState<"image" | "video">("image");
+  const [briefDragging, setBriefDragging] = useState(false);
+  const briefDragDepth = useRef(0);
   const briefFileRef = useRef<HTMLInputElement>(null);
   const [baseline, setBaseline] = useState<CampaignVariant | null>(null);
   const [tailored, setTailored] = useState<CampaignVariant | null>(null);
@@ -213,6 +216,46 @@ export function CampaignPanel({
     };
   }, [projectId, setStage]);
 
+  // Dragging files anywhere onto the page during the brief step attaches them
+  // as product shots, mirroring the chat composer's drop behavior.
+  useEffect(() => {
+    if (stage !== "brief") return;
+    const hasFiles = (e: DragEvent) => e.dataTransfer?.types.includes("Files");
+    const enter = (e: DragEvent) => {
+      if (!hasFiles(e)) return;
+      e.preventDefault();
+      briefDragDepth.current++;
+      setBriefDragging(true);
+    };
+    const over = (e: DragEvent) => {
+      if (hasFiles(e)) e.preventDefault();
+    };
+    const leave = () => {
+      briefDragDepth.current = Math.max(0, briefDragDepth.current - 1);
+      if (briefDragDepth.current === 0) setBriefDragging(false);
+    };
+    const drop = (e: DragEvent) => {
+      if (!hasFiles(e)) return;
+      e.preventDefault();
+      briefDragDepth.current = 0;
+      setBriefDragging(false);
+      attachBriefFiles(e.dataTransfer?.files ?? null);
+    };
+    window.addEventListener("dragenter", enter);
+    window.addEventListener("dragover", over);
+    window.addEventListener("dragleave", leave);
+    window.addEventListener("drop", drop);
+    return () => {
+      briefDragDepth.current = 0;
+      setBriefDragging(false);
+      window.removeEventListener("dragenter", enter);
+      window.removeEventListener("dragover", over);
+      window.removeEventListener("dragleave", leave);
+      window.removeEventListener("drop", drop);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [stage]);
+
   async function attachBriefFiles(files: FileList | null) {
     if (!files?.length) return;
     const images = Array.from(files).filter((f) => f.type.startsWith("image/"));
@@ -250,7 +293,7 @@ export function CampaignPanel({
           text,
           images: briefImages.map((i) => i.url),
           mode: "imagine",
-          mediaType: "image",
+          mediaType: briefKind,
           aspectRatio: "auto",
           resolution: "1k",
           style: "none",
@@ -462,6 +505,15 @@ export function CampaignPanel({
       aria-label="Campaign"
     >
       {/* ── Brief ──────────────────────────────────────────────── */}
+      {stage === "brief" && briefDragging && (
+        <div className="pointer-events-none fixed inset-0 z-50 flex items-center justify-center bg-ground/80 p-6 backdrop-blur-sm">
+          <div className="flex flex-col items-center gap-3 rounded-2xl border-2 border-dashed border-line-strong px-16 py-12">
+            <ImagePlus size={28} strokeWidth={1.75} className="text-muted" />
+            <p className="text-sm font-semibold">Drop product shots to attach</p>
+            <p className="text-[13px] text-muted">They’ll ground the launch creative.</p>
+          </div>
+        </div>
+      )}
       {stage === "brief" && (
         <div className="flex flex-col gap-3 p-4">
           <div>
@@ -508,8 +560,36 @@ export function CampaignPanel({
             className="flex items-center justify-center gap-2 rounded-xl border border-dashed border-line px-4 py-3 text-[13px] font-medium text-muted transition-colors hover:border-line-strong hover:text-fg disabled:opacity-50"
           >
             <ImagePlus size={15} strokeWidth={2} />
-            {briefUploading ? "Uploading…" : "Add product shots"}
+            {briefUploading ? "Uploading…" : "Add product shots, or drag them anywhere"}
           </button>
+
+          <div className="flex items-center justify-between rounded-xl border border-line bg-raised/50 px-3.5 py-2">
+            <span className="text-xs text-muted">Creative</span>
+            <div className="flex items-center rounded-lg border border-line p-0.5" role="tablist" aria-label="Creative type">
+              <button
+                role="tab"
+                aria-selected={briefKind === "image"}
+                onClick={() => setBriefKind("image")}
+                className={`flex items-center gap-1 rounded-md px-2.5 py-1 text-xs font-medium transition-colors ${
+                  briefKind === "image" ? "bg-raised text-fg" : "text-muted hover:text-fg"
+                }`}
+              >
+                <ImageIcon size={12} strokeWidth={2} />
+                Image
+              </button>
+              <button
+                role="tab"
+                aria-selected={briefKind === "video"}
+                onClick={() => setBriefKind("video")}
+                className={`flex items-center gap-1 rounded-md px-2.5 py-1 text-xs font-medium transition-colors ${
+                  briefKind === "video" ? "bg-raised text-fg" : "text-muted hover:text-fg"
+                }`}
+              >
+                <Film size={12} strokeWidth={2} />
+                Video
+              </button>
+            </div>
+          </div>
 
           <textarea
             value={briefText}
@@ -520,9 +600,23 @@ export function CampaignPanel({
             className="w-full resize-none rounded-xl border border-line bg-raised px-3.5 py-2.5 text-[13px] leading-5 placeholder:text-faint focus:border-accent focus:outline-none"
           />
 
+          {briefImages.length > 0 && (
+            <p className="text-center text-xs leading-4 text-faint">
+              {briefKind === "video"
+                ? "Your upload becomes the opening frame; the brief directs the motion."
+                : "Your upload grounds the render; the brief describes the look."}
+            </p>
+          )}
+
           {briefRendering ? (
             <div className="flex h-16 items-center justify-center">
-              <Dots label="Rendering your creative with Grok Imagine" />
+              <Dots
+                label={
+                  briefKind === "video"
+                    ? "Rendering your teaser video with Grok Imagine (a minute or two)"
+                    : "Rendering your creative with Grok Imagine"
+                }
+              />
             </div>
           ) : (
             <button

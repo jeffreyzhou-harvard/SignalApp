@@ -179,6 +179,7 @@ function ClusterGroup({
   selectedId,
   live,
   onPick,
+  onPickMember,
   onHover,
 }: {
   cluster: AudienceCluster;
@@ -187,6 +188,7 @@ function ClusterGroup({
   selectedId: string | null;
   live: boolean;
   onPick: (id: string) => void;
+  onPickMember: (m: AudienceMember) => void;
   onHover: (m: AudienceMember | null) => void;
 }) {
   const edges = useMemo(() => clusterEdges(members), [members]);
@@ -242,10 +244,9 @@ function ClusterGroup({
             userData={{ memberId: m.id, baseScale: deep ? 0.92 : 0.5, baseOpacity: deep ? 1 : 0.85 }}
             onClick={(e) => {
               e.stopPropagation();
-              // A member's bubble is that person: open their X profile.
-              // Synthetic members have no profile — fall back to tribe zoom.
-              if (m.profileUrl) window.open(m.profileUrl, "_blank", "noopener");
-              else onPick(cluster.id);
+              // A member's bubble is that person: open their full profile card
+              // (it links out to X). Niche zoom lives on the cluster label.
+              onPickMember(m);
             }}
             onPointerOver={(e) => {
               e.stopPropagation();
@@ -418,6 +419,7 @@ export function GalaxyScene({
   pulseClusterId = null,
   shifted = false,
   onPick,
+  onPickMember = () => {},
 }: {
   clusters: AudienceCluster[];
   members: AudienceMember[];
@@ -425,6 +427,7 @@ export function GalaxyScene({
   pulseClusterId?: string | null;
   shifted?: boolean;
   onPick: (id: string) => void;
+  onPickMember?: (m: AudienceMember) => void;
 }) {
   const textures = useAvatarTextures(members, clusters);
   const galaxyRef = useRef<THREE.Group>(null);
@@ -453,6 +456,7 @@ export function GalaxyScene({
               selectedId={selectedId}
               live={pulseClusterId === c.id}
               onPick={onPick}
+              onPickMember={onPickMember}
               onHover={setHovered}
             />
           ))}
@@ -469,7 +473,7 @@ export function GalaxyScene({
                 <p className="truncate text-[13px] font-medium text-fg">{hovered.name}</p>
                 <p className="text-xs text-muted">{hovered.handle}</p>
                 <p className="mt-0.5 text-xs leading-4 text-faint">{hovered.bio}</p>
-                {hovered.profileUrl && <p className="mt-1 text-[11px] text-muted">Click to open on X ↗</p>}
+                <p className="mt-1 text-[11px] text-muted">Click for their full profile</p>
               </div>
             </div>
           </Html>
