@@ -22,6 +22,8 @@
 - **Ephemeral token can't carry session config**, so the client sends `session.update` — but the payload is *assembled server-side* and returned by the token route. Single source of truth stays on the server; the MCP `authorization` header never ships in the static bundle (it is visible to the logged-in user in that one response — fine for a read-only demo store; revisit before prod).
 - **Imagine = function tools hitting our existing providers**, not a community MCP: `src/lib/providers/grok.ts` already implements `images/generations`, `images/edits`, `videos/generations` + polling. A community MCP would duplicate that and hide the results from our UI panels.
 - **UI commands are just function tools.** `focus_cluster` is declared like any tool; the browser executes it by dispatching a DOM `CustomEvent` the galaxy listens for. No state-sync layer.
+- **One brain, two equal inputs.** The app's UI offers BOTH voice and text chat for the harness — they are the same session, not two systems. Typing sends `conversation.item.create` over the same WebSocket the mic streams into; the copilot's replies always render as text captions and (in voice mode) speak. Text is a first-class mode, not a mic-failure fallback.
+- **Campaign routes coexist, don't collide** (post-`9abe155`): `/api/campaign/baseline` and `/api/campaign/tailor` are the button-driven campaign flow. The harness doesn't call them in v1 — but the registry makes `tailor_to_tribe` (→ POST `/api/campaign/tailor`) a two-line future tool if we want the copilot to drive that flow by voice.
 
 ## File structure
 
@@ -489,7 +491,7 @@ git commit -m "feat(voice): isomorphic PCM16 base64 codec"
 **Files:**
 - Create: `src/lib/voice/tools.ts`
 - Create: `src/lib/voice/tools.test.ts`
-- Modify: `src/components/galaxy/GalaxyView.tsx` (add one `useEffect` listener; component keeps its own `selected` state — see line ~18 `const [selected, setSelected] = useState<string | null>(null)`)
+- Modify: `src/components/galaxy/GalaxyView.tsx` (add one `useEffect` listener; component keeps its own `selected` state — see line ~26 `const [selected, setSelected] = useState<string | null>(null)`; the `9abe155` panning/PostCard changes don't affect this approach)
 
 **Interfaces:**
 - Consumes: `ClientToolName` from Task 2.
@@ -657,7 +659,7 @@ git commit -m "feat(voice): client tool registry + agent-driven galaxy zoom"
 
 **Interfaces:**
 - Consumes: `getImageProvider()`, `getVideoProvider()` from `@/lib/providers/registry` (already implemented — check exact export names in that file; the registry pattern shows `textProviders/imageProviders/videoProviders` with getters near the bottom).
-- Produces: `POST /api/imagine` with `{kind: "image"|"edit"|"video", prompt, imageUrl?, aspectRatio?, projectId?}` → `{url: string, kind: string}` (video returns when polling completes, matching the existing provider behavior used by `/api/campaign/variants`).
+- Produces: `POST /api/imagine` with `{kind: "image"|"edit"|"video", prompt, imageUrl?, aspectRatio?, projectId?}` → `{url: string, kind: string}` (video returns when polling completes — same provider behavior the campaign routes `/api/campaign/baseline` + `/api/campaign/tailor` rely on).
 
 - [ ] **Step 1: Read the provider surface first** — `src/lib/providers/types.ts` and the bottom of `registry.ts` — and match the exact option names (`ImageGenOptions`, `VideoGenOptions`). The route below assumes `generate({prompt, aspectRatio?, referenceImages?})` for images and `generate({prompt, imageUrl?})` for video; adjust to the real signatures.
 
@@ -903,7 +905,7 @@ git commit -m "feat(voice): realtime client — one WS for voice, text, and tool
 
 ---
 
-### Task 8: VoiceDock UI (orb + voice/text toggle)
+### Task 8: VoiceDock UI (orb + voice/text toggle — two equal input modes, one session)
 
 **Files:**
 - Create: `src/components/VoiceDock.tsx`
