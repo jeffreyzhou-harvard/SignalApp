@@ -25,7 +25,7 @@ export function floatTo16BitPCMBase64(f32: Float32Array): string {
   return toB64(new Uint8Array(i16.buffer));
 }
 
-export function base64ToFloat32(b64: string): Float32Array {
+export function base64ToFloat32(b64: string): Float32Array<ArrayBuffer> {
   const bytes = fromB64(b64);
   const i16 = new Int16Array(bytes.buffer, bytes.byteOffset, bytes.byteLength / 2);
   const f32 = new Float32Array(i16.length);
