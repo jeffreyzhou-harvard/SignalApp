@@ -19,6 +19,15 @@ export interface LaunchContext {
   hasMcp: boolean;
 }
 
+/**
+ * How to format tabular answers. The chat renderer supports GitHub-flavored
+ * markdown tables, so structured comparisons should use them rather than prose.
+ */
+const TABLE_GUIDANCE =
+  "When you present structured data (a breakdown of niches, metrics per tribe, a comparison across options), " +
+  "format it as a GitHub-flavored markdown table: a header row, a separator row of dashes (e.g. |---|---|), " +
+  "then one row per item, each row on its own line with cells wrapped in pipes. Keep tables compact (a few columns).";
+
 /** The founder-facing audience brief injected into the prompt, from real data. */
 function audienceBrief(snapshot: AudienceSnapshot): string {
   if (!snapshot.clusters.length) {
@@ -89,6 +98,7 @@ export function buildLaunchSystemPrompt(ctx: LaunchContext): string {
     "or refine the poster prompt for them; you cannot render images yourself in this chat.",
     "Be concrete and concise. Draft real copy, not descriptions of copy. Ask one question at a time.",
     "Never use em dashes.",
+    TABLE_GUIDANCE,
     `When you draft an actual launch post, follow this guide. ${LAUNCH_COPY_GUIDE}`,
   ]
     .filter((l) => l !== undefined && l !== null)
@@ -133,6 +143,7 @@ export function buildAudienceChatSystemPrompt({
     "Be concrete and concise. Draft real copy, not descriptions of copy. Ask one question at a time.",
     "Never use em dashes. To render posters, tell the founder to open a project and use Imagine mode;",
     "you cannot generate images in this view.",
+    TABLE_GUIDANCE,
     `When you draft an actual launch post, follow this guide. ${LAUNCH_COPY_GUIDE}`,
   ]
     .filter((l) => l !== undefined && l !== null)

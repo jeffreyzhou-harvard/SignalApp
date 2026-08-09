@@ -2,9 +2,24 @@ import React from "react";
 
 /**
  * Minimal markdown for copilot replies: bold, italics, inline code,
- * bullet/numbered lists, and heading lines. Anything richer stays literal —
- * this is a chat transcript, not a document renderer.
+ * bullet/numbered lists, heading lines, and pipe tables. Anything richer stays
+ * literal — this is a chat transcript, not a document renderer.
  */
+
+const TABLE_ROW = /^\s*\|.*\|\s*$/;
+
+function splitCells(row: string): string[] {
+  return row
+    .trim()
+    .replace(/^\||\|$/g, "")
+    .split("|")
+    .map((c) => c.trim());
+}
+
+function isSeparatorRow(row: string): boolean {
+  const cells = splitCells(row);
+  return cells.length > 0 && cells.every((c) => /^:?-+:?$/.test(c));
+}
 
 function renderInline(text: string): React.ReactNode[] {
   const nodes: React.ReactNode[] = [];
@@ -36,7 +51,54 @@ export function Markdown({ text }: { text: string }) {
   const lines = text.split("\n");
   const blocks: React.ReactNode[] = [];
   let list: { ordered: boolean; items: string[] } | null = null;
+  let table: string[] | null = null;
   let key = 0;
+
+  const flushTable = () => {
+    if (!table) return;
+    const rows = table;
+    table = null;
+    // A real table is a header row, a separator row, then data rows.
+    if (rows.length >= 2 && isSeparatorRow(rows[1])) {
+      const header = splitCells(rows[0]);
+      const body = rows.slice(2).map(splitCells);
+      blocks.push(
+        <div key={key++} className="my-2 overflow-x-auto">
+          <table className="w-full border-collapse text-[13px]">
+            <thead>
+              <tr className="border-b border-line-strong">
+                {header.map((cell, i) => (
+                  <th key={i} className="px-3 py-1.5 text-left font-semibold">
+                    {renderInline(cell)}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {body.map((cells, r) => (
+                <tr key={r} className="border-b border-line">
+                  {header.map((_, c) => (
+                    <td key={c} className="px-3 py-1.5 align-top">
+                      {renderInline(cells[c] ?? "")}
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      );
+      return;
+    }
+    // Not actually a table — render the buffered lines as plain paragraphs.
+    for (const line of rows) {
+      blocks.push(
+        <p key={key++} className="leading-7">
+          {renderInline(line)}
+        </p>
+      );
+    }
+  };
 
   const flushList = () => {
     if (!list) return;
@@ -60,6 +122,14 @@ export function Markdown({ text }: { text: string }) {
   };
 
   for (const line of lines) {
+    if (TABLE_ROW.test(line)) {
+      flushList();
+      table ??= [];
+      table.push(line);
+      continue;
+    }
+    flushTable();
+
     const bullet = line.match(/^\s*[-*]\s+(.*)$/);
     const numbered = line.match(/^\s*\d+[.)]\s+(.*)$/);
     const heading = line.match(/^\s*#{1,4}\s+(.*)$/);
@@ -92,6 +162,7 @@ export function Markdown({ text }: { text: string }) {
     }
   }
   flushList();
+  flushTable();
 
   return <div className="text-[15px]">{blocks}</div>;
 }
