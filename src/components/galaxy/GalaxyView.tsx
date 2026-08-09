@@ -28,6 +28,16 @@ export function GalaxyView({
   const [stage, setStage] = useState<PanelStage>("target");
   const [simRunning, setSimRunning] = useState(false);
 
+  // The voice copilot's focus_cluster tool zooms the map exactly like a click.
+  useEffect(() => {
+    const onFocus = (e: Event) => {
+      const { clusterId } = (e as CustomEvent<{ clusterId: string }>).detail;
+      if (snapshot?.clusters.some((c) => c.id === clusterId)) setSelected(clusterId);
+    };
+    window.addEventListener("agentsim:focus-cluster", onFocus);
+    return () => window.removeEventListener("agentsim:focus-cluster", onFocus);
+  }, [snapshot]);
+
   useEffect(() => {
     let dead = false;
     setFailed(false);
