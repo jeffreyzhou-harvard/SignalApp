@@ -103,7 +103,7 @@ export function GalaxyView({
   // Without a projectId this is the standalone audience map: pure visualization,
   // no campaign card. With one, selection locks once the panel moves past targeting.
   const vizOnly = !projectId;
-  const canRetarget = vizOnly || stage === "target" || stage === "brief";
+  const canRetarget = vizOnly || stage === "target" || stage === "brief" || stage === "draft";
   const selectedCluster = snapshot?.clusters.find((c) => c.id === selected) ?? null;
 
   return (

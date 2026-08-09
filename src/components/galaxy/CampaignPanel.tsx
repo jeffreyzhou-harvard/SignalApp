@@ -15,7 +15,7 @@ import { PostCard } from "./PostCard";
  * Data colors: variant A amber #ffb02e, variant B cyan #2fd6f6.
  */
 
-export type PanelStage = "brief" | "target" | "creative" | "sim" | "verdict";
+export type PanelStage = "brief" | "draft" | "target" | "creative" | "sim" | "verdict";
 type Stage = PanelStage;
 
 const VARIANT_COLOR: Record<"A" | "B", string> = { A: "#ffb02e", B: "#2fd6f6" };
@@ -179,6 +179,9 @@ export function CampaignPanel({
   const variants: CampaignVariant[] | null = baseline && tailored ? [baseline, tailored] : null;
 
   const [result, setResult] = useState<SimResult | null>(null);
+  const [draftShipping, setDraftShipping] = useState(false);
+  const [draftShipped, setDraftShipped] = useState<{ url: string | null } | null>(null);
+  const [draftShipError, setDraftShipError] = useState<string | null>(null);
   const [shipping, setShipping] = useState(false);
   const [shipped, setShipped] = useState<{ url: string | null } | null>(null);
   const [shipError, setShipError] = useState<string | null>(null);
@@ -224,7 +227,12 @@ export function CampaignPanel({
     fetch(`/api/projects/${projectId}/messages`)
       .then((r) => r.json())
       .then((m) => {
-        if (!dead && Array.isArray(m) && m.length === 0) setStage("brief");
+        if (dead || !Array.isArray(m)) return;
+        if (m.length === 0) setStage("brief");
+        else {
+          setStage("draft");
+          loadBaseline();
+        }
       })
       .catch(() => {})
       .finally(() => {
@@ -320,7 +328,8 @@ export function CampaignPanel({
       });
       const json = await res.json();
       if (!res.ok) throw new Error(json.error ?? "Rendering failed.");
-      setStage("target");
+      setStage("draft");
+      loadBaseline();
     } catch (err) {
       setBriefError(err instanceof Error ? err.message : "Rendering failed.");
     } finally {
@@ -336,13 +345,9 @@ export function CampaignPanel({
     return () => clearInterval(t);
   }, [improving]);
 
-  async function openPost() {
+  async function loadBaseline() {
     setLoadingBaseline(true);
     setError(null);
-    setTailored(null);
-    setAgentRationale(null);
-    setRound(1);
-    setStage("creative");
     try {
       const res = await fetch("/api/campaign/baseline", {
         method: "POST",
@@ -358,6 +363,35 @@ export function CampaignPanel({
     } finally {
       setLoadingBaseline(false);
     }
+  }
+
+  async function shipDraft() {
+    if (!baseline) return;
+    setDraftShipping(true);
+    setDraftShipError(null);
+    try {
+      const res = await fetch("/api/publish", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text: baseline.copy, projectId }),
+      });
+      const json = await res.json();
+      if (!res.ok || !json.posted) throw new Error(json.error ?? "Publishing failed.");
+      setDraftShipped({ url: json.url ?? null });
+    } catch (err) {
+      setDraftShipError(err instanceof Error ? err.message : "Publishing failed.");
+    } finally {
+      setDraftShipping(false);
+    }
+  }
+
+  /** Picking niches goes straight to tailoring: copy AND poster, both nudged. */
+  function startTailor() {
+    setTailored(null);
+    setAgentRationale(null);
+    setRound(1);
+    setStage("creative");
+    tailor();
   }
 
   async function tailor() {
@@ -685,11 +719,14 @@ export function CampaignPanel({
           )}
 
           <button
-            onClick={() => setStage("target")}
+            onClick={() => {
+              setStage("draft");
+              loadBaseline();
+            }}
             disabled={briefRendering}
             className="text-center text-xs font-medium text-faint transition-colors hover:text-fg disabled:opacity-50"
           >
-            Skip for now, pick a niche first
+            Skip uploads, draft the post now
           </button>
 
           {briefError && (
@@ -700,15 +737,100 @@ export function CampaignPanel({
         </div>
       )}
 
+      {/* ── First pass ─────────────────────────────────────────── */}
+      {stage === "draft" && (
+        <div className="flex flex-col gap-3 p-4">
+          <div>
+            <h2 className="text-sm font-semibold">Your launch post</h2>
+            <p className="mt-1 text-[13px] leading-5 text-muted">
+              The first pass, straight from your brief. Ship it as is, or tailor it to a niche
+              and A/B test the two versions.
+            </p>
+          </div>
+
+          {loadingBaseline ? (
+            <div className="flex h-40 items-center justify-center">
+              <Dots label="Drafting your launch post" />
+            </div>
+          ) : baseline ? (
+            <>
+              <PostCard variant={baseline} handle={xHandle} name={displayName} label="First pass" />
+
+              {draftShipped ? (
+                <div className="flex items-center gap-2.5 rounded-xl border border-line-strong bg-raised px-4 py-3">
+                  <span className="flex h-6 w-6 items-center justify-center rounded-full bg-fg text-ground">
+                    <Check size={13} strokeWidth={3} />
+                  </span>
+                  <p className="text-sm font-medium">Posted to X from your account.</p>
+                  {draftShipped.url && (
+                    <a
+                      href={draftShipped.url}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="ml-auto flex items-center gap-1 text-[13px] font-medium text-accent hover:underline"
+                    >
+                      View
+                      <ExternalLink size={12} strokeWidth={2} />
+                    </a>
+                  )}
+                </div>
+              ) : (
+                <button
+                  onClick={shipDraft}
+                  disabled={draftShipping}
+                  className="flex items-center justify-center gap-2 rounded-full bg-fg px-4 py-2.5 text-sm font-semibold text-ground transition-transform hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50"
+                >
+                  <Send size={14} strokeWidth={2.5} />
+                  {draftShipping ? "Posting…" : "Post this to X"}
+                </button>
+              )}
+              {draftShipError && (
+                <p className="rounded-lg border border-danger/40 bg-danger/10 px-3 py-2.5 text-[13px] leading-5 text-danger">
+                  {draftShipError}
+                </p>
+              )}
+
+              <button
+                onClick={() => setStage("target")}
+                className="flex items-center justify-center gap-1.5 rounded-full border border-line-strong bg-raised px-4 py-2.5 text-sm font-semibold text-fg transition-colors hover:bg-overlay"
+              >
+                Tailor for a niche
+                <ArrowRight size={15} strokeWidth={2.5} />
+              </button>
+              <p className="text-center text-xs leading-5 text-faint">
+                Grok reworks the copy and nudges the poster for that audience; the wind tunnel
+                then A/B tests both versions.
+              </p>
+            </>
+          ) : null}
+
+          {error && (
+            <div className="rounded-lg border border-danger/40 bg-danger/10 px-3 py-2.5 text-[13px] leading-5 text-danger">
+              {error}
+              <button onClick={loadBaseline} className="ml-2 font-semibold underline underline-offset-2">
+                Try again
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+
       {/* ── Target ─────────────────────────────────────────────── */}
       {briefChecked && stage === "target" && (
         <div className="flex flex-col gap-3 p-4">
-          <div>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setStage("draft")}
+              aria-label="Back to your post"
+              className="rounded-md p-1 text-muted transition-colors hover:bg-raised hover:text-fg"
+            >
+              <ArrowLeft size={15} strokeWidth={2} />
+            </button>
             <h2 className="text-sm font-semibold">Who are we targeting?</h2>
-            <p className="mt-1 text-[13px] leading-5 text-muted">
-              Pick one or more niches. Every selected niche&apos;s creative brief goes into the Grok prompt.
-            </p>
           </div>
+          <p className="text-[13px] leading-5 text-muted">
+            Pick one or more niches. Grok tailors the copy and creative to how they read.
+          </p>
           <div className="flex flex-col gap-1.5">
             <button
               onClick={() => {
@@ -755,10 +877,10 @@ export function CampaignPanel({
           </div>
           <button
             disabled={!cluster}
-            onClick={() => cluster && openPost()}
+            onClick={() => cluster && startTailor()}
             className="mt-1 flex items-center justify-center gap-1.5 rounded-full bg-fg px-4 py-2.5 text-sm font-semibold text-ground transition-opacity disabled:opacity-40"
           >
-            {allTargeted ? "Target all niches" : targets.length > 1 ? `Target ${targets.length} niches` : "Target this niche"}
+            {allTargeted ? "Tailor for all niches" : targets.length > 1 ? `Tailor for ${targets.length} niches` : "Tailor for this niche"}
             <ArrowRight size={15} strokeWidth={2.5} />
           </button>
         </div>
@@ -802,12 +924,12 @@ export function CampaignPanel({
                 variant={baseline}
                 handle={xHandle}
                 name={displayName}
-                label={round > 1 ? `Reigning winner · round ${round - 1}` : "Current draft"}
+                label={round > 1 ? `Reigning winner · round ${round - 1}` : "First pass"}
               />
 
               {tailoring ? (
                 <div className="flex h-24 items-center justify-center">
-                  <Dots label={`Grok is tailoring for ${targetLabel}`} />
+                  <Dots label={`Grok is reworking the copy and creative for ${targetLabel}`} />
                 </div>
               ) : tailored ? (
                 <>
@@ -861,20 +983,7 @@ export function CampaignPanel({
                     </button>
                   </div>
                 </>
-              ) : (
-                <>
-                  <button
-                    onClick={() => cluster && tailor()}
-                    className="flex items-center justify-center gap-1.5 rounded-full bg-fg px-4 py-2.5 text-sm font-semibold text-ground transition-transform hover:scale-[1.02] active:scale-[0.98]"
-                  >
-                    Tailor for {targetLabel}
-                    <ArrowRight size={15} strokeWidth={2.5} />
-                  </button>
-                  <p className="text-center text-xs leading-5 text-faint">
-                    Grok rewrites the copy for how this niche reads. Then you approve the A/B test.
-                  </p>
-                </>
-              )}
+              ) : null}
             </>
           ) : null}
 
@@ -882,7 +991,7 @@ export function CampaignPanel({
             <div className="rounded-lg border border-danger/40 bg-danger/10 px-3 py-2.5 text-[13px] leading-5 text-danger">
               {error}
               <button
-                onClick={() => (baseline ? cluster && tailor() : openPost())}
+                onClick={() => (baseline ? cluster && tailor() : loadBaseline())}
                 className="ml-2 font-semibold underline underline-offset-2"
               >
                 Try again
