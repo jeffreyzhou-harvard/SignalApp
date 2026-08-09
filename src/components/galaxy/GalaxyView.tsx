@@ -44,7 +44,10 @@ export function GalaxyView({
   useEffect(() => {
     let dead = false;
     setFailed(false);
-    fetch(`/api/audience${projectId ? `?projectId=${projectId}` : ""}`)
+    const qs = new URLSearchParams();
+    if (projectId) qs.set("projectId", projectId);
+    if (xHandle) qs.set("handle", xHandle);
+    fetch(`/api/audience${qs.size ? `?${qs}` : ""}`)
       .then((r) => {
         if (!r.ok) throw new Error();
         return r.json();
@@ -58,7 +61,7 @@ export function GalaxyView({
     return () => {
       dead = true;
     };
-  }, [projectId, attempt]);
+  }, [projectId, xHandle, attempt]);
 
   if (failed) {
     return (

@@ -5,10 +5,12 @@ import { getStorage } from "@/lib/storage";
 export const runtime = "nodejs";
 
 export async function GET(req: Request) {
-  const projectId = new URL(req.url).searchParams.get("projectId") ?? undefined;
+  const params = new URL(req.url).searchParams;
+  const projectId = params.get("projectId") ?? undefined;
   const settings = await getStorage().getSettings();
   const snapshot = await getAudienceProvider().getAudience({
-    handle: settings.xAccount?.handle,
+    // per-project handle wins over the workspace's connected account
+    handle: params.get("handle") ?? settings.xAccount?.handle,
     projectId,
   });
   return NextResponse.json(snapshot);

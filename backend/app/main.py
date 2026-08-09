@@ -122,10 +122,13 @@ def clusters(seed_account_id: str | None = None):
 
 
 @app.get("/audience")
-def audience(seed_account_id: str | None = None):
+def audience(seed_account_id: str | None = None, handle: str | None = None):
     """Combined galaxy payload: active run + clusters + members with personas.
-    Without a seed_account_id, serves the most recently activated run."""
+    Resolution order: explicit seed_account_id > handle (mapped through past
+    ingest jobs, no X API call) > most recently activated run."""
     with db.SessionLocal() as s:
+        if seed_account_id is None and handle:
+            seed_account_id = jobs.seed_for_handle(s, handle)
         return audience_store.audience_snapshot(s, seed_account_id)
 
 

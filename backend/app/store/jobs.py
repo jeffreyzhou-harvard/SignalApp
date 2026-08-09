@@ -30,6 +30,21 @@ def get_job(session, job_id: str) -> IngestJob | None:
     return IngestJob(**row.doc) if row else None
 
 
+def seed_for_handle(session, handle: str) -> str | None:
+    """Latest seed_account_id ingested for an X handle (@- and case-insensitive).
+    Lets the API address audiences by handle without an X resolve call."""
+    h = handle.lstrip("@").lower()
+    best: tuple[str, str] | None = None
+    for r in session.execute(select(db.JobRow)).scalars().all():
+        seed = (r.doc.get("seed") or "").lstrip("@").lower()
+        sid = r.doc.get("seed_account_id")
+        if seed == h and sid:
+            created = r.doc.get("created_at") or ""
+            if best is None or created > best[0]:
+                best = (created, sid)
+    return best[1] if best else None
+
+
 def find_done(session, seed_account_id: str, relationship: str) -> IngestJob | None:
     rows = session.execute(select(db.JobRow).where(db.JobRow.status == "done")).scalars().all()
     for r in rows:

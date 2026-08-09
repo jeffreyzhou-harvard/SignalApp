@@ -172,7 +172,8 @@ export const dbAudience: AudienceProvider = {
 
   async getAudience(input) {
     try {
-      const res = await fetch(`${BACKEND_URL}/audience`, { cache: "no-store" });
+      const qs = input.handle ? `?handle=${encodeURIComponent(input.handle)}` : "";
+      const res = await fetch(`${BACKEND_URL}/audience${qs}`, { cache: "no-store" });
       if (!res.ok) throw new Error(`backend ${res.status}`);
       const snap: BackendSnapshot = await res.json();
       // No active run (or an empty one) → the fixture clusters carry no member
