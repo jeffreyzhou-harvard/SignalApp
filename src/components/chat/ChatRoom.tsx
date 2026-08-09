@@ -443,7 +443,7 @@ export function ChatRoom({ projectId }: { projectId: string }) {
         <div className="min-h-0 flex-1">
           <GalaxyView
             projectId={projectId}
-            xHandle={settings?.audienceHandle ?? settings?.xAccount?.handle ?? null}
+            xHandle={settings?.xAccount?.handle ?? null}
             displayName={settings?.profile.name ?? null}
             seedCopy={tunnelSeed}
           />
