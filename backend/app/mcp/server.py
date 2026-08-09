@@ -7,12 +7,28 @@ Mounted into FastAPI at /mcp in app/main.py.
 from __future__ import annotations
 
 from mcp.server.fastmcp import FastMCP
+from mcp.server.transport_security import TransportSecuritySettings
 
+from app.config import settings
 from app.store import db, personas, clusters, audience
 from app.retrieval import search as search_core
 from app.retrieval.embedder import get_embedder
 
-mcp = FastMCP("AgentSim Audience", stateless_http=True)
+# DNS-rebinding protection stays ON and trusts only localhost by default, which
+# 421s any request whose Host isn't localhost — including xAI's server-side MCP
+# executor reaching us via a public tunnel / deploy. Rather than disable the
+# check, allow-list explicit public hosts via config (settings.mcp_allowed_hosts);
+# empty default keeps the secure localhost-only behavior.
+_LOCAL_HOSTS = ["127.0.0.1:*", "localhost:*", "[::1]:*"]
+_extra_hosts = [h.strip() for h in settings.mcp_allowed_hosts.split(",") if h.strip()]
+mcp = FastMCP(
+    "AgentSim Audience",
+    stateless_http=True,
+    transport_security=TransportSecuritySettings(
+        enable_dns_rebinding_protection=True,
+        allowed_hosts=_LOCAL_HOSTS + _extra_hosts,
+    ),
+)
 # Mounted under /mcp in main.py; keep this app's internal path at root so the
 # public endpoint is exactly /mcp (not /mcp/mcp).
 mcp.settings.streamable_http_path = "/"

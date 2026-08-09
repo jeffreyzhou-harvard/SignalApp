@@ -41,6 +41,12 @@ class Settings(BaseSettings):
     seed_posts_lookback: int = 25         # recent seed posts scanned for co-engagement
     enrich_concurrency: int = 8           # parallel Grok persona-card calls during tier-2 enrich
 
+    # MCP transport: DNS-rebinding protection stays ON. localhost is always
+    # trusted; add public hosts (e.g. a cloudflare tunnel domain) here to let
+    # xAI's server-side executor reach us. Comma-separated, exact hosts. Empty
+    # default = localhost-only (unchanged, secure).
+    mcp_allowed_hosts: str = ""
+
     # Embedding space — MUST match Layer B (ml/agentsim_ml/embed.py) so query and
     # stored persona vectors live in one space. Config-driven; never inline.
     embedding_model: str = "gemini-embedding-001"
