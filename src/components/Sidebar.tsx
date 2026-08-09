@@ -19,7 +19,7 @@ export function Sidebar({
 }: {
   settings: PublicSettings | null;
   onOpenSettings: () => void;
-  active?: "projects" | "audience";
+  active?: "projects" | "audience" | "deploys";
   /** Provide folders to render the organizer section (projects page only). */
   folders?: ProjectFolder[];
   activeFolderId?: string;
@@ -76,16 +76,14 @@ export function Sidebar({
           <Radar size={16} strokeWidth={2} className="text-muted" />
           Audience Map
         </a>
-        <div
-          className="flex cursor-default items-center gap-2.5 rounded-lg px-3 py-2 text-sm text-faint"
-          title="Coming soon"
+        <a
+          href="/dashboard/deploys"
+          aria-current={active === "deploys" ? "page" : undefined}
+          className={navClass(active === "deploys")}
         >
-          <Rocket size={16} strokeWidth={2} />
+          <Rocket size={16} strokeWidth={2} className="text-muted" />
           Deploys
-          <span className="ml-auto rounded border border-line px-1.5 py-px text-xs uppercase tracking-wide text-faint">
-            Soon
-          </span>
-        </div>
+        </a>
       </nav>
 
       {folders && (
