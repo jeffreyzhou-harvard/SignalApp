@@ -94,15 +94,28 @@ uv run pytest -q        # 35 passing
   point the client at `http://localhost:8000/mcp`. The repo `.mcp.json` already
   declares it — no tunnel, no deploy needed.
 - **The Grok voice agent (frontend):** xAI executes remote MCP **server-side**, so
-  it needs a **public HTTPS URL**. For a demo, expose the local server with a
-  cloudflare quick tunnel:
+  it needs a **public HTTPS URL**. Two ways:
+
+  **Stable (recommended — set Vercel once, never touch again):** a Cloudflare
+  *named* tunnel gives a permanent hostname that survives restarts.
   ```bash
-  cloudflared tunnel --url http://localhost:8000   # prints https://<random>.trycloudflare.com
+  # one-time: add a domain to Cloudflare, then auth
+  cloudflared tunnel login
+  # one command wires the tunnel + DNS + config + MCP_ALLOWED_HOSTS:
+  ./scripts/setup-named-tunnel.sh mcp.yourdomain.com
+  # then run the server + tunnel (the script prints these):
+  uv run uvicorn app.main:app --port 8000
+  cloudflared tunnel run agentsim-mcp        # or: sudo cloudflared service install (always-on)
   ```
-  Then set `AUDIENCE_MCP_URL=https://<host>/mcp` (frontend `.env.local` / Vercel)
-  and `MCP_ALLOWED_HOSTS=<host>` (`backend/.env`) — the latter satisfies the MCP
-  DNS-rebinding check (localhost is always trusted). Quick-tunnel URLs rotate on
-  restart, so update both when it changes.
+  Set on Vercel once: `AUDIENCE_MCP_URL=https://mcp.yourdomain.com/mcp`. Because the
+  URL never rotates, Vercel stays valid forever.
+
+  **Quick + throwaway (demo only):** `cloudflared tunnel --url http://localhost:8000`
+  prints a random `*.trycloudflare.com` URL. Set `AUDIENCE_MCP_URL`/`MCP_ALLOWED_HOSTS`
+  to it — but it rotates on every restart, so you must update both each time.
+
+  Either way, `MCP_ALLOWED_HOSTS` must include the public host (localhost is always
+  trusted) or requests 421 from the DNS-rebinding check.
 
 ### Container deploy (any host)
 
