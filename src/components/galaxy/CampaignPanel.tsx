@@ -424,6 +424,9 @@ export function CampaignPanel({
   async function runSim() {
     if (!cluster || !variants) return;
     setError(null);
+    // a prior round's ship state must not leak into this round's verdict
+    setShipped(null);
+    setShipError(null);
     setStage("sim");
     setTallyA(emptyTally());
     setTallyB(emptyTally());

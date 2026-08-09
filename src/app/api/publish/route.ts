@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
+import { cookies } from "next/headers";
 import { getXAccessToken } from "@/lib/accounts/x-oauth";
+import { LINK_COOKIE, unsealAccount } from "@/lib/accounts/link-cookie";
 import { getStorage } from "@/lib/storage";
 import type { DeployPrediction } from "@/lib/types";
 
@@ -43,8 +45,11 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Post is over 280 characters." }, { status: 400 });
   }
 
+  // Same account resolution as GET /api/settings: storage first, then the
+  // sealed link cookie — on serverless hosts the cookie is the only copy.
   const settings = await getStorage().getSettings();
-  if (!settings.xAccount) {
+  const account = settings.xAccount ?? unsealAccount((await cookies()).get(LINK_COOKIE)?.value);
+  if (!account) {
     return NextResponse.json(
       { posted: false, error: "No X account linked. Connect one in Settings first." },
       { status: 400 }
@@ -84,13 +89,13 @@ export async function POST(req: Request) {
     );
   }
   const id: string | undefined = json.data?.id;
-  const url = id ? `https://x.com/${settings.xAccount.handle}/status/${id}` : null;
+  const url = id ? `https://x.com/${account.handle}/status/${id}` : null;
   if (id) {
     await getStorage().recordDeploy({
       id,
       text,
       url,
-      handle: settings.xAccount.handle,
+      handle: account.handle,
       projectId,
       createdAt: new Date().toISOString(),
       prediction,
