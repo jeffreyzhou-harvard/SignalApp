@@ -554,7 +554,7 @@ export function ChatRoom({ projectId }: { projectId: string }) {
       </div>
 
       <div className="border-t border-line bg-surface/60 px-4 pb-4 pt-3 backdrop-blur">
-        <div className="mx-auto w-full max-w-3xl">
+        <div className="mx-auto w-full max-w-4xl">
           {attachments.length > 0 && (
             <div className="mb-2.5 flex flex-wrap gap-2">
               {attachments.map((a) => (

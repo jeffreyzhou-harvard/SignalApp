@@ -274,7 +274,7 @@ export function CampaignPanel({
 
   return (
     <aside
-      className="absolute bottom-0 right-0 top-0 flex w-110 flex-col overflow-y-auto border-l border-line bg-surface/85 backdrop-blur max-md:inset-x-0 max-md:top-auto max-md:max-h-[62%] max-md:w-full max-md:border-l-0 max-md:border-t"
+      className="absolute bottom-0 right-0 top-0 flex w-120 flex-col overflow-y-auto border-l border-line bg-surface/85 backdrop-blur max-md:inset-x-0 max-md:top-auto max-md:max-h-[62%] max-md:w-full max-md:border-l-0 max-md:border-t"
       aria-label="Campaign"
     >
       {/* ── Target ─────────────────────────────────────────────── */}

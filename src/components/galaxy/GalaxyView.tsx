@@ -115,7 +115,7 @@ export function GalaxyView({
         <>
           <div
             className={`absolute left-4 top-4 flex flex-col gap-1.5 max-md:right-4 max-md:flex-row max-md:overflow-x-auto max-md:pb-1 ${
-              vizOnly ? "" : "md:max-w-[calc(100%-480px)]"
+              vizOnly ? "" : "md:max-w-[calc(100%-520px)]"
             }`}
           >
             {snapshot.clusters.map((c) => {

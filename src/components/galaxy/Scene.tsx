@@ -270,12 +270,18 @@ function CameraRig({
   const look = useRef(new THREE.Vector3(0, 0, 0));
   const tmp = useRef(new THREE.Vector3());
   const pan = useRef({ x: 0, y: 0 });
+  const zoom = useRef(1);
 
-  // Drag to pan: offsets the camera and its look-target along the view plane.
+  // Drag to pan, wheel to zoom: offsets applied around the camera's focus.
   useEffect(() => {
     const el = gl.domElement;
     let dragging = false;
     let last = { x: 0, y: 0 };
+    const wheel = (e: WheelEvent) => {
+      e.preventDefault();
+      zoom.current = Math.max(0.45, Math.min(2.4, zoom.current * (1 + e.deltaY * 0.0012)));
+    };
+    el.addEventListener("wheel", wheel, { passive: false });
     const down = (e: PointerEvent) => {
       if (e.button !== 0) return;
       dragging = true;
@@ -294,15 +300,17 @@ function CameraRig({
     window.addEventListener("pointermove", move);
     window.addEventListener("pointerup", up);
     return () => {
+      el.removeEventListener("wheel", wheel);
       el.removeEventListener("pointerdown", down);
       window.removeEventListener("pointermove", move);
       window.removeEventListener("pointerup", up);
     };
   }, [gl]);
 
-  // Re-center the pan when focus changes; the lerp makes it a glide.
+  // Re-center pan and zoom when focus changes; the lerp makes it a glide.
   useEffect(() => {
     pan.current = { x: 0, y: 0 };
+    zoom.current = 1;
   }, [selectedId]);
 
   useFrame((_, dt) => {
@@ -311,7 +319,7 @@ function CameraRig({
     const k = 1 - Math.exp(-2.2 * dt);
 
     // slide the field left while the campaign panel is open
-    g.position.x += ((shifted ? -9 : 0) - g.position.x) * k;
+    g.position.x += ((shifted ? -10 : 0) - g.position.x) * k;
 
     if (!selectedId) g.rotation.y += dt * 0.03;
 
@@ -329,7 +337,9 @@ function CameraRig({
       target = new THREE.Vector3(0, 0, 0);
     }
 
-    // Apply the user's pan along the camera's view plane.
+    // Apply the user's zoom (scales the camera's distance from its focus)...
+    desired = target.clone().add(desired.clone().sub(target).multiplyScalar(zoom.current));
+    // ...and pan along the view plane.
     const right = new THREE.Vector3(1, 0, 0).applyQuaternion(camera.quaternion).setY(0).normalize();
     const drift = right.multiplyScalar(pan.current.x).add(new THREE.Vector3(0, pan.current.y, 0));
     desired.add(drift);
