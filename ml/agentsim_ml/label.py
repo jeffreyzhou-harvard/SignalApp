@@ -13,6 +13,7 @@ from dataclasses import dataclass
 
 import numpy as np
 
+from .config import xai_api_key
 from .schema import PersonaDocument
 
 
@@ -144,7 +145,7 @@ class GrokLabeler:
         try:
             resp = requests.post(
                 "https://api.x.ai/v1/chat/completions",
-                headers={"Authorization": f"Bearer {os.environ['XAI_API_KEY']}"},
+                headers={"Authorization": f"Bearer {xai_api_key()}"},
                 json={"model": self.MODEL, "temperature": 0.1,
                       "messages": [{"role": "user", "content": prompt}],
                       "response_format": {"type": "json_object"}},

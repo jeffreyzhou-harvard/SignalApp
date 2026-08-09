@@ -310,12 +310,14 @@ function CameraRig({
   const look = useRef(new THREE.Vector3(0, 0, 0));
   const tmp = useRef(new THREE.Vector3());
   const pan = useRef({ x: 0, y: 0 });
+  const orbit = useRef({ yaw: 0, pitch: 0 });
   const zoom = useRef(1);
 
-  // Drag to pan, wheel to zoom: offsets applied around the camera's focus.
+  // Drag to pan, ⌥-drag to orbit around the focus, wheel to zoom.
   useEffect(() => {
     const el = gl.domElement;
     let dragging = false;
+    let orbiting = false;
     let last = { x: 0, y: 0 };
     const wheel = (e: WheelEvent) => {
       e.preventDefault();
@@ -325,16 +327,25 @@ function CameraRig({
     const down = (e: PointerEvent) => {
       if (e.button !== 0) return;
       dragging = true;
+      orbiting = e.altKey;
       last = { x: e.clientX, y: e.clientY };
     };
     const move = (e: PointerEvent) => {
       if (!dragging) return;
-      pan.current.x = Math.max(-30, Math.min(30, pan.current.x - (e.clientX - last.x) * 0.035));
-      pan.current.y = Math.max(-20, Math.min(20, pan.current.y + (e.clientY - last.y) * 0.035));
+      const dx = e.clientX - last.x;
+      const dy = e.clientY - last.y;
+      if (orbiting) {
+        orbit.current.yaw -= dx * 0.005;
+        orbit.current.pitch = Math.max(-1.15, Math.min(1.15, orbit.current.pitch + dy * 0.005));
+      } else {
+        pan.current.x = Math.max(-30, Math.min(30, pan.current.x - dx * 0.035));
+        pan.current.y = Math.max(-20, Math.min(20, pan.current.y + dy * 0.035));
+      }
       last = { x: e.clientX, y: e.clientY };
     };
     const up = () => {
       dragging = false;
+      orbiting = false;
     };
     el.addEventListener("pointerdown", down);
     window.addEventListener("pointermove", move);
@@ -347,9 +358,10 @@ function CameraRig({
     };
   }, [gl]);
 
-  // Re-center pan and zoom when focus changes; the lerp makes it a glide.
+  // Re-center pan, orbit, and zoom when focus changes; the lerp makes it a glide.
   useEffect(() => {
     pan.current = { x: 0, y: 0 };
+    orbit.current = { yaw: 0, pitch: 0 };
     zoom.current = 1;
   }, [selectedId]);
 
@@ -379,6 +391,13 @@ function CameraRig({
 
     // Apply the user's zoom (scales the camera's distance from its focus)...
     desired = target.clone().add(desired.clone().sub(target).multiplyScalar(zoom.current));
+    // ...orbit the offset around the focus (⌥-drag)...
+    if (orbit.current.yaw !== 0 || orbit.current.pitch !== 0) {
+      const sph = new THREE.Spherical().setFromVector3(desired.clone().sub(target));
+      sph.theta -= orbit.current.yaw;
+      sph.phi = Math.max(0.15, Math.min(Math.PI - 0.15, sph.phi + orbit.current.pitch));
+      desired = target.clone().add(new THREE.Vector3().setFromSpherical(sph));
+    }
     // ...and pan along the view plane.
     const right = new THREE.Vector3(1, 0, 0).applyQuaternion(camera.quaternion).setY(0).normalize();
     const drift = right.multiplyScalar(pan.current.x).add(new THREE.Vector3(0, pan.current.y, 0));

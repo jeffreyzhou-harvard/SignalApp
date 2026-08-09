@@ -1,10 +1,21 @@
 """All knobs in one place. Every experiment arm is a RunConfig variation."""
 from __future__ import annotations
 
+import os
 from dataclasses import dataclass, field, asdict
 from pathlib import Path
 
 RANDOM_STATE = 42
+
+
+def xai_api_key() -> str:
+    """The Grok key under either env spelling (.env uses X_AI_API_KEY; older
+    setups exported XAI_API_KEY). A silent KeyError here once degraded a whole
+    run to heuristic tags/labels — fail loudly instead."""
+    key = os.environ.get("XAI_API_KEY") or os.environ.get("X_AI_API_KEY")
+    if not key:
+        raise KeyError("set XAI_API_KEY or X_AI_API_KEY for Grok calls")
+    return key
 
 # Ingest-tier knobs (mirrors docs/ARCHITECTURE.md; owned by layer A but repeated
 # here so the assignment pass and fixtures agree with the spec)
