@@ -1,8 +1,10 @@
 import type { SimulationProvider } from "./types";
 import { mockAgentSim } from "./mock";
+import { oasisSim } from "./oasis";
 
 const providers: Record<string, SimulationProvider> = {
   [mockAgentSim.id]: mockAgentSim,
+  [oasisSim.id]: oasisSim,
 };
 
 /** Register a real agent harness here (persona agents over niche embeddings). */

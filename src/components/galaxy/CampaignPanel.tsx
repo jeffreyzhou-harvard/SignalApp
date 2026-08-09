@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { ArrowLeft, ArrowRight, Bookmark, Check, ExternalLink, Heart, MessageCircle, Play, Repeat2, RotateCcw, Send } from "lucide-react";
+import { ArrowLeft, ArrowRight, Bookmark, Bot, Check, ExternalLink, Heart, MessageCircle, Play, Repeat2, RotateCcw, Send, Sparkles } from "lucide-react";
 import type { AudienceCluster, AudienceSnapshot } from "@/lib/audience/types";
 import type { CampaignVariant, SimEvent, SimResult, SimTally } from "@/lib/simulation/types";
 import { applyEvent, emptyTally, engagementRate } from "@/lib/simulation/types";
@@ -93,10 +93,10 @@ function VariantCard({
       </p>
       {variant.mediaUrl &&
         (variant.mediaKind === "video" ? (
-          <video src={variant.mediaUrl} muted loop autoPlay playsInline className="max-h-44 w-full object-cover" />
+          <video src={variant.mediaUrl} muted loop autoPlay playsInline className="max-h-56 w-full object-cover" />
         ) : (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={variant.mediaUrl} alt="" className="max-h-44 w-full object-cover" />
+          <img src={variant.mediaUrl} alt="" className="max-h-56 w-full object-cover" />
         ))}
     </article>
   );
@@ -163,6 +163,11 @@ export function CampaignPanel({
   const [shipping, setShipping] = useState(false);
   const [shipped, setShipped] = useState<{ url: string | null } | null>(null);
   const [shipError, setShipError] = useState<string | null>(null);
+  const [improving, setImproving] = useState(false);
+  const [improveStep, setImproveStep] = useState(0);
+  const [agentRationale, setAgentRationale] = useState<string | null>(null);
+  const [round, setRound] = useState(1);
+  const [scope, setScope] = useState<"niche" | "all">("niche");
   const [tallyA, setTallyA] = useState<SimTally>(emptyTally());
   const [tallyB, setTallyB] = useState<SimTally>(emptyTally());
   const [feed, setFeed] = useState<SimEvent[]>([]);
@@ -180,10 +185,20 @@ export function CampaignPanel({
     if (playback.current) clearInterval(playback.current);
   }, []);
 
+  // Cycle the agent's progress caption while it works.
+  useEffect(() => {
+    if (!improving) return;
+    setImproveStep(0);
+    const t = setInterval(() => setImproveStep((n) => n + 1), 3000);
+    return () => clearInterval(t);
+  }, [improving]);
+
   async function openPost() {
     setLoadingBaseline(true);
     setError(null);
     setTailored(null);
+    setAgentRationale(null);
+    setRound(1);
     setStage("creative");
     try {
       const res = await fetch("/api/campaign/baseline", {
@@ -241,13 +256,14 @@ export function CampaignPanel({
       const res = await fetch("/api/simulate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ projectId, clusterId: cluster.id, variants }),
+        body: JSON.stringify({ projectId, clusterId: cluster.id, variants, scope }),
       });
       const json: SimResult | { error: string } = await res.json();
       if (!res.ok || "error" in json) {
         throw new Error("error" in json ? json.error : "Simulation failed.");
       }
       setResult(json);
+      const tick = Math.max(75, Math.min(600, Math.floor(9000 / Math.max(1, json.events.length))));
       let i = 0;
       playback.current = setInterval(() => {
         if (i >= json.events.length) {
@@ -262,7 +278,7 @@ export function CampaignPanel({
         setFeed((f) => [e, ...f].slice(0, 5));
         if (e.reply) setReplies((r) => [e, ...r].slice(0, 3));
         setProgress(i / json.events.length);
-      }, 75);
+      }, tick);
     } catch (err) {
       onSimRunning(false);
       setStage("creative");
@@ -291,6 +307,55 @@ export function CampaignPanel({
     }
   }
 
+  const IMPROVE_STEPS = [
+    "Reading the wind-tunnel results…",
+    "Rewriting the copy around what won…",
+    "Re-rendering the creative with Grok Imagine…",
+    "Assembling the next challenger…",
+  ];
+
+  async function improveWithAgent() {
+    if (!result || !variants || !cluster) return;
+    const winner = variants.find((v) => v.id === result.verdict.winner) ?? variants[1];
+    const loser = variants.find((v) => v.id !== result.verdict.winner) ?? variants[0];
+    setImproving(true);
+    setError(null);
+    try {
+      const replies = result.events
+        .filter((e) => e.reply)
+        .slice(-8)
+        .map((e) => ({ text: e.reply!, sentiment: e.sentiment, variant: e.variant }));
+      const res = await fetch("/api/campaign/improve", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          projectId,
+          clusterId: cluster.id,
+          winner,
+          loser,
+          verdict: result.verdict,
+          engagement: result.engagement,
+          replies,
+        }),
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error ?? "The agent run failed.");
+      // Loop: last round's winner becomes A, the agent's challenger becomes B.
+      setBaseline({ ...winner, id: "A" });
+      setTailored(json.variant);
+      setAgentRationale(json.rationale ?? null);
+      setRound((r) => r + 1);
+      setResult(null);
+      setShipped(null);
+      setShipError(null);
+      setStage("creative");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "The agent run failed.");
+    } finally {
+      setImproving(false);
+    }
+  }
+
   const erA = result && stage === "verdict" ? result.engagement.A : engagementRate(tallyA);
   const erB = result && stage === "verdict" ? result.engagement.B : engagementRate(tallyB);
   const A = result && stage === "verdict" ? result.final.A : tallyA;
@@ -298,7 +363,7 @@ export function CampaignPanel({
 
   return (
     <aside
-      className="absolute bottom-0 right-0 top-0 flex w-120 flex-col overflow-y-auto border-l border-line bg-surface/85 backdrop-blur max-md:inset-x-0 max-md:top-auto max-md:max-h-[62%] max-md:w-full max-md:border-l-0 max-md:border-t"
+      className="absolute bottom-0 right-0 top-0 flex w-140 flex-col overflow-y-auto border-l border-line bg-surface/85 backdrop-blur max-md:inset-x-0 max-md:top-auto max-md:max-h-[62%] max-md:w-full max-md:border-l-0 max-md:border-t"
       aria-label="Campaign"
     >
       {/* ── Target ─────────────────────────────────────────────── */}
@@ -371,7 +436,18 @@ export function CampaignPanel({
             </div>
           ) : baseline ? (
             <>
-              <PostCard variant={baseline} handle={xHandle} name={displayName} label="Current draft" />
+              {agentRationale && round > 1 && (
+                <div className="flex items-start gap-2.5 rounded-xl border border-line bg-raised/60 px-3.5 py-2.5">
+                  <Bot size={15} strokeWidth={2} className="mt-0.5 shrink-0 text-muted" />
+                  <p className="text-xs leading-5 text-muted">{agentRationale}</p>
+                </div>
+              )}
+              <PostCard
+                variant={baseline}
+                handle={xHandle}
+                name={displayName}
+                label={round > 1 ? `Reigning winner · round ${round - 1}` : "Current draft"}
+              />
 
               {tailoring ? (
                 <div className="flex h-24 items-center justify-center">
@@ -383,8 +459,35 @@ export function CampaignPanel({
                     variant={tailored}
                     handle={xHandle}
                     name={displayName}
-                    label={`Tailored for ${cluster?.label ?? "this niche"}`}
+                    label={
+                      round > 1 ? "Agent-improved challenger" : `Tailored for ${cluster?.label ?? "this niche"}`
+                    }
                   />
+                  <div className="flex items-center justify-between rounded-xl border border-line bg-raised/50 px-3.5 py-2">
+                    <span className="text-xs text-muted">Test on</span>
+                    <div className="flex items-center rounded-lg border border-line p-0.5" role="tablist" aria-label="Wind tunnel scope">
+                      <button
+                        role="tab"
+                        aria-selected={scope === "niche"}
+                        onClick={() => setScope("niche")}
+                        className={`rounded-md px-2.5 py-1 text-xs font-medium transition-colors ${
+                          scope === "niche" ? "bg-raised text-fg" : "text-muted hover:text-fg"
+                        }`}
+                      >
+                        This niche
+                      </button>
+                      <button
+                        role="tab"
+                        aria-selected={scope === "all"}
+                        onClick={() => setScope("all")}
+                        className={`rounded-md px-2.5 py-1 text-xs font-medium transition-colors ${
+                          scope === "all" ? "bg-raised text-fg" : "text-muted hover:text-fg"
+                        }`}
+                      >
+                        Whole audience
+                      </button>
+                    </div>
+                  </div>
                   <div className="mt-1 flex gap-2">
                     <button
                       onClick={() => cluster && tailor(cluster.id)}
@@ -469,7 +572,7 @@ export function CampaignPanel({
                 const isLoser = stage === "verdict" && result?.verdict.winner !== v.id;
                 return (
                   <div key={v.id} className="flex flex-col gap-1.5">
-                    <VariantCard variant={v} handle={xHandle} winner={isWinner} loser={isLoser} compact />
+                    <VariantCard variant={v} handle={xHandle} winner={isWinner} loser={isLoser} />
                     <p className="text-center text-xs text-muted">
                       <span className="font-mono font-semibold text-fg">{er.toFixed(1)}%</span> engagement
                     </p>
@@ -548,15 +651,45 @@ export function CampaignPanel({
           {stage === "verdict" && result && (
             <>
               <div className="rounded-xl border border-line-strong bg-raised px-4 py-3">
-                <p className="text-sm font-semibold">
-                  Variant {result.verdict.winner} wins
-                </p>
-                <p className="mt-0.5 text-[13px] leading-5 text-muted">
-                  +{result.verdict.liftPct}% engagement lift · {result.verdict.confidencePct}% confidence · driven by{" "}
-                  {result.verdict.driver}
-                </p>
+                {result.engagement.A === 0 && result.engagement.B === 0 ? (
+                  <>
+                    <p className="text-sm font-semibold">No clear winner</p>
+                    <p className="mt-0.5 text-[13px] leading-5 text-muted">
+                      The simulated audience scrolled past both versions. This niche may not care
+                      about this post; try the agent, a different niche, or a sharper hook.
+                    </p>
+                  </>
+                ) : (
+                  <>
+                    <p className="text-sm font-semibold">
+                      Variant {result.verdict.winner} wins
+                    </p>
+                    <p className="mt-0.5 text-[13px] leading-5 text-muted">
+                      +{result.verdict.liftPct}% engagement lift · {result.verdict.confidencePct}% confidence · driven by{" "}
+                      {result.verdict.driver}
+                    </p>
+                  </>
+                )}
               </div>
 
+              {improving ? (
+                <div className="flex flex-col items-center justify-center gap-2.5 rounded-xl border border-line bg-raised/60 px-4 py-6">
+                  <Dots label={IMPROVE_STEPS[Math.min(improveStep, IMPROVE_STEPS.length - 1)]} />
+                  <p className="text-center text-xs leading-5 text-faint">
+                    The agent iterates on the winner from the test results, then you approve another round.
+                  </p>
+                </div>
+              ) : (
+                <>
+              {!shipped && (
+                <button
+                  onClick={improveWithAgent}
+                  className="flex items-center justify-center gap-2 rounded-full bg-fg px-4 py-2.5 text-sm font-semibold text-ground transition-transform hover:scale-[1.02] active:scale-[0.98]"
+                >
+                  <Bot size={15} strokeWidth={2} />
+                  Improve with the agent
+                </button>
+              )}
               {shipped ? (
                 <div className="flex items-center gap-2.5 rounded-xl border border-line-strong bg-raised px-4 py-3">
                   <span className="flex h-6 w-6 items-center justify-center rounded-full bg-fg text-ground">
@@ -579,7 +712,7 @@ export function CampaignPanel({
                 <button
                   onClick={shipWinner}
                   disabled={shipping}
-                  className="flex items-center justify-center gap-2 rounded-full bg-fg px-4 py-2.5 text-sm font-semibold text-ground transition-transform hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50"
+                  className="flex items-center justify-center gap-2 rounded-full border border-line-strong bg-raised px-4 py-2.5 text-sm font-semibold text-fg transition-colors hover:bg-overlay disabled:opacity-50"
                 >
                   <Send size={14} strokeWidth={2.5} />
                   {shipping ? "Posting…" : `Ship variant ${result.verdict.winner} to X`}
@@ -588,6 +721,11 @@ export function CampaignPanel({
               {shipError && (
                 <p className="rounded-lg border border-danger/40 bg-danger/10 px-3 py-2.5 text-[13px] leading-5 text-danger">
                   {shipError}
+                </p>
+              )}
+              {error && (
+                <p className="rounded-lg border border-danger/40 bg-danger/10 px-3 py-2.5 text-[13px] leading-5 text-danger">
+                  {error}
                 </p>
               )}
 
@@ -613,6 +751,8 @@ export function CampaignPanel({
                   Run again
                 </button>
               </div>
+                </>
+              )}
             </>
           )}
         </div>

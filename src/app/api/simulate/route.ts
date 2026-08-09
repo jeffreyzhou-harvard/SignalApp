@@ -26,6 +26,7 @@ export async function POST(req: Request) {
       clusterId: body.clusterId,
       variants: body.variants as CampaignVariant[],
       audience,
+      scope: body.scope === "all" ? "all" : "niche",
     });
     return NextResponse.json(result);
   } catch (err) {

@@ -57,6 +57,8 @@ export interface SimulationInput {
   clusterId: string;
   variants: CampaignVariant[];
   audience: AudienceSnapshot;
+  /** Who reacts: just the targeted niche, or the whole follower demographic. */
+  scope?: "niche" | "all";
 }
 
 export interface SimulationProvider {

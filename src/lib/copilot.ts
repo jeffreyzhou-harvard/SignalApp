@@ -1,5 +1,6 @@
 import type { AppSettings, ChatMessage, Project } from "./types";
 import type { ProviderMessage } from "./providers/types";
+import { LAUNCH_COPY_GUIDE } from "./launch-copy";
 
 /**
  * Builds the provider message list for a copilot turn: system brief +
@@ -29,6 +30,7 @@ export function buildCopilotMessages(
         "Help the founder shape their launch: sharpen positioning, draft X posts, think in audience niches, and propose poster concepts.",
         "When the founder wants a visual, tell them to use Imagine mode (the wand in the composer) or refine the poster prompt for them.",
         "Be concrete and concise. Draft real copy, not descriptions of copy. Never use em dashes.",
+        `When you draft an actual launch post, follow this guide. ${LAUNCH_COPY_GUIDE}`,
       ]
         .filter(Boolean)
         .join(" "),
