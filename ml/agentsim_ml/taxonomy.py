@@ -74,7 +74,7 @@ def derive_taxonomy(docs: list[PersonaDocument], max_extra: int = 20,
                     sample: int = 60) -> Taxonomy:
     """One corpus-level call: which marketing-relevant domains exist in THIS
     audience? Merged with the stable core; heuristic fallback offline."""
-    if not os.environ.get("XAI_API_KEY"):
+    if not (os.environ.get("XAI_API_KEY") or os.environ.get("X_AI_API_KEY")):
         return Taxonomy(domains=list(CORE_DOMAINS))
     step = max(1, len(docs) // sample)
     corpus = "\n---\n".join(_evidence_text(d, 3) for d in docs[::step][:sample])
@@ -115,7 +115,7 @@ def _heuristic_tags(d: PersonaDocument, tax: Taxonomy) -> UserTags:
 
 def score_users(docs: list[PersonaDocument], tax: Taxonomy,
                 concurrency: int = 16) -> list[UserTags]:
-    if not os.environ.get("XAI_API_KEY"):
+    if not (os.environ.get("XAI_API_KEY") or os.environ.get("X_AI_API_KEY")):
         return [_heuristic_tags(d, tax) for d in docs]
 
     def one(d: PersonaDocument) -> UserTags:
@@ -167,7 +167,7 @@ def derive_subdomains(parent: str, docs: list[PersonaDocument],
                       max_subs: int = 10, sample: int = 40) -> list[str]:
     """One corpus call: subdomains of `parent` present in this audience.
     Returned namespaced as 'parent/child' so the block stays interpretable."""
-    if not os.environ.get("XAI_API_KEY"):
+    if not (os.environ.get("XAI_API_KEY") or os.environ.get("X_AI_API_KEY")):
         return []
     step = max(1, len(docs) // sample)
     corpus = "\n---\n".join(_evidence_text(d, 3) for d in docs[::step][:sample])
@@ -190,7 +190,7 @@ def hierarchical_expand(docs: list[PersonaDocument], tax: Taxonomy,
     """For each dominant tag: derive subdomains, rescore its holders against
     them, merge namespaced scores. No-op offline or when nothing dominates."""
     dominant = detect_dominant(tags, tax)
-    if not dominant or not os.environ.get("XAI_API_KEY"):
+    if not dominant or not (os.environ.get("XAI_API_KEY") or os.environ.get("X_AI_API_KEY")):
         return tax, tags
     by_uid = {t.user_id: t for t in tags}
     doc_by_uid = {d.user_id: d for d in docs}
