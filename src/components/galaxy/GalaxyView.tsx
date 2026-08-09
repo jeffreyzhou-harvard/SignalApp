@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { Canvas } from "@react-three/fiber";
 import type { AudienceMember, AudienceSnapshot } from "@/lib/audience/types";
+import { ensureSnapshot, getCachedSnapshot } from "@/lib/audience/snapshot-cache";
 import { GalaxyScene } from "./Scene";
 import { CampaignPanel, type PanelStage } from "./CampaignPanel";
 import { MemberProfileCard } from "./MemberProfileCard";
@@ -25,7 +26,11 @@ export function GalaxyView({
   /** Copy iterated in chat, sent back to seed the next wind-tunnel run. */
   seedCopy?: string | null;
 }) {
-  const [snapshot, setSnapshot] = useState<AudienceSnapshot | null>(null);
+  // Paint from cache immediately so revisiting the map doesn't re-download the
+  // whole audience; the effect below revalidates in the background.
+  const [snapshot, setSnapshot] = useState<AudienceSnapshot | null>(() =>
+    getCachedSnapshot({ projectId, handle: xHandle }),
+  );
   const [failed, setFailed] = useState(false);
   const [selected, setSelected] = useState<string | null>(null);
   const [attempt, setAttempt] = useState(0);
@@ -58,20 +63,23 @@ export function GalaxyView({
 
   useEffect(() => {
     let dead = false;
-    setFailed(false);
-    const qs = new URLSearchParams();
-    if (projectId) qs.set("projectId", projectId);
-    if (xHandle) qs.set("handle", xHandle);
-    fetch(`/api/audience${qs.size ? `?${qs}` : ""}`)
-      .then((r) => {
-        if (!r.ok) throw new Error();
-        return r.json();
-      })
+    const params = { projectId, handle: xHandle };
+    // Instant paint from cache on revisit; the retry button forces a refetch.
+    const cached = getCachedSnapshot(params);
+    if (cached) {
+      setSnapshot(cached);
+      setFailed(false);
+    }
+    ensureSnapshot(params, { force: attempt > 0 })
       .then((s) => {
-        if (!dead) setSnapshot(s);
+        if (!dead) {
+          setSnapshot(s);
+          setFailed(false);
+        }
       })
       .catch(() => {
-        if (!dead) setFailed(true);
+        // Only surface failure when there's nothing cached to show.
+        if (!dead && !getCachedSnapshot(params)) setFailed(true);
       });
     return () => {
       dead = true;
