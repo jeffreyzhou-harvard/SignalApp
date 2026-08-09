@@ -1,7 +1,7 @@
 import type { AudienceCluster, AudienceMember, AudienceProvider, AudienceSnapshot } from "./types";
 
 /**
- * Seeded mock audience — same tribes and generator approach as the stage demo
+ * Seeded mock audience — same niches and generator approach as the stage demo
  * (demo/src/data), kept deterministic so the galaxy lays out identically every
  * run. Swap for the real clustering pipeline via the audience registry.
  */

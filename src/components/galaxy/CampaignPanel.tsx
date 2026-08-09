@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { ArrowLeft, ArrowRight, Bookmark, Check, Heart, MessageCircle, Play, Repeat2, RotateCcw } from "lucide-react";
+import { ArrowLeft, ArrowRight, Bookmark, Check, ExternalLink, Heart, MessageCircle, Play, Repeat2, RotateCcw, Send } from "lucide-react";
 import type { AudienceCluster, AudienceSnapshot } from "@/lib/audience/types";
 import type { CampaignVariant, SimEvent, SimResult, SimTally } from "@/lib/simulation/types";
 import { applyEvent, emptyTally, engagementRate } from "@/lib/simulation/types";
@@ -9,7 +9,7 @@ import { XLogo } from "../XLogo";
 import { PostCard } from "./PostCard";
 
 /*
- * The campaign card: target a tribe → review Grok-drafted A/B creative →
+ * The campaign card: target a niche → review Grok-drafted A/B creative →
  * run the wind tunnel (pluggable SimulationProvider) → verdict.
  * Data colors: variant A amber #ffb02e, variant B cyan #2fd6f6.
  */
@@ -160,6 +160,9 @@ export function CampaignPanel({
   const variants: CampaignVariant[] | null = baseline && tailored ? [baseline, tailored] : null;
 
   const [result, setResult] = useState<SimResult | null>(null);
+  const [shipping, setShipping] = useState(false);
+  const [shipped, setShipped] = useState<{ url: string | null } | null>(null);
+  const [shipError, setShipError] = useState<string | null>(null);
   const [tallyA, setTallyA] = useState<SimTally>(emptyTally());
   const [tallyB, setTallyB] = useState<SimTally>(emptyTally());
   const [feed, setFeed] = useState<SimEvent[]>([]);
@@ -267,6 +270,27 @@ export function CampaignPanel({
     }
   }
 
+  async function shipWinner() {
+    if (!result || !variants) return;
+    const winner = variants.find((v) => v.id === result.verdict.winner) ?? variants[1];
+    setShipping(true);
+    setShipError(null);
+    try {
+      const res = await fetch("/api/publish", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text: winner.copy }),
+      });
+      const json = await res.json();
+      if (!res.ok || !json.posted) throw new Error(json.error ?? "Publishing failed.");
+      setShipped({ url: json.url ?? null });
+    } catch (err) {
+      setShipError(err instanceof Error ? err.message : "Publishing failed.");
+    } finally {
+      setShipping(false);
+    }
+  }
+
   const erA = result && stage === "verdict" ? result.engagement.A : engagementRate(tallyA);
   const erB = result && stage === "verdict" ? result.engagement.B : engagementRate(tallyB);
   const A = result && stage === "verdict" ? result.final.A : tallyA;
@@ -274,7 +298,7 @@ export function CampaignPanel({
 
   return (
     <aside
-      className="absolute bottom-0 right-0 top-0 flex w-110 flex-col overflow-y-auto border-l border-line bg-surface/85 backdrop-blur max-md:inset-x-0 max-md:top-auto max-md:max-h-[62%] max-md:w-full max-md:border-l-0 max-md:border-t"
+      className="absolute bottom-0 right-0 top-0 flex w-120 flex-col overflow-y-auto border-l border-line bg-surface/85 backdrop-blur max-md:inset-x-0 max-md:top-auto max-md:max-h-[62%] max-md:w-full max-md:border-l-0 max-md:border-t"
       aria-label="Campaign"
     >
       {/* ── Target ─────────────────────────────────────────────── */}
@@ -283,7 +307,7 @@ export function CampaignPanel({
           <div>
             <h2 className="text-sm font-semibold">Who are we targeting?</h2>
             <p className="mt-1 text-[13px] leading-5 text-muted">
-              Pick the tribe this campaign is for. The creative gets tailored to how they read.
+              Pick the niche this campaign is for. The creative gets tailored to how they read.
             </p>
           </div>
           <div className="flex flex-col gap-1.5">
@@ -313,7 +337,7 @@ export function CampaignPanel({
             onClick={() => cluster && openPost()}
             className="mt-1 flex items-center justify-center gap-1.5 rounded-full bg-fg px-4 py-2.5 text-sm font-semibold text-ground transition-opacity disabled:opacity-40"
           >
-            Target this tribe
+            Target this niche
             <ArrowRight size={15} strokeWidth={2.5} />
           </button>
         </div>
@@ -334,7 +358,7 @@ export function CampaignPanel({
               <ArrowLeft size={15} strokeWidth={2} />
             </button>
             <div>
-              <h2 className="text-sm font-semibold">Post for {cluster?.label ?? "this tribe"}</h2>
+              <h2 className="text-sm font-semibold">Post for {cluster?.label ?? "this niche"}</h2>
               <p className="text-xs text-faint">
                 {tailored ? "Two versions. The wind tunnel decides." : "Your draft as it stands today."}
               </p>
@@ -351,7 +375,7 @@ export function CampaignPanel({
 
               {tailoring ? (
                 <div className="flex h-24 items-center justify-center">
-                  <Dots label={`Grok is tailoring for ${cluster?.label ?? "this tribe"}`} />
+                  <Dots label={`Grok is tailoring for ${cluster?.label ?? "this niche"}`} />
                 </div>
               ) : tailored ? (
                 <>
@@ -359,7 +383,7 @@ export function CampaignPanel({
                     variant={tailored}
                     handle={xHandle}
                     name={displayName}
-                    label={`Tailored for ${cluster?.label ?? "this tribe"}`}
+                    label={`Tailored for ${cluster?.label ?? "this niche"}`}
                   />
                   <div className="mt-1 flex gap-2">
                     <button
@@ -384,11 +408,11 @@ export function CampaignPanel({
                     onClick={() => cluster && tailor(cluster.id)}
                     className="flex items-center justify-center gap-1.5 rounded-full bg-fg px-4 py-2.5 text-sm font-semibold text-ground transition-transform hover:scale-[1.02] active:scale-[0.98]"
                   >
-                    Tailor for {cluster?.label ?? "this tribe"}
+                    Tailor for {cluster?.label ?? "this niche"}
                     <ArrowRight size={15} strokeWidth={2.5} />
                   </button>
                   <p className="text-center text-xs leading-5 text-faint">
-                    Grok rewrites the copy for how this tribe reads. Then you approve the A/B test.
+                    Grok rewrites the copy for how this niche reads. Then you approve the A/B test.
                   </p>
                 </>
               )}
@@ -427,7 +451,7 @@ export function CampaignPanel({
                 ? `${result.agentCount.toLocaleString()} simulated agents · ${cluster?.label ?? ""} · ${
                     result.provider === "mock-agents" ? "seeded sample run" : result.provider
                   }`
-                : `Spinning up agents from ${cluster?.label ?? "the tribe"}…`}
+                : `Spinning up agents from ${cluster?.label ?? "the niche"}…`}
             </p>
           </div>
 
@@ -532,6 +556,41 @@ export function CampaignPanel({
                   {result.verdict.driver}
                 </p>
               </div>
+
+              {shipped ? (
+                <div className="flex items-center gap-2.5 rounded-xl border border-line-strong bg-raised px-4 py-3">
+                  <span className="flex h-6 w-6 items-center justify-center rounded-full bg-fg text-ground">
+                    <Check size={13} strokeWidth={3} />
+                  </span>
+                  <p className="text-sm font-medium">Posted to X from your account.</p>
+                  {shipped.url && (
+                    <a
+                      href={shipped.url}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="ml-auto flex items-center gap-1 text-[13px] font-medium text-accent hover:underline"
+                    >
+                      View
+                      <ExternalLink size={12} strokeWidth={2} />
+                    </a>
+                  )}
+                </div>
+              ) : (
+                <button
+                  onClick={shipWinner}
+                  disabled={shipping}
+                  className="flex items-center justify-center gap-2 rounded-full bg-fg px-4 py-2.5 text-sm font-semibold text-ground transition-transform hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50"
+                >
+                  <Send size={14} strokeWidth={2.5} />
+                  {shipping ? "Posting…" : `Ship variant ${result.verdict.winner} to X`}
+                </button>
+              )}
+              {shipError && (
+                <p className="rounded-lg border border-danger/40 bg-danger/10 px-3 py-2.5 text-[13px] leading-5 text-danger">
+                  {shipError}
+                </p>
+              )}
+
               <div className="flex gap-2">
                 <button
                   onClick={() => {

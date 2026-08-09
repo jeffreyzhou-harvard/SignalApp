@@ -21,6 +21,7 @@ import { STYLE_PRESETS } from "@/lib/styles";
 import type { ChatMessage, Project, PublicSettings } from "@/lib/types";
 import { XLogo } from "../XLogo";
 import { SettingsDialog } from "../SettingsDialog";
+import { VoiceDock } from "../VoiceDock";
 import { Markdown } from "./Markdown";
 
 const GalaxyView = dynamic(() => import("../galaxy/GalaxyView").then((m) => m.GalaxyView), {
@@ -74,8 +75,8 @@ const BRIEF_STARTERS = [
     imagine: false,
   },
   {
-    label: "Find my tribes",
-    text: "Who are the likely tribes in my audience for this launch, and how should the message differ for each?",
+    label: "Find my niches",
+    text: "Who are the likely niches in my audience for this launch, and how should the message differ for each?",
     imagine: false,
   },
 ];
@@ -553,7 +554,7 @@ export function ChatRoom({ projectId }: { projectId: string }) {
       </div>
 
       <div className="border-t border-line bg-surface/60 px-4 pb-4 pt-3 backdrop-blur">
-        <div className="mx-auto w-full max-w-3xl">
+        <div className="mx-auto w-full max-w-4xl">
           {attachments.length > 0 && (
             <div className="mb-2.5 flex flex-wrap gap-2">
               {attachments.map((a) => (
@@ -798,6 +799,7 @@ export function ChatRoom({ projectId }: { projectId: string }) {
           onSaved={(s) => setSettings(s)}
         />
       )}
+      <VoiceDock projectId={projectId} />
     </div>
   );
 }

@@ -6,6 +6,7 @@ import { Settings } from "lucide-react";
 import type { PublicSettings } from "@/lib/types";
 import { Sidebar } from "./Sidebar";
 import { SettingsDialog } from "./SettingsDialog";
+import { VoiceDock } from "./VoiceDock";
 
 const GalaxyView = dynamic(() => import("./galaxy/GalaxyView").then((m) => m.GalaxyView), {
   ssr: false,
@@ -55,6 +56,7 @@ export function AudienceHome() {
           onSaved={(s) => setSettings(s)}
         />
       )}
+      <VoiceDock />
     </div>
   );
 }

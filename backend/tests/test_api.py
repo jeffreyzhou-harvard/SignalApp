@@ -42,12 +42,29 @@ def test_ingest_list_returns_jobs():
     assert len(resp.json()) == 2
 
 
-def test_clusters_stub_returns_fixtures():
+def test_clusters_without_seed_falls_back_to_fixtures():
     from app.main import app
     client = TestClient(app)
     resp = client.get("/clusters")
     assert resp.status_code == 200
     assert isinstance(resp.json(), list)
+
+
+def test_audience_endpoint_shape():
+    from app.main import app
+    client = TestClient(app)
+    resp = client.get("/audience", params={"seed_account_id": "seed-with-no-runs"})
+    assert resp.status_code == 200
+    body = resp.json()
+    assert {"run_id", "seed_account_id", "clusters", "members"} <= set(body)
+    assert body["run_id"] is None and body["members"] == []
+
+
+def test_user_cluster_404_when_absent():
+    from app.main import app
+    client = TestClient(app)
+    resp = client.get("/users/nobody/cluster", params={"seed_account_id": "none"})
+    assert resp.status_code == 404
 
 
 def test_budget_endpoint():

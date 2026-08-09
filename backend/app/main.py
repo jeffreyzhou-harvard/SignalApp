@@ -4,9 +4,12 @@ import os
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import settings
-from app.store import db, jobs, personas, budget, clusters_stub
+from app.store import db, jobs, personas, budget
+from app.store import clusters as cluster_store
+from app.store import audience as audience_store
 from app.models.job import IngestRequest
 from app.mcp.server import mcp as mcp_server
 
@@ -28,6 +31,14 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(title="AgentSim Ingestion", lifespan=lifespan)
+# The Next.js frontend proxies server-side today, but browser calls (and the
+# deployed split: Vercel frontend + Railway backend) need CORS.
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 app.mount("/mcp", mcp_server.streamable_http_app())
 
 
@@ -102,8 +113,28 @@ def list_personas(seed_account_id: str, limit: int = 100, offset: int = 0):
 
 
 @app.get("/clusters")
-def clusters():
-    return clusters_stub.load_clusters()
+def clusters(seed_account_id: str | None = None):
+    """Clusters for the seed's active run; fixture fallback without one."""
+    with db.SessionLocal() as s:
+        return cluster_store.load_clusters(s, seed_account_id)
+
+
+@app.get("/audience")
+def audience(seed_account_id: str | None = None):
+    """Combined galaxy payload: active run + clusters + members with personas.
+    Without a seed_account_id, serves the most recently activated run."""
+    with db.SessionLocal() as s:
+        return audience_store.audience_snapshot(s, seed_account_id)
+
+
+@app.get("/users/{user_id}/cluster")
+def user_cluster(user_id: str, seed_account_id: str):
+    """Drill-down: which tribe is this user in (active run)?"""
+    with db.SessionLocal() as s:
+        hit = cluster_store.cluster_for_user(s, user_id, seed_account_id)
+        if not hit:
+            raise HTTPException(status_code=404, detail="user not in the active run")
+        return hit
 
 
 @app.get("/budget")

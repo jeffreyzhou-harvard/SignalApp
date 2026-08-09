@@ -28,6 +28,16 @@ export function GalaxyView({
   const [stage, setStage] = useState<PanelStage>("target");
   const [simRunning, setSimRunning] = useState(false);
 
+  // The voice copilot's focus_cluster tool zooms the map exactly like a click.
+  useEffect(() => {
+    const onFocus = (e: Event) => {
+      const { clusterId } = (e as CustomEvent<{ clusterId: string }>).detail;
+      if (snapshot?.clusters.some((c) => c.id === clusterId)) setSelected(clusterId);
+    };
+    window.addEventListener("agentsim:focus-cluster", onFocus);
+    return () => window.removeEventListener("agentsim:focus-cluster", onFocus);
+  }, [snapshot]);
+
   useEffect(() => {
     let dead = false;
     setFailed(false);
@@ -105,7 +115,7 @@ export function GalaxyView({
         <>
           <div
             className={`absolute left-4 top-4 flex flex-col gap-1.5 max-md:right-4 max-md:flex-row max-md:overflow-x-auto max-md:pb-1 ${
-              vizOnly ? "" : "md:max-w-[calc(100%-480px)]"
+              vizOnly ? "" : "md:max-w-[calc(100%-520px)]"
             }`}
           >
             {snapshot.clusters.map((c) => {
@@ -139,7 +149,7 @@ export function GalaxyView({
               </span>
             )}
             <span className="rounded-full border border-line bg-surface/70 px-3 py-1.5 text-xs text-muted backdrop-blur">
-              {snapshot.totalFollowers.toLocaleString()} followers · {snapshot.clusters.length} tribes
+              {snapshot.totalFollowers.toLocaleString()} followers · {snapshot.clusters.length} niches
             </span>
           </div>
 
@@ -171,7 +181,7 @@ export function GalaxyView({
               </div>
             ) : (
               <p className="absolute bottom-5 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full border border-line bg-surface/70 px-4 py-2 text-xs text-faint backdrop-blur">
-                Click a tribe to zoom in · hover a follower for their persona
+                Click a niche to zoom in · hover a follower for their persona
               </p>
             ))}
         </>

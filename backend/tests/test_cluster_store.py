@@ -12,6 +12,7 @@ from sqlalchemy import text
 from sqlalchemy.exc import IntegrityError
 
 from app.store import clusters as cluster_store
+from app.store import audience as audience_store
 from app.store import db as dbm
 
 
@@ -154,3 +155,31 @@ def test_load_clusters_reads_active_run(session):
     _mk_run(session, run, seed, status="active")
     out = cluster_store.load_clusters(session, seed)
     assert [c["label"] for c in out] == ["tribe-a", "tribe-b"]  # size DESC
+
+
+def test_audience_snapshot_without_run_falls_back(session):
+    out = audience_store.audience_snapshot(session, "seed-with-no-runs")
+    assert out["run_id"] is None
+    assert isinstance(out["clusters"], list) and out["members"] == []
+
+
+def test_audience_snapshot_reads_active_run(session):
+    run, seed = f"test-{uuid.uuid4().hex[:8]}", _seed()
+    _mk_personas(session, 4, seed)
+    _mk_run(session, run, seed, status="active")
+    out = audience_store.audience_snapshot(session, seed)
+    assert out["run_id"] == run and out["seed_account_id"] == seed
+    assert [c["label"] for c in out["clusters"]] == ["tribe-a", "tribe-b"]
+    assert len(out["members"]) == 4
+    m = out["members"][0]
+    assert {"user_id", "cluster_id", "map_x", "map_y", "doc"} <= set(m)
+    assert m["doc"]["handle"].startswith("@test")
+
+
+def test_audience_snapshot_defaults_to_latest_active_run(session):
+    run, seed = f"test-{uuid.uuid4().hex[:8]}", _seed()
+    _mk_run(session, run, seed, status="active")
+    out = audience_store.audience_snapshot(session, None)
+    # some active run exists now; the default path must resolve to one
+    assert out["run_id"] is not None
+    assert out["seed_account_id"] is not None

@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from mcp.server.fastmcp import FastMCP
 
-from app.store import db, personas
+from app.store import db, personas, clusters, audience
 from app.retrieval import search as search_core
 from app.retrieval.embedder import get_embedder
 
@@ -49,3 +49,76 @@ def get_persona(handle_or_id: str) -> dict:
     if doc is None:
         return {"status": "not_found", "handle_or_id": handle_or_id}
     return doc.model_dump(mode="json")
+
+
+@mcp.tool()
+def list_audiences() -> dict:
+    """List the ingested X audiences you can analyze.
+
+    Start here: returns each seed account's handle, numeric seed_account_id,
+    persona counts, and whether interest tribes (clusters) are available. Pass a
+    seed_account_id from here into the other tools.
+    """
+    with db.SessionLocal() as s:
+        return {"audiences": audience.list_audiences(s)}
+
+
+@mcp.tool()
+def audience_overview(seed_account_id: str) -> dict:
+    """High-level brief for one audience: total reach, number of interest tribes,
+    the biggest tribe, and the most-engaged tribe. Good first call after
+    list_audiences before drilling into specific tribes or people.
+    """
+    with db.SessionLocal() as s:
+        return audience.audience_overview(s, seed_account_id)
+
+
+@mcp.tool()
+def list_clusters(seed_account_id: str) -> dict:
+    """List the interest tribes (clusters) for an audience.
+
+    Each tribe has a label, size, share_of_audience, engagement_index, and a
+    one-liner / keywords describing what they care about. This is the audience map.
+    """
+    with db.SessionLocal() as s:
+        return {"clusters": clusters.load_clusters(s, seed_account_id)}
+
+
+@mcp.tool()
+def get_cluster_members(seed_account_id: str, cluster_id: str, k: int = 20) -> dict:
+    """List the actual people in one interest tribe (core members first).
+
+    Returns up to k persona summaries (handle, bio, followers, one-liner,
+    interests) for the given cluster_id in the audience's active run.
+    """
+    with db.SessionLocal() as s:
+        return audience.cluster_members(s, seed_account_id, cluster_id, k=k)
+
+
+@mcp.tool()
+def whose_tribe(handle_or_id: str, seed_account_id: str) -> dict:
+    """Which interest tribe a specific person belongs to within an audience.
+
+    Accepts an @handle or numeric user id. Returns the tribe's id/label/one-liner
+    plus assignment confidence, or {"status": "not_found"}.
+    """
+    with db.SessionLocal() as s:
+        doc = personas.find_persona(s, handle_or_id)
+        if doc is None:
+            return {"status": "not_found", "handle_or_id": handle_or_id}
+        tribe = clusters.cluster_for_user(s, doc.user_id, seed_account_id)
+    if tribe is None:
+        return {"status": "no_tribe", "user_id": doc.user_id,
+                "seed_account_id": seed_account_id}
+    return {"user_id": doc.user_id, "handle": doc.handle, **tribe}
+
+
+@mcp.tool()
+def top_interests(seed_account_id: str, k: int = 15) -> dict:
+    """The most common interests across an audience (from persona cards).
+
+    Returns interests ranked by how many personas list them — useful for shaping
+    launch messaging to what the audience actually cares about.
+    """
+    with db.SessionLocal() as s:
+        return audience.top_interests(s, seed_account_id, k=k)

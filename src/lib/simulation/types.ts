@@ -3,7 +3,7 @@ import type { AudienceSnapshot } from "../audience/types";
 /**
  * Pluggable wind-tunnel simulation. The mock provider replays a seeded,
  * deterministic event stream; a real agent harness (persona agents grounded in
- * each tribe's posts, AgentTorch-style) implements this same interface and
+ * each niche's posts, AgentTorch-style) implements this same interface and
  * registers under a new id — the panel UI never changes.
  */
 
