@@ -118,7 +118,20 @@ export async function exchangeCode(input: { code: string; verifier: string; orig
 export async function getXAccessToken(): Promise<string | null> {
   const storage = getStorage();
   const settings = await storage.getSettings();
-  const account = settings.xAccount;
+  let account = settings.xAccount;
+  let fromCookie = false;
+  if (!account?.accessToken) {
+    // Serverless fallback: the callback couldn't persist to disk, but the
+    // request carries the sealed link cookie.
+    try {
+      const { cookies } = await import("next/headers");
+      const { LINK_COOKIE, unsealAccount } = await import("./link-cookie");
+      account = unsealAccount((await cookies()).get(LINK_COOKIE)?.value);
+      fromCookie = true;
+    } catch {
+      account = null;
+    }
+  }
   if (!account?.accessToken) return null;
 
   if (account.expiresAt && account.expiresAt - Date.now() > 60_000) {
@@ -133,12 +146,31 @@ export async function getXAccessToken(): Promise<string | null> {
       client_id: clientId(),
     })
   );
-  settings.xAccount = {
+  const refreshed: LinkedXAccount = {
     ...account,
     accessToken: token.access_token,
     refreshToken: token.refresh_token ?? account.refreshToken,
     expiresAt: Date.now() + token.expires_in * 1000,
   };
-  await storage.putSettings(settings);
+  settings.xAccount = refreshed;
+  try {
+    await storage.putSettings(settings);
+  } catch {}
+  if (fromCookie) {
+    try {
+      const { cookies } = await import("next/headers");
+      const { LINK_COOKIE, LINK_COOKIE_MAX_AGE, sealAccount } = await import("./link-cookie");
+      const sealed = sealAccount(refreshed);
+      if (sealed) {
+        (await cookies()).set(LINK_COOKIE, sealed, {
+          httpOnly: true,
+          secure: true,
+          sameSite: "lax",
+          path: "/",
+          maxAge: LINK_COOKIE_MAX_AGE,
+        });
+      }
+    } catch {}
+  }
   return token.access_token;
 }

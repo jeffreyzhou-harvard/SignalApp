@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
+import { cookies } from "next/headers";
 import { getStorage } from "@/lib/storage";
+import { LINK_COOKIE, unsealAccount } from "@/lib/accounts/link-cookie";
 import { getAccountProvider } from "@/lib/accounts/registry";
 import type { AppSettings, PublicSettings } from "@/lib/types";
 
@@ -30,8 +32,15 @@ function toPublic(settings: AppSettings): PublicSettings {
   };
 }
 
+async function withCookieLink(settings: AppSettings): Promise<AppSettings> {
+  if (settings.xAccount) return settings;
+  const jar = await cookies();
+  const account = unsealAccount(jar.get(LINK_COOKIE)?.value);
+  return account ? { ...settings, xAccount: account } : settings;
+}
+
 export async function GET() {
-  const settings = await getStorage().getSettings();
+  const settings = await withCookieLink(await getStorage().getSettings());
   return NextResponse.json(toPublic(settings));
 }
 
@@ -62,6 +71,7 @@ export async function PUT(req: Request) {
   if ("xHandle" in body) {
     if (body.xHandle === null) {
       settings.xAccount = null;
+      (await cookies()).delete(LINK_COOKIE);
     } else if (typeof body.xHandle === "string") {
       const provider = getAccountProvider();
       if (provider.mode === "redirect") {
@@ -81,6 +91,8 @@ export async function PUT(req: Request) {
     }
   }
 
-  await storage.putSettings(settings);
-  return NextResponse.json(toPublic(settings));
+  try {
+    await storage.putSettings(settings);
+  } catch {}
+  return NextResponse.json(toPublic(await withCookieLink(settings)));
 }
