@@ -33,6 +33,18 @@ Results (baseline 0.542 = T4-vectors):
 | FT + agglomerative | .585 | 7 |
 | F text-only + HDBSCAN | .595 | 2 (collapsed — taxonomy still needed) |
 
+### v4 round (hierarchical taxonomy) + the variance discovery
+
+| Run (repaired data) | Stability | k |
+|---|---|---|
+| v4r flat taxonomy (champion cfg re-run) | .238 | 3 |
+| **v4br hierarchical + HDBSCAN** | **.660** | 5 |
+| v4br tags + KMeans | .576 | 7 |
+
+Two findings: **(1) hierarchical subdomain expansion posts the best number yet** (.660 > .624), splitting the dominant ai-ml mass into distinct engineer/creator/operator tribes. **(2) Fresh LLM scoring has high run-to-run variance** — the identical flat config scored .624 (v3) and .238 (v4r) on the same users, because each round re-derives the taxonomy at default temperature. Fix shipped: temperature pinned to 0.1 across derivation/scoring/labeling; v5 confirmation round validates. Also shipped: labeler rebuilt on durable evidence (tag mixes + roles + bios primary, recent posts secondary with an explicit no-current-events instruction) after v4 labels over-fit to Grokathon-week posts ("Grok Image Creators" ≠ a durable segment).
+
+*(Ops note: v4's original numbers were discarded — a double-worker incident corrupted the input data; claim_next made atomic, data restored from snapshot. ~$70 of X budget lost to the runaway.)*
+
 **referenced_text works: +15% stability**, and the algorithm ranking INVERTED — HDBSCAN went from collapsing on discrete tags (.046) to winning on the enriched dense block (.624), while KMeans dropped below baseline. The standing re-sweep rule caught it; without it we'd have shipped the worse config. Winner's tribes: ML Research Engineers, Agentic AI Devs, Open Source Contributors, SF Talent Network, Crypto VC Investors, Grok xAI Users, SpaceX/Tesla fans, + an honest periphery catch-all. Not yet activated in Neon (pending review — teammates consume the active run).
 
 ### Real-data results (@ishand, 200 deep-enriched, Gemini embedder) — CONFIRMED
