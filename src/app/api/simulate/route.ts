@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getAudienceProvider } from "@/lib/audience/registry";
+import { resolveAudienceHandle } from "@/lib/audience/resolve";
 import { getSimulationProvider } from "@/lib/simulation/registry";
 import { getStorage } from "@/lib/storage";
 import type { CampaignVariant } from "@/lib/simulation/types";
@@ -14,7 +15,7 @@ export async function POST(req: Request) {
   }
   const settings = await getStorage().getSettings();
   const audience = await getAudienceProvider().getAudience({
-    handle: settings.xAccount?.handle,
+    handle: resolveAudienceHandle(settings),
     projectId: body.projectId,
   });
   if (!audience.clusters.some((c) => c.id === body.clusterId)) {

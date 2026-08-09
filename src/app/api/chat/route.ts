@@ -6,6 +6,7 @@ import { getStorage } from "@/lib/storage";
 import { getImageProvider, getVideoProvider } from "@/lib/providers/registry";
 import { mediaPromptError } from "@/lib/providers/limits";
 import { getAudienceProvider } from "@/lib/audience/registry";
+import { resolveAudienceHandle } from "@/lib/audience/resolve";
 import { connectAudienceMcp } from "@/lib/mcp/audience-mcp";
 import { buildLaunchSystemPrompt, toModelMessages } from "@/lib/agents/launch-copilot";
 import { applyStyle } from "@/lib/styles";
@@ -136,7 +137,7 @@ export async function POST(req: Request) {
   // renders) and connect the audience MCP so it can pull niche/member/interest
   // data live while it drafts the launch.
   const snapshot = await getAudienceProvider().getAudience({
-    handle: settings.xAccount?.handle,
+    handle: resolveAudienceHandle(settings),
     projectId: project.id,
   });
   const mcp = await connectAudienceMcp();

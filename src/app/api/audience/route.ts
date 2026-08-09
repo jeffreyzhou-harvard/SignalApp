@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getAudienceProvider } from "@/lib/audience/registry";
+import { resolveAudienceHandle } from "@/lib/audience/resolve";
 import { getStorage } from "@/lib/storage";
 
 export const runtime = "nodejs";
@@ -10,7 +11,8 @@ export async function GET(req: Request) {
   const settings = await getStorage().getSettings();
   const snapshot = await getAudienceProvider().getAudience({
     // demo override from Settings wins; then the caller's handle; then the linked account
-    handle: settings.audienceHandle ?? params.get("handle") ?? settings.xAccount?.handle,
+    // explicit per-project handle wins; the settings picker covers the rest
+    handle: resolveAudienceHandle(settings, params.get("handle")),
     projectId,
   });
   return NextResponse.json(snapshot);

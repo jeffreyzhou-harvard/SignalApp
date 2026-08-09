@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { buildSessionPayload } from "@/lib/voice/session";
 import { getAudienceProvider } from "@/lib/audience/registry";
+import { resolveAudienceHandle } from "@/lib/audience/resolve";
 import { getStorage } from "@/lib/storage";
 
 export const runtime = "nodejs";
@@ -34,7 +35,7 @@ export async function POST(req: Request) {
 
   const settings = await getStorage().getSettings();
   const snapshot = await getAudienceProvider().getAudience({
-    handle: settings.xAccount?.handle,
+    handle: resolveAudienceHandle(settings),
     projectId,
   });
 

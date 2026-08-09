@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getAudienceProvider } from "@/lib/audience/registry";
+import { resolveAudienceHandle } from "@/lib/audience/resolve";
 import { getImageProvider, getTextProvider, getVideoProvider } from "@/lib/providers/registry";
 import { getStorage } from "@/lib/storage";
 import { LAUNCH_COPY_GUIDE } from "@/lib/launch-copy";
@@ -40,7 +41,7 @@ export async function POST(req: Request) {
 
   const settings = await storage.getSettings();
   const audience = await getAudienceProvider().getAudience({
-    handle: settings.xAccount?.handle,
+    handle: resolveAudienceHandle(settings),
     projectId: project.id,
   });
   const ids = body.clusterIds?.length ? body.clusterIds : [body.clusterId];

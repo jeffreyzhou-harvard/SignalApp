@@ -3,6 +3,7 @@ import { streamText, stepCountIs } from "ai";
 import { xai } from "@ai-sdk/xai";
 import { getStorage } from "@/lib/storage";
 import { getAudienceProvider } from "@/lib/audience/registry";
+import { resolveAudienceHandle } from "@/lib/audience/resolve";
 import { connectAudienceMcp } from "@/lib/mcp/audience-mcp";
 import { buildAudienceChatSystemPrompt } from "@/lib/agents/launch-copilot";
 
@@ -32,7 +33,7 @@ export async function POST(req: Request) {
   // Ground the copilot in the founder's real audience (same snapshot the galaxy
   // renders) and connect the audience MCP so it can pull niche/member/interest
   // data live. No projectId — this is the standalone audience surface.
-  const snapshot = await getAudienceProvider().getAudience({ handle: settings.xAccount?.handle });
+  const snapshot = await getAudienceProvider().getAudience({ handle: resolveAudienceHandle(settings) });
   const mcp = await connectAudienceMcp();
 
   const focusCluster = body.clusterId
