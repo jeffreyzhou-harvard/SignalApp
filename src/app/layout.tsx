@@ -10,7 +10,7 @@ export const metadata: Metadata = {
   title: "Signal",
   description:
     "Your followers' bios, posts, and engagement — embedded into constellations. One launch, engagement-tuned for every niche.",
-  icons: { icon: "/Signal.png" },
+  icons: { icon: "/signal-tile.png" },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

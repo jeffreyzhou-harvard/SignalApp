@@ -29,8 +29,8 @@ export default function Landing() {
         />
         <div className="absolute inset-0 bg-linear-to-b from-ground/60 via-ground/10 to-ground" />
 
-        <header className="relative z-10 flex items-center gap-3 px-6 py-5">
-          <span className="logo-mask block h-9 w-12 text-fg" aria-hidden="true" />
+        <header className="relative z-10 flex items-center gap-2 px-6 py-5">
+          <span className="logo-mask block h-9 w-8 text-fg" aria-hidden="true" />
           <span className="text-xl font-semibold tracking-tight">Signal</span>
           <a
             href={AUTH_START}

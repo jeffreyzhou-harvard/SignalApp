@@ -1,5 +1,8 @@
 <div align="center">
-  <img src="public/Signal.png" alt="Signal" width="200" />
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="public/signal-white.png" />
+    <img src="public/NewSignal.png" alt="Signal" width="220" />
+  </picture>
 
 # Signal
 
