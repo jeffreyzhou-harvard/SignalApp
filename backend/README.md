@@ -87,3 +87,33 @@ with Grok persona cards, persisted to Neon, **$0.61** real spend.
 docker-compose up -d db
 uv run pytest -q        # 35 passing
 ```
+
+## Deploy the MCP server (Fly.io, free)
+
+Gives the MCP server a stable public HTTPS URL so xAI's server-side executor (and
+Claude/Cursor) can reach it — no Railway, no tunnel. Run from `backend/`:
+
+```bash
+fly auth login                         # one-time, opens browser
+fly launch --copy-config --no-deploy   # adopts fly.toml; pick an app name -> <app>
+# set secrets (Neon URL, Gemini key, and this app's own host for the allow-list):
+fly secrets set \
+  DATABASE_URL="postgresql+psycopg://…neon…?sslmode=require" \
+  GEMINI_API_KEY="…" \
+  MCP_ALLOWED_HOSTS="<app>.fly.dev"
+fly deploy
+```
+
+Then point the frontend at it — set on Vercel (and `.env.local` for local dev):
+
+```
+AUDIENCE_MCP_URL=https://<app>.fly.dev/mcp
+```
+
+Notes:
+- `RUN_WORKER=false` is baked into `fly.toml` — this is a read-only MCP deploy, so
+  it won't run the ingestion worker (ingest still runs locally/elsewhere).
+- `MCP_ALLOWED_HOSTS` must include the Fly hostname or requests 421 (DNS-rebinding
+  protection stays on; localhost is always trusted).
+- `min_machines_running = 1` keeps it warm (no cold start when the agent calls);
+  set to 0 in `fly.toml` to scale to zero and save resources.
