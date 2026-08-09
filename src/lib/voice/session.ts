@@ -39,6 +39,9 @@ function instructions(clusters: ClusterLite[], totalFollowers: number): string {
     "post and call generate_image for its poster (use edit_image to iterate, never start",
     "over unless asked); (4) when the founder approves, call post_to_x — first WITHOUT",
     "confirm to show the draft, then with confirm=true only after an explicit yes.",
+    "For video: ALWAYS ask the founder how long it should run (up to 15s) and how much",
+    "depth they want — pacing, number of shots, on-screen text — before calling",
+    "generate_video with their chosen duration_seconds.",
     "Use x_search for what's live on X right now (competitor launches, hook styles).",
     "Use the audience MCP tools (when available) for deep niche stats and member lookups.",
     "Never invent engagement numbers; only cite what tools return.",
@@ -94,14 +97,25 @@ export function buildSessionPayload(opts: SessionOptions) {
     {
       type: "function",
       name: "generate_video",
-      description: "Animate an image (or a text prompt) into a short launch video with Grok Imagine.",
+      description:
+        "Animate an image (or a text prompt) into a 1080p launch video with Grok Imagine. Before calling, ask the founder how long the video should be (up to 15 seconds) and how much depth the scene needs (pacing, shots, on-screen text) — then bake that depth into the prompt.",
       parameters: {
         type: "object",
         properties: {
-          prompt: { type: "string" },
+          prompt: {
+            type: "string",
+            description:
+              "Full scene direction reflecting the depth the founder asked for: motion, pacing, camera moves, mood, any text lockups",
+          },
+          duration_seconds: {
+            type: "integer",
+            minimum: 1,
+            maximum: 15,
+            description: "Video length in seconds — the founder's chosen length, never assumed",
+          },
           image_url: { type: "string", description: "Optional still to animate" },
         },
-        required: ["prompt"],
+        required: ["prompt", "duration_seconds"],
       },
     },
     {
@@ -133,13 +147,14 @@ export function buildSessionPayload(opts: SessionOptions) {
   return {
     type: "session.update" as const,
     session: {
-      voice: opts.voice ?? "eve",
+      voice: opts.voice ?? "ara",
       instructions: instructions(opts.clusters, opts.totalFollowers),
       turn_detection: { type: "server_vad" as const },
       tools,
       audio: {
-        input: { format: { type: "audio/pcm", rate: 24000 } },
-        output: { format: { type: "audio/pcm", rate: 24000 } },
+        // 48 kHz is xAI's "professional" tier; must match RATE in client.ts.
+        input: { format: { type: "audio/pcm", rate: 48000 } },
+        output: { format: { type: "audio/pcm", rate: 48000 } },
       },
     },
   };

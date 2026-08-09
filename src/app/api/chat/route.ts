@@ -18,6 +18,8 @@ interface ChatRequest {
   /** Image aspect ratio (xAI enum) and resolution. */
   aspectRatio?: string;
   resolution?: "1k" | "2k";
+  /** Video length in seconds (1–15, user-selected). Video always renders 1080p. */
+  videoDuration?: number;
   /** Style preset id from src/lib/styles.ts. */
   style?: string;
 }
@@ -71,7 +73,12 @@ export async function POST(req: Request) {
 
       if (mediaType === "video") {
         const provider = getVideoProvider();
-        const video = await provider.generate({ prompt: styledPrompt, sourceImage: sources[0] });
+        const video = await provider.generate({
+          prompt: styledPrompt,
+          sourceImage: sources[0],
+          duration: Math.min(15, Math.max(1, Math.round(Number(body.videoDuration) || 10))),
+          resolution: "1080p",
+        });
         urls.push(await storage.saveFile(crypto.randomUUID(), Buffer.from(video.b64, "base64"), video.mime));
         modelUsed = provider.defaultModel;
       } else {

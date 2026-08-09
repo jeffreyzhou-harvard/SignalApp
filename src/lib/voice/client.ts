@@ -12,7 +12,8 @@ export interface VoiceState {
 }
 
 const WS_URL = "wss://api.x.ai/v1/realtime";
-const RATE = 24000;
+// Must match the audio format rates declared in session.ts.
+const RATE = 48000;
 
 export class RealtimeClient {
   onState: (s: VoiceState) => void = () => {};

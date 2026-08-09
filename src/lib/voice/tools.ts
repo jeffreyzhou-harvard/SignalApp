@@ -56,6 +56,7 @@ const handlers: Record<string, Handler> = {
       kind: "video",
       prompt: args.prompt,
       imageUrl: args.image_url ?? lastImageUrl,
+      duration: args.duration_seconds,
       projectId: ctx.projectId,
     });
   },

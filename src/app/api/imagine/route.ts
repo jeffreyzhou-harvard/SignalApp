@@ -12,7 +12,7 @@ export const maxDuration = 300;
  * same pattern as /api/chat.
  */
 export async function POST(req: Request) {
-  const { kind, prompt, imageUrl, aspectRatio } = await req.json().catch(() => ({}));
+  const { kind, prompt, imageUrl, aspectRatio, duration } = await req.json().catch(() => ({}));
   if (!prompt) return NextResponse.json({ error: "prompt required" }, { status: 400 });
 
   const storage = getStorage();
@@ -32,6 +32,9 @@ export async function POST(req: Request) {
       const video = await getVideoProvider().generate({
         prompt,
         sourceImage: await resolveSource(imageUrl),
+        // Grok Imagine caps duration at 15s; fps is fixed at 24 by the model.
+        duration: Math.min(15, Math.max(1, Math.round(Number(duration) || 10))),
+        resolution: "1080p",
       });
       const url = await storage.saveFile(crypto.randomUUID(), Buffer.from(video.b64, "base64"), video.mime);
       return NextResponse.json({ kind, url });

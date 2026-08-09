@@ -97,6 +97,7 @@ export function ChatRoom({ projectId }: { projectId: string }) {
   const [mediaKind, setMediaKind] = useState<"image" | "video">("image");
   const [aspectRatio, setAspectRatio] = useState("auto");
   const [resolution, setResolution] = useState<"1k" | "2k">("1k");
+  const [videoDuration, setVideoDuration] = useState(10);
   const [style, setStyle] = useState("none");
   const [ratioOpen, setRatioOpen] = useState(false);
   const [view, setView] = useState<"chat" | "galaxy">("chat");
@@ -235,6 +236,7 @@ export function ChatRoom({ projectId }: { projectId: string }) {
       mediaType: mediaKind,
       aspectRatio,
       resolution,
+      videoDuration,
       style,
     });
 
@@ -690,6 +692,7 @@ export function ChatRoom({ projectId }: { projectId: string }) {
                     <>
                       <Palette size={13} strokeWidth={2} />
                       {style === "none" ? "Style" : STYLE_PRESETS.find((s) => s.id === style)?.label}
+                      <span className="text-faint">· {videoDuration}s</span>
                     </>
                   )}
                 </button>
@@ -715,6 +718,30 @@ export function ChatRoom({ projectId }: { projectId: string }) {
                           </button>
                         ))}
                       </div>
+                      {mediaKind === "video" && (
+                        <>
+                          <p className="border-t border-line px-2.5 pb-1 pt-2 text-xs uppercase tracking-wide text-faint">
+                            Length
+                          </p>
+                          <div className="flex items-center gap-1 px-1.5 pb-1.5">
+                            {[5, 10, 15].map((secs) => (
+                              <button
+                                key={secs}
+                                onClick={() => setVideoDuration(secs)}
+                                aria-pressed={videoDuration === secs}
+                                className={`flex-1 rounded-lg border px-2.5 py-1.5 text-xs font-medium transition-colors ${
+                                  videoDuration === secs
+                                    ? "border-line-strong bg-raised text-fg"
+                                    : "border-line text-muted hover:border-line-strong hover:text-fg"
+                                }`}
+                              >
+                                {secs}s
+                              </button>
+                            ))}
+                          </div>
+                          <p className="px-2.5 pb-1.5 text-xs text-faint">Renders at 1080p</p>
+                        </>
+                      )}
                       {mediaKind === "image" && (
                         <>
                       <p className="border-t border-line px-2.5 pb-1 pt-2 text-xs uppercase tracking-wide text-faint">
