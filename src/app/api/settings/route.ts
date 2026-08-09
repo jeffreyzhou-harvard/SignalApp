@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { getStorage } from "@/lib/storage";
 import { LINK_COOKIE, unsealAccount } from "@/lib/accounts/link-cookie";
+import { DEFAULT_AUDIENCE_HANDLE } from "@/lib/audience/resolve";
 import { getAccountProvider } from "@/lib/accounts/registry";
 import type { AppSettings, PublicSettings } from "@/lib/types";
 
@@ -24,6 +25,7 @@ function toPublic(settings: AppSettings): PublicSettings {
       resolution: settings.defaults?.resolution ?? "1k",
     },
     audienceHandle: settings.audienceHandle ?? null,
+    audienceDefault: DEFAULT_AUDIENCE_HANDLE,
     auth: {
       provider: provider.id,
       mode: provider.mode,

@@ -189,8 +189,8 @@ export function SettingsDialog({
               <h3 className="text-sm font-semibold">Audience map</h3>
             </div>
             <p className="mt-1 text-[13px] leading-5 text-muted">
-              Which follower graph the galaxy shows. Auto follows your linked account; pick a seed
-              to explore its audience instead.
+              Which follower graph the galaxy shows everywhere. Pick a seed to explore its
+              audience.
             </p>
             <div className="mt-3 flex flex-col gap-1.5">
               <button
@@ -203,9 +203,9 @@ export function SettingsDialog({
                     : "border-line hover:border-line-strong hover:bg-raised/50"
                 }`}
               >
-                <span className="font-medium">Auto</span>
+                <span className="font-medium">Default</span>
                 <span className="ml-2 text-xs text-faint">
-                  {linked ? `follows @${linked.handle}` : "follows your linked account"}
+                  @{settings?.audienceDefault ?? "ishand"}
                 </span>
                 {audienceHandle === null && (
                   <Check size={14} strokeWidth={2.5} className="ml-auto text-accent" />

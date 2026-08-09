@@ -29,7 +29,7 @@ export function GalaxyView({
   // Paint from cache immediately so revisiting the map doesn't re-download the
   // whole audience; the effect below revalidates in the background.
   const [snapshot, setSnapshot] = useState<AudienceSnapshot | null>(() =>
-    getCachedSnapshot({ projectId, handle: xHandle }),
+    getCachedSnapshot({ projectId }),
   );
   const [failed, setFailed] = useState(false);
   const [selected, setSelected] = useState<string | null>(null);
@@ -63,7 +63,7 @@ export function GalaxyView({
 
   useEffect(() => {
     let dead = false;
-    const params = { projectId, handle: xHandle };
+    const params = { projectId };
     // Instant paint from cache on revisit; the retry button forces a refetch.
     const cached = getCachedSnapshot(params);
     if (cached) {

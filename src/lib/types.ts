@@ -176,6 +176,8 @@ export interface PublicSettings {
   profile: UserProfile;
   defaults: CreativeDefaults;
   audienceHandle: string | null;
+  /** Map shown when audienceHandle is null. */
+  audienceDefault: string;
   auth: {
     provider: string;
     /** "local" = type a handle; "redirect" = Sign in with X. */
