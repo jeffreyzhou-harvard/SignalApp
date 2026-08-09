@@ -38,6 +38,7 @@ def main() -> None:
     p.add_argument("--tags-file", default=None, help="reuse prior tags.json (arm T)")
     p.add_argument("--role-weight", type=float, default=0.5)
     p.add_argument("--strip-pc1", action="store_true")
+    p.add_argument("--tax-dense-arm", default="A", choices=["A", "C", "F"])
     args = p.parse_args()
 
     if args.synthetic:
@@ -62,6 +63,7 @@ def main() -> None:
         sparse_weight=args.sparse_weight, algorithm=args.algo,
         n_clusters=args.k, labeler=args.labeler, min_export_size=min_export,
         tags_file=args.tags_file, role_weight=args.role_weight,
+        tax_dense_arm=args.tax_dense_arm,
         strip_common_component=args.strip_pc1,
     )
     res = run(cfg, docs)

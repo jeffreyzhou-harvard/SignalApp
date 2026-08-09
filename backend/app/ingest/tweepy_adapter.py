@@ -48,8 +48,11 @@ def _as_dict(obj):
 
 
 class TweepyAPI:
-    def __init__(self, client: "tweepy.Client"):
+    def __init__(self, client: "tweepy.Client", user_client: "tweepy.Client | None" = None):
         self.client = client
+        # user-context client (OAuth user token) — required by liking_users/
+        # retweeted_by; falls back to app-only (which 403s and degrades upstream)
+        self.user_client = user_client or client
 
     # -- users -----------------------------------------------------------
     def get_user(self, handle_or_id) -> dict | None:
@@ -96,8 +99,20 @@ class TweepyAPI:
         for t in tweets:
             td = dict(t.data)
             td["_referenced_user"] = self._referenced_user(td, tweets_by_id, users_by_id)
+            td["_referenced_text"] = self._referenced_text(td, tweets_by_id)
             out.append(td)
         return out
+
+    @staticmethod
+    def _referenced_text(tweet_dict, tweets_by_id):
+        """Parent post body from the expansion includes — the engagement target
+        (what the user interacted WITH), which carries the interest signal."""
+        for ref in tweet_dict.get("referenced_tweets") or []:
+            ref_tweet = tweets_by_id.get(str(ref.get("id")))
+            text = getattr(ref_tweet, "text", None) if ref_tweet is not None else None
+            if text:
+                return text
+        return None
 
     @staticmethod
     def _referenced_user(tweet_dict, tweets_by_id, users_by_id):
@@ -119,12 +134,30 @@ class TweepyAPI:
 
     # -- engagement ------------------------------------------------------
     def get_liking_users(self, post_id) -> list[dict]:
-        resp = self.client.get_liking_users(post_id)
+        resp = self.user_client.get_liking_users(post_id, user_auth=self.user_client is not self.client and bool(settings.x_oauth1_access_token))
         return [u.data for u in (resp.data or [])]
 
     def get_retweeters(self, post_id) -> list[dict]:
-        resp = self.client.get_retweeters(post_id)
+        resp = self.user_client.get_retweeters(post_id, user_auth=self.user_client is not self.client and bool(settings.x_oauth1_access_token))
         return [u.data for u in (resp.data or [])]
+
+
+def _make_user_client() -> "tweepy.Client | None":
+    """User-context client for co-engagement endpoints. Prefers an OAuth 2.0
+    user token (from the app's Sign-in-with-X flow), else OAuth 1.0a portal
+    credentials; None when neither is configured."""
+    if settings.x_user_access_token:
+        return tweepy.Client(bearer_token=settings.x_user_access_token,
+                             wait_on_rate_limit=True)
+    if settings.x_consumer_key and settings.x_oauth1_access_token:
+        return tweepy.Client(
+            consumer_key=settings.x_consumer_key,
+            consumer_secret=settings.x_consumer_secret,
+            access_token=settings.x_oauth1_access_token,
+            access_token_secret=settings.x_oauth1_access_secret,
+            wait_on_rate_limit=True,
+        )
+    return None
 
 
 def make_api() -> TweepyAPI:
@@ -132,7 +165,7 @@ def make_api() -> TweepyAPI:
         bearer_token=settings.x_bearer_token,
         wait_on_rate_limit=True,
     )
-    return TweepyAPI(client)
+    return TweepyAPI(client, user_client=_make_user_client())
 
 
 def make_grok():

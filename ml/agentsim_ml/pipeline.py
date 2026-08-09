@@ -107,7 +107,7 @@ def _features(cfg: RunConfig, deep: list[PersonaDocument], run_dir: Path,
         tax_m = taxonomy_block(tags, tax, role_weight=cfg.role_weight)
         if cfg.strip_common_component:
             tax_m = strip_first_pc(tax_m)
-        bio_dense = embedder.embed([compose(d, "A") for d in deep])
+        bio_dense = embedder.embed([compose(d, cfg.tax_dense_arm) for d in deep])
         w_tax, w_bio, w_sparse = cfg.tax_weights
         blocks = [(tax_m, w_tax), (bio_dense, w_bio),
                   (sparse_features(deep), w_sparse)]

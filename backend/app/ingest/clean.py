@@ -44,6 +44,7 @@ def classify_post(raw: dict) -> SamplePost:
         mentions=mentions,
         hashtags=hashtags,
         referenced_user=referenced_user,
+        referenced_text=raw.get("_referenced_text"),
         metrics=EngagementBreakdown(
             like=pm.get("like_count", 0),
             reply=pm.get("reply_count", 0),

@@ -43,6 +43,7 @@ class SamplePost(BaseModel):
     mentions: list[Mention] = []
     hashtags: list[str] = []
     referenced_user: RefUser | None = None
+    referenced_text: str | None = None  # parent post body — the engagement target
     metrics: EngagementBreakdown = EngagementBreakdown()
 
 

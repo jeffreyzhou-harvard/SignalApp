@@ -15,6 +15,14 @@ class Settings(BaseSettings):
         default="", validation_alias=AliasChoices("XAI_API_KEY", "X_AI_API_KEY")
     )
     x_bearer_token: str = Field(default="", validation_alias="X_AI_BEARER_TOKEN")
+    # OAuth user context (either flavor) — unlocks liking_users/retweeted_by
+    # (co-engagement) and posting. OAuth 2.0 user token from the app's
+    # "Sign in with X" flow, OR the four OAuth 1.0a credentials from the portal.
+    x_user_access_token: str = Field(default="", validation_alias="X_USER_ACCESS_TOKEN")
+    x_consumer_key: str = Field(default="", validation_alias="X_AI_CONSUMER_KEY")
+    x_consumer_secret: str = Field(default="", validation_alias="X_AI_SECRET_KEY")
+    x_oauth1_access_token: str = Field(default="", validation_alias="X_OAUTH1_ACCESS_TOKEN")
+    x_oauth1_access_secret: str = Field(default="", validation_alias="X_OAUTH1_ACCESS_SECRET")
 
     # Budget guard (USD)
     x_api_budget_usd: float = 250.0

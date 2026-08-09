@@ -43,6 +43,7 @@ class RunConfig:
     n_posts_in_composition: int = 6
     labeler: str = "grok"            # falls back to heuristic without XAI_API_KEY
     tags_file: str | None = None     # reuse a prior run's tags.json (skip Grok scoring)
+    tax_dense_arm: str = "A"         # dense block for arm T: "A" bio-only, "F" filtered text+engaged
     tax_weights: tuple = (0.5, 0.3, 0.2)  # taxonomy, bio-dense, sparse
     role_weight: float = 0.5         # 0 disables role one-hot in the tax block
     strip_common_component: bool = False  # remove shared 1st PC (audience-wide sameness)
