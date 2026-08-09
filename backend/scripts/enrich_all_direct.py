@@ -38,14 +38,23 @@ def main(seed_account_id: str) -> None:
             print(f"  fetched {i + 1}/{len(targets)}")
             s.commit()
     print(f"{len(preps)} fetched, {failed} failed; generating cards…")
-
-    cards = persona_card.generate_cards_concurrent(
-        [(p.bio, p.content) for p in preps],
-        client=grok, concurrency=settings.enrich_concurrency,
-    )
-    for prep, card in zip(preps, cards):
-        pipeline.enrich_tier2_write(s, prep, card)
+    # Commit now: card generation is minutes of pure API work, and an open
+    # transaction idling that long gets killed by Neon's idle-in-transaction
+    # timeout (which once cost a full card run). Then interleave generation and
+    # writes in chunks so progress persists and the connection stays warm.
     s.commit()
+
+    CHUNK = 64
+    for i in range(0, len(preps), CHUNK):
+        chunk = preps[i:i + CHUNK]
+        cards = persona_card.generate_cards_concurrent(
+            [(p.bio, p.content) for p in chunk],
+            client=grok, concurrency=settings.enrich_concurrency,
+        )
+        for prep, card in zip(chunk, cards):
+            pipeline.enrich_tier2_write(s, prep, card)
+        s.commit()
+        print(f"  written {min(i + CHUNK, len(preps))}/{len(preps)}")
     print(f"enriched {len(preps)} personas to tier-2")
 
 
