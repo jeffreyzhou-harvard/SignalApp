@@ -1,5 +1,5 @@
 /**
- * Pluggable audience data. The mock adapter ships seeded demo tribes; the real
+ * Pluggable audience data. The mock adapter ships seeded demo niches; the real
  * pipeline (X ingest → persona docs → embed → cluster, see docs/ARCHITECTURE.md)
  * implements this same interface later — the galaxy UI never changes.
  */
@@ -7,7 +7,7 @@
 export interface AudienceCluster {
   id: string;
   label: string;
-  /** Real audience size this tribe represents. */
+  /** Real audience size this niche represents. */
   members: number;
   /** Categorical data color for nodes/edges/labels. */
   color: string;

@@ -1,8 +1,10 @@
 import type { AudienceProvider } from "./types";
 import { mockAudience } from "./mock";
+import { dbAudience } from "./db";
 
 const providers: Record<string, AudienceProvider> = {
   [mockAudience.id]: mockAudience,
+  [dbAudience.id]: dbAudience,
 };
 
 /** Register the real clustering pipeline here when it lands. */

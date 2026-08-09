@@ -10,6 +10,8 @@ from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 from app.store import clusters as cluster_store
+from app.store import clusters_stub
+from sqlalchemy import text as _text
 
 
 def list_audiences(session: Session) -> list[dict]:
@@ -109,4 +111,53 @@ def cluster_members(session: Session, seed_account_id: str, cluster_id: str,
         "cluster_id": cluster_id,
         "total_members": len(members),
         "members": [_member_summary(m) for m in ranked[:k]],
+    }
+
+
+def latest_active_run(session: Session) -> dict | None:
+    """Most recently activated run across all seeds — the default audience."""
+    row = session.execute(
+        _text("SELECT run_id, seed_account_id FROM cluster_runs WHERE status='active'"
+             " ORDER BY activated_at DESC NULLS LAST, created_at DESC LIMIT 1"),
+    ).mappings().first()
+    return dict(row) if row else None
+
+
+def audience_snapshot(session: Session, seed_account_id: str | None = None) -> dict:
+    """Everything the frontend galaxy needs in one call: run + clusters +
+    members joined with their persona docs. Falls back to the fixture clusters
+    (with no members) when no active run exists."""
+    if seed_account_id:
+        run = cluster_store.active_run_id(session, seed_account_id)
+        seed = seed_account_id
+    else:
+        latest = latest_active_run(session)
+        run = latest["run_id"] if latest else None
+        seed = latest["seed_account_id"] if latest else None
+
+    if not run:
+        return {
+            "run_id": None,
+            "seed_account_id": seed,
+            "clusters": clusters_stub.load_clusters(),
+            "members": [],
+        }
+
+    clusters = session.execute(
+        _text("SELECT run_id, cluster_id, label, doc, size, share_of_audience,"
+             " engagement_index FROM clusters WHERE run_id=:r ORDER BY size DESC"),
+        {"r": run},
+    ).mappings().all()
+    members = session.execute(
+        _text("SELECT m.user_id, m.cluster_id, m.periphery, m.confidence, m.map_x,"
+             " m.map_y, p.doc"
+             " FROM cluster_members m LEFT JOIN personas p ON p.user_id = m.user_id"
+             " WHERE m.run_id=:r"),
+        {"r": run},
+    ).mappings().all()
+    return {
+        "run_id": run,
+        "seed_account_id": seed,
+        "clusters": [dict(r) for r in clusters],
+        "members": [dict(r) for r in members],
     }

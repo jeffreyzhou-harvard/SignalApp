@@ -5,7 +5,7 @@ const providers: Record<string, SimulationProvider> = {
   [mockAgentSim.id]: mockAgentSim,
 };
 
-/** Register a real agent harness here (persona agents over tribe embeddings). */
+/** Register a real agent harness here (persona agents over niche embeddings). */
 export function registerSimulationProvider(p: SimulationProvider) {
   providers[p.id] = p;
 }

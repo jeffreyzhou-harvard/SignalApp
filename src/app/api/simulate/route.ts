@@ -18,7 +18,7 @@ export async function POST(req: Request) {
     projectId: body.projectId,
   });
   if (!audience.clusters.some((c) => c.id === body.clusterId)) {
-    return NextResponse.json({ error: "Unknown audience tribe." }, { status: 400 });
+    return NextResponse.json({ error: "Unknown audience niche." }, { status: 400 });
   }
   try {
     const result = await getSimulationProvider().run({

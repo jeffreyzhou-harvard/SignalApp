@@ -42,7 +42,7 @@ export function EmptyState({ onNewProject }: { onNewProject: () => void }) {
       <h2 className="text-xl font-semibold tracking-tight">Every launch starts in the tunnel</h2>
       <p className="mt-2 max-w-sm text-sm leading-6 text-muted">
         A project is one campaign: your brief, product shots, the copilot conversation, and the
-        posts and posters it produces for each tribe of your audience.
+        posts and posters it produces for each niche of your audience.
       </p>
       <button
         onClick={onNewProject}

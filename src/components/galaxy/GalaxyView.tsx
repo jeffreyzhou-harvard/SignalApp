@@ -149,7 +149,7 @@ export function GalaxyView({
               </span>
             )}
             <span className="rounded-full border border-line bg-surface/70 px-3 py-1.5 text-xs text-muted backdrop-blur">
-              {snapshot.totalFollowers.toLocaleString()} followers · {snapshot.clusters.length} tribes
+              {snapshot.totalFollowers.toLocaleString()} followers · {snapshot.clusters.length} niches
             </span>
           </div>
 
@@ -181,7 +181,7 @@ export function GalaxyView({
               </div>
             ) : (
               <p className="absolute bottom-5 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full border border-line bg-surface/70 px-4 py-2 text-xs text-faint backdrop-blur">
-                Click a tribe to zoom in · hover a follower for their persona
+                Click a niche to zoom in · hover a follower for their persona
               </p>
             ))}
         </>

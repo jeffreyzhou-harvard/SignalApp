@@ -10,7 +10,7 @@ import { applyEvent, emptyTally, engagementRate } from "./types";
 
 /**
  * Seeded mock agent loop, following the stage demo's wind tunnel (demo/src/data/sim.ts):
- * a deterministic weighted event stream, target-tribe-heavy, where variant B
+ * a deterministic weighted event stream, target-niche-heavy, where variant B
  * converts harder. Replace with a real persona-agent harness via the registry.
  */
 
@@ -98,7 +98,7 @@ export const mockAgentSim: SimulationProvider = {
     let a = 0;
     let b = 0;
     for (let i = 0; i < EVENT_COUNT; i++) {
-      // 70% target tribe, 30% spillover from the wider graph
+      // 70% target niche, 30% spillover from the wider graph
       const member = rng() < 0.7 ? pick(rng, pool) : pick(rng, audience.members);
       const variant: "A" | "B" = rng() < 0.44 ? "A" : "B";
       const action = weightedAction(rng, variant);

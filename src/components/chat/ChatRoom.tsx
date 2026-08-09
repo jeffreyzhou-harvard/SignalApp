@@ -75,8 +75,8 @@ const BRIEF_STARTERS = [
     imagine: false,
   },
   {
-    label: "Find my tribes",
-    text: "Who are the likely tribes in my audience for this launch, and how should the message differ for each?",
+    label: "Find my niches",
+    text: "Who are the likely niches in my audience for this launch, and how should the message differ for each?",
     imagine: false,
   },
 ];

@@ -8,7 +8,7 @@ export const runtime = "nodejs";
 export const maxDuration = 300;
 
 /**
- * Rewrites the baseline post for one tribe with the text provider. Media is
+ * Rewrites the baseline post for one niche with the text provider. Media is
  * carried over unchanged; only the copy is tailored. Returns variant B for
  * the wind tunnel.
  */
@@ -28,7 +28,7 @@ export async function POST(req: Request) {
     projectId: project.id,
   });
   const cluster = audience.clusters.find((c) => c.id === body.clusterId);
-  if (!cluster) return NextResponse.json({ error: "Unknown audience tribe." }, { status: 400 });
+  if (!cluster) return NextResponse.json({ error: "Unknown audience niche." }, { status: 400 });
 
   const messages = await storage.listMessages(project.id);
   const context = messages
@@ -41,8 +41,8 @@ export async function POST(req: Request) {
     `You are a launch copywriter for X. Project: "${project.title}".`,
     context ? `Conversation so far:\n${context}` : "",
     `The founder's current draft post reads:\n"${body.baselineCopy}"`,
-    `Rewrite it for one specific tribe of their audience: ${cluster.label} (${cluster.members.toLocaleString()} followers). Tribe read: ${cluster.blurb}`,
-    "Keep the product facts, change the voice: lead with the hook this tribe responds to, keep it under 260 characters, add a clear call to action. No hashtags unless they earn it. Never use em dashes.",
+    `Rewrite it for one specific niche of their audience: ${cluster.label} (${cluster.members.toLocaleString()} followers). Niche read: ${cluster.blurb}`,
+    "Keep the product facts, change the voice: lead with the hook this niche responds to, keep it under 260 characters, add a clear call to action. No hashtags unless they earn it. Never use em dashes.",
     'Respond with STRICT JSON only, no prose: {"copy":"..."}',
   ]
     .filter(Boolean)
