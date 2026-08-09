@@ -25,7 +25,7 @@ export function registerAccountProvider(p: AccountProvider) {
 export function getAccountProvider(): AccountProvider {
   // Real OAuth turns on the moment X_OAUTH_CLIENT_ID is configured.
   const fallback = isOAuthConfigured() ? xOAuthAccount.id : xStubAccount.id;
-  const id = process.env.ACCOUNT_PROVIDER ?? fallback;
+  const id = process.env.ACCOUNT_PROVIDER || fallback;
   const provider = providers[id];
   if (!provider) throw new Error(`Unknown account provider "${id}". Registered: ${Object.keys(providers).join(", ")}`);
   return provider;

@@ -13,7 +13,7 @@ export function registerAudienceProvider(p: AudienceProvider) {
 }
 
 export function getAudienceProvider(): AudienceProvider {
-  const id = process.env.AUDIENCE_PROVIDER ?? mockAudience.id;
+  const id = process.env.AUDIENCE_PROVIDER || mockAudience.id;
   const provider = providers[id];
   if (!provider) throw new Error(`Unknown audience provider "${id}". Registered: ${Object.keys(providers).join(", ")}`);
   return provider;
