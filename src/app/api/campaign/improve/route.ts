@@ -3,6 +3,7 @@ import { getAudienceProvider } from "@/lib/audience/registry";
 import { getImageProvider, getTextProvider, getVideoProvider } from "@/lib/providers/registry";
 import { getStorage } from "@/lib/storage";
 import { LAUNCH_COPY_GUIDE } from "@/lib/launch-copy";
+import { MAX_MEDIA_PROMPT_CHARS } from "@/lib/providers/limits";
 import { parseModelJson } from "@/lib/model-json";
 import type { CampaignVariant } from "@/lib/simulation/types";
 
@@ -85,6 +86,9 @@ export async function POST(req: Request) {
     }
     const plan = parseModelJson<{ copy?: string; media_prompt?: string; rationale?: unknown }>(full);
     if (!plan?.copy || !plan.media_prompt) throw new Error("The agent returned an incomplete plan. Try again.");
+    // The agent wrote this prompt, so the founder can't shorten it — clamp to
+    // Grok Imagine's cap instead of letting the render 400 and kill the round.
+    plan.media_prompt = plan.media_prompt.slice(0, MAX_MEDIA_PROMPT_CHARS);
 
     // Re-render the media per the agent's instruction.
     let mediaUrl: string | null = body.winner.mediaUrl;

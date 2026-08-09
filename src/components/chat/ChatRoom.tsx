@@ -250,18 +250,28 @@ export function ChatRoom({ projectId }: { projectId: string }) {
           full += decoder.decode(value, { stream: true });
           setStreamingText(full);
         }
-        setMessages((prev) => [
-          ...prev,
-          {
-            id: `local-a-${Date.now()}`,
-            projectId,
-            role: "assistant",
-            kind: "text",
-            content: full,
-            images: [],
-            createdAt: new Date().toISOString(),
-          },
-        ]);
+        // The copilot may have rendered a video mid-turn (render_video tool);
+        // refetch the canonical transcript to pick it up. The final text reply
+        // is persisted in the route's onFinish, which can land after the stream
+        // closes — if the refetch beat it, keep the local echo on top.
+        const localEcho: ChatMessage = {
+          id: `local-a-${Date.now()}`,
+          projectId,
+          role: "assistant",
+          kind: "text",
+          content: full,
+          images: [],
+          createdAt: new Date().toISOString(),
+        };
+        const refreshed: ChatMessage[] | null = await fetch(`/api/projects/${projectId}/messages`)
+          .then((r) => (r.ok ? r.json() : null))
+          .catch(() => null);
+        if (Array.isArray(refreshed) && refreshed.length > 0) {
+          const hasReply = refreshed.some((m) => m.role === "assistant" && m.kind === "text" && m.content === full);
+          setMessages(hasReply || !full.trim() ? refreshed : [...refreshed, localEcho]);
+        } else {
+          setMessages((prev) => [...prev, localEcho]);
+        }
       }
     } catch (err) {
       setErrorNote(err instanceof Error ? err.message : "Something went wrong.");

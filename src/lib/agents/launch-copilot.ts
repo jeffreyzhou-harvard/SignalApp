@@ -17,6 +17,8 @@ export interface LaunchContext {
   snapshot: AudienceSnapshot;
   /** Whether audience MCP tools are attached this turn (drives the tool guidance). */
   hasMcp: boolean;
+  /** Whether the render_video tool is attached this turn (video-first projects). */
+  canRenderVideo?: boolean;
 }
 
 /**
@@ -76,7 +78,7 @@ function toolGuidance(snapshot: LaunchContext["snapshot"]): string {
  * the real audience brief, MCP tool guidance, and the launch-copy playbook.
  */
 export function buildLaunchSystemPrompt(ctx: LaunchContext): string {
-  const { project, settings, snapshot, hasMcp } = ctx;
+  const { project, settings, snapshot, hasMcp, canRenderVideo } = ctx;
   const founder = settings.profile?.name ? `The founder's name is ${settings.profile.name}.` : "";
   const linked = settings.xAccount
     ? `The founder's linked X account is @${settings.xAccount.handle}; this campaign targets that account's audience.`
@@ -94,8 +96,16 @@ export function buildLaunchSystemPrompt(ctx: LaunchContext): string {
     "",
     hasMcp ? toolGuidance(snapshot) : "Audience tools are unavailable this turn; reason from the niches listed above and say when you would want deeper data.",
     "",
-    "When the founder wants a visual, tell them to use Imagine mode (the wand in the composer),",
-    "or refine the poster prompt for them; you cannot render images yourself in this chat.",
+    canRenderVideo
+      ? "This is a video campaign. When the founder asks for changes to the video (a new scene, " +
+        "different pacing, added text, a new angle), call the render_video tool with a COMPLETE " +
+        "scene prompt: merge the original video's direction (in the history as " +
+        '[Generated video for prompt: "..."]) with their requested edit, so continuity holds. ' +
+        "Never say you rendered a video without calling the tool, and never output a " +
+        "[Generated video ...] marker yourself; only the tool renders. For still images, point " +
+        "them at Imagine mode (the wand in the composer)."
+      : "When the founder wants a visual, tell them to use Imagine mode (the wand in the composer)," +
+        " or refine the poster prompt for them; you cannot render images yourself in this chat.",
     "Be concrete and concise. Draft real copy, not descriptions of copy. Ask one question at a time.",
     "Never use em dashes.",
     TABLE_GUIDANCE,

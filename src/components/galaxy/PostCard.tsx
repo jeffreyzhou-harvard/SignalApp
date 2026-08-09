@@ -83,7 +83,8 @@ export function PostCard({
         {variant.mediaUrl && (
           <div className="mt-3 overflow-hidden rounded-lg border border-line">
             {variant.mediaKind === "video" ? (
-              <video src={variant.mediaUrl} muted loop autoPlay playsInline className="max-h-80 w-full object-cover" />
+              // Starts muted so autoplay is allowed; controls let the founder unmute.
+              <video src={variant.mediaUrl} muted loop autoPlay playsInline controls className="max-h-80 w-full object-cover" />
             ) : (
               // eslint-disable-next-line @next/next/no-img-element
               <img src={variant.mediaUrl} alt="" className="max-h-80 w-full object-cover" />

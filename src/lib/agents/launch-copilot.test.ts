@@ -51,6 +51,19 @@ describe("buildLaunchSystemPrompt", () => {
     expect(p).toContain("Audience tools are unavailable");
     expect(p).not.toContain("list_clusters");
   });
+
+  it("tells the copilot to call render_video on video campaigns", () => {
+    const p = buildLaunchSystemPrompt({ project, settings, snapshot: snapshot("1596"), hasMcp: true, canRenderVideo: true });
+    expect(p).toContain("render_video");
+    expect(p).toContain("Never say you rendered a video without calling the tool");
+    expect(p).not.toContain("you cannot render images yourself");
+  });
+
+  it("keeps the no-render guidance for non-video projects", () => {
+    const p = buildLaunchSystemPrompt({ project, settings, snapshot: snapshot("1596"), hasMcp: true });
+    expect(p).not.toContain("render_video");
+    expect(p).toContain("you cannot render images yourself");
+  });
 });
 
 describe("buildAudienceChatSystemPrompt", () => {

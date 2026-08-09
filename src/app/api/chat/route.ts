@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
-import { streamText, stepCountIs } from "ai";
+import { streamText, stepCountIs, tool } from "ai";
 import { xai } from "@ai-sdk/xai";
+import { z } from "zod";
 import { getStorage } from "@/lib/storage";
 import { getImageProvider, getVideoProvider } from "@/lib/providers/registry";
 import { mediaPromptError } from "@/lib/providers/limits";
@@ -140,7 +141,56 @@ export async function POST(req: Request) {
   });
   const mcp = await connectAudienceMcp();
 
-  const system = buildLaunchSystemPrompt({ project, settings, snapshot, hasMcp: !!mcp });
+  // Video-first projects get a real render tool, so "make the intro slower"
+  // re-renders the teaser instead of the model narrating a fake render.
+  const lastMedia = [...history].reverse().find((m) => (m.kind === "image" || m.kind === "video") && m.images.length > 0);
+  const canRenderVideo = lastMedia?.kind === "video";
+  const renderVideoTool = canRenderVideo
+    ? tool({
+        description:
+          "Render a new launch video with Grok Imagine and add it to this chat. Pass a complete " +
+          "scene prompt (subject, motion, camera, pacing, mood, any on-screen text) that merges " +
+          "the previous video's direction with the founder's requested changes.",
+        inputSchema: z.object({
+          prompt: z.string().describe("Full scene direction for the new video"),
+          duration_seconds: z
+            .number()
+            .int()
+            .min(1)
+            .max(15)
+            .optional()
+            .describe("Video length in seconds; omit to keep the default 10"),
+        }),
+        execute: async ({ prompt: videoPrompt, duration_seconds }) => {
+          const tooLong = mediaPromptError(videoPrompt, "video");
+          if (tooLong) return { ok: false, error: tooLong };
+          try {
+            const provider = getVideoProvider();
+            const video = await provider.generate({
+              prompt: videoPrompt,
+              duration: duration_seconds ?? 10,
+              resolution: "1080p",
+            });
+            const url = await storage.saveFile(crypto.randomUUID(), Buffer.from(video.b64, "base64"), video.mime);
+            await storage.appendMessage({
+              id: crypto.randomUUID(),
+              projectId: project.id,
+              role: "assistant",
+              kind: "video",
+              content: videoPrompt,
+              images: [url],
+              model: provider.defaultModel,
+              createdAt: new Date().toISOString(),
+            });
+            return { ok: true, note: "Video rendered; it is already visible in the chat. Briefly tell the founder what changed." };
+          } catch (err) {
+            return { ok: false, error: err instanceof Error ? err.message : "Video render failed." };
+          }
+        },
+      })
+    : undefined;
+
+  const system = buildLaunchSystemPrompt({ project, settings, snapshot, hasMcp: !!mcp, canRenderVideo });
   const modelMessages = await toModelMessages(history, async (url) => {
     const name = url.split("/").pop();
     if (!name) return null;
@@ -156,8 +206,9 @@ export async function POST(req: Request) {
       model: xai(model),
       system,
       messages: modelMessages,
-      // Audience MCP tools (undefined if the MCP was unreachable → plain chat).
-      tools: mcp?.tools,
+      // Audience MCP tools (undefined if the MCP was unreachable → plain chat),
+      // plus the video render tool on video-first projects.
+      tools: { ...mcp?.tools, ...(renderVideoTool ? { render_video: renderVideoTool } : {}) },
       // The Vercel AI SDK tool loop: let Grok call audience tools, then answer.
       stopWhen: stepCountIs(8),
       abortSignal: req.signal,
