@@ -41,6 +41,13 @@ function makeAvatarTexture(img: HTMLImageElement, color: string): THREE.Texture 
 function loadImage(src: string): Promise<HTMLImageElement> {
   return new Promise((res, rej) => {
     const img = new Image();
+    // Real X avatars (pbs.twimg.com, via the db audience provider) are
+    // cross-origin. Request them with CORS so drawing onto the canvas doesn't
+    // taint it — otherwise THREE.CanvasTexture's texSubImage2D throws
+    // "Tainted canvases may not be loaded". pbs.twimg.com serves
+    // `access-control-allow-origin: *`, so this loads clean. Must be set
+    // before `src`.
+    img.crossOrigin = "anonymous";
     img.onload = () => res(img);
     img.onerror = rej;
     img.src = src;
