@@ -1,4 +1,11 @@
-import type { AppSettings, ChatMessage, DeployedPost, Project, ProjectFolder } from "../types";
+import type {
+  AppSettings,
+  ChatMessage,
+  DeployedPost,
+  MetricSnapshot,
+  Project,
+  ProjectFolder,
+} from "../types";
 
 /**
  * Pluggable persistence. The default adapter writes JSON files under ./data;
@@ -38,6 +45,10 @@ export interface StorageAdapter {
   /** Posts published from Signal, newest first. */
   listDeploys(): Promise<DeployedPost[]>;
   recordDeploy(post: DeployedPost): Promise<DeployedPost>;
+
+  /** Engagement history for a deployed post, chronological (oldest first). */
+  listMetricSnapshots(deployId: string): Promise<MetricSnapshot[]>;
+  appendMetricSnapshot(snapshot: MetricSnapshot): Promise<void>;
 
   /** Persist an uploaded/generated binary; returns a URL the app can serve. */
   saveFile(name: string, bytes: Buffer, mime: string): Promise<string>;

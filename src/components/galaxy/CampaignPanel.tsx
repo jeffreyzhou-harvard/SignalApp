@@ -377,7 +377,20 @@ export function CampaignPanel({
       const res = await fetch("/api/publish", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text: winner.copy, projectId }),
+        body: JSON.stringify({
+          text: winner.copy,
+          projectId,
+          // Capture the wind-tunnel prediction so Deploys can show predicted vs actual.
+          prediction: {
+            winner: result.verdict.winner,
+            predictedLiftPct: result.verdict.liftPct,
+            confidencePct: result.verdict.confidencePct,
+            driver: result.verdict.driver,
+            predictedEngagementRate: result.engagement[result.verdict.winner],
+            provider: result.provider,
+            agentCount: result.agentCount,
+          },
+        }),
       });
       const json = await res.json();
       if (!res.ok || !json.posted) throw new Error(json.error ?? "Publishing failed.");

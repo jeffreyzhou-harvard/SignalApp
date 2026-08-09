@@ -1,8 +1,31 @@
 import { NextResponse } from "next/server";
 import { getXAccessToken } from "@/lib/accounts/x-oauth";
 import { getStorage } from "@/lib/storage";
+import type { DeployPrediction } from "@/lib/types";
 
 export const runtime = "nodejs";
+
+/**
+ * Coerce a loosely-typed request body into a DeployPrediction, or null. Keeps
+ * bad/partial payloads from being persisted while accepting the compact shape
+ * the campaign panel sends after a wind-tunnel verdict.
+ */
+function parsePrediction(raw: unknown): DeployPrediction | null {
+  if (!raw || typeof raw !== "object") return null;
+  const p = raw as Record<string, unknown>;
+  if (p.winner !== "A" && p.winner !== "B") return null;
+  const num = (v: unknown) => (typeof v === "number" && Number.isFinite(v) ? v : 0);
+  return {
+    winner: p.winner,
+    predictedLiftPct: num(p.predictedLiftPct),
+    confidencePct: num(p.confidencePct),
+    driver: typeof p.driver === "string" ? p.driver : "",
+    predictedEngagementRate: num(p.predictedEngagementRate),
+    provider: typeof p.provider === "string" ? p.provider : "unknown",
+    agentCount: num(p.agentCount),
+    capturedAt: new Date().toISOString(),
+  };
+}
 
 /**
  * Publishes a post from the founder's own linked X account (OAuth token with
@@ -14,6 +37,7 @@ export async function POST(req: Request) {
   const body = await req.json().catch(() => null);
   const text = typeof body?.text === "string" ? body.text.trim() : "";
   const projectId = typeof body?.projectId === "string" ? body.projectId : null;
+  const prediction = parsePrediction(body?.prediction);
   if (!text) return NextResponse.json({ error: "text is required." }, { status: 400 });
   if (text.length > 280) {
     return NextResponse.json({ error: "Post is over 280 characters." }, { status: 400 });
@@ -69,6 +93,7 @@ export async function POST(req: Request) {
       handle: settings.xAccount.handle,
       projectId,
       createdAt: new Date().toISOString(),
+      prediction,
     });
   }
   return NextResponse.json({ posted: true, id, url });

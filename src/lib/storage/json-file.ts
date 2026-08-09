@@ -1,6 +1,13 @@
 import { promises as fs } from "fs";
 import path from "path";
-import type { AppSettings, ChatMessage, DeployedPost, Project, ProjectFolder } from "../types";
+import type {
+  AppSettings,
+  ChatMessage,
+  DeployedPost,
+  MetricSnapshot,
+  Project,
+  ProjectFolder,
+} from "../types";
 import type { StorageAdapter } from "./types";
 
 const DATA_DIR = process.env.DATA_DIR ?? path.join(process.cwd(), "data");
@@ -9,10 +16,12 @@ const FOLDERS_FILE = path.join(DATA_DIR, "folders.json");
 const DEPLOYS_FILE = path.join(DATA_DIR, "deploys.json");
 const SETTINGS_FILE = path.join(DATA_DIR, "settings.json");
 const MESSAGES_DIR = path.join(DATA_DIR, "messages");
+const METRICS_DIR = path.join(DATA_DIR, "metrics");
 const FILES_DIR = path.join(DATA_DIR, "files");
 
 async function ensureDirs() {
   await fs.mkdir(MESSAGES_DIR, { recursive: true });
+  await fs.mkdir(METRICS_DIR, { recursive: true });
   await fs.mkdir(FILES_DIR, { recursive: true });
 }
 
@@ -191,6 +200,19 @@ export const jsonFileStorage: StorageAdapter = {
     deploys.push(post);
     await writeJson(DEPLOYS_FILE, deploys);
     return post;
+  },
+
+  async listMetricSnapshots(deployId) {
+    const file = path.join(METRICS_DIR, `${deployId}.json`);
+    const snapshots = await readJson<MetricSnapshot[]>(file, []);
+    return snapshots.sort((a, b) => a.capturedAt.localeCompare(b.capturedAt));
+  },
+
+  async appendMetricSnapshot(snapshot) {
+    const file = path.join(METRICS_DIR, `${snapshot.deployId}.json`);
+    const snapshots = await readJson<MetricSnapshot[]>(file, []);
+    snapshots.push(snapshot);
+    await writeJson(file, snapshots);
   },
 
   async saveFile(name, bytes, mime) {

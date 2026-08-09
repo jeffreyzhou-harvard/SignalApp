@@ -56,6 +56,25 @@ export interface LinkedXAccount {
   scope?: string;
 }
 
+/**
+ * A compact snapshot of the winning wind-tunnel result, captured at Ship time
+ * so we can compare what the simulation predicted against what actually happened
+ * on X. Persisted alongside the DeployedPost.
+ */
+export interface DeployPrediction {
+  winner: "A" | "B";
+  /** Engagement-rate lift of the winner over the loser, in percent. */
+  predictedLiftPct: number;
+  confidencePct: number;
+  driver: string;
+  /** The winner's simulated engagement rate (percent) — compared to the live one. */
+  predictedEngagementRate: number;
+  /** Simulation provider that produced the run (labels simulated runs honestly). */
+  provider: string;
+  agentCount: number;
+  capturedAt: string;
+}
+
 /** An X post published from Signal (via the Ship button or the copilot). */
 export interface DeployedPost {
   /** X tweet id. */
@@ -65,15 +84,71 @@ export interface DeployedPost {
   handle: string;
   projectId?: string | null;
   createdAt: string;
+  /** Present when the post was shipped from a wind-tunnel verdict. */
+  prediction?: DeployPrediction | null;
 }
 
-/** Live engagement for a deployed post, fetched from the X API. */
+/**
+ * Live engagement for a deployed post, fetched from the X API. The first five
+ * fields come from public_metrics (any post); the owner-only fields come from
+ * non_public_metrics/organic_metrics (author + last 30 days) and are undefined
+ * when unavailable (public-only fallback or older post).
+ */
 export interface PostMetrics {
   likes: number;
   reposts: number;
   replies: number;
   views: number;
   bookmarks: number;
+  /** Owner-only (non_public_metrics): clicks on links in the post. */
+  linkClicks?: number;
+  /** Owner-only (non_public_metrics): clicks through to the author's profile. */
+  profileClicks?: number;
+  /** Owner-only (non_public_metrics): total engagement count reported by X. */
+  engagements?: number;
+  /** Derived: (likes+reposts+replies+bookmarks)/views * 100. */
+  engagementRate?: number;
+}
+
+/** One point in a deployed post's engagement history, stored per refresh. */
+export interface MetricSnapshot {
+  deployId: string;
+  capturedAt: string;
+  metrics: PostMetrics;
+}
+
+/** How a single deploy compares to its baselines. */
+export interface DeployComparisons {
+  /** This post's engagement rate (percent), or null when views are unknown. */
+  engagementRate: number | null;
+  /** Percent difference vs the rolling average of the other deploys. */
+  vsRollingAvgPct: number | null;
+  /** Percent difference vs the immediately previous (older) deploy. */
+  vsPreviousPct: number | null;
+  /** Present only for posts that shipped from a simulation. */
+  predicted?: { predictedRate: number; actualRate: number; deltaPct: number };
+}
+
+/** A deploy enriched with live metrics, trend history, and comparisons. */
+export type DeployAnalytics = DeployedPost & {
+  metrics: PostMetrics | null;
+  trend: MetricSnapshot[];
+  comparisons: DeployComparisons;
+};
+
+/** Top-of-page rollup across all deploys. */
+export interface DeploySummary {
+  totalImpressions: number;
+  avgEngagementRate: number | null;
+  bestDeployId: string | null;
+  vsPreviousPeriodPct: number | null;
+}
+
+/** Shape returned by GET /api/deploys. */
+export interface DeploysResponse {
+  live: boolean;
+  deploys: DeployAnalytics[];
+  summary: DeploySummary;
 }
 
 export interface UserProfile {

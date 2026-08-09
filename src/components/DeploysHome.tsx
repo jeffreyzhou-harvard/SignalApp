@@ -2,13 +2,40 @@
 
 import { useEffect, useState } from "react";
 import { ExternalLink, Rocket, Settings } from "lucide-react";
-import type { DeployedPost, PostMetrics, PublicSettings } from "@/lib/types";
+import type { DeployAnalytics, DeploySummary, PublicSettings } from "@/lib/types";
 import { Sidebar } from "./Sidebar";
 import { SettingsDialog } from "./SettingsDialog";
 import { XLogo } from "./XLogo";
+import { DeployDetailDrawer } from "./DeployDetailDrawer";
+import { StatCard } from "./analytics/StatCard";
+import { DeltaChip } from "./analytics/DeltaChip";
 import { timeAgo } from "@/lib/format";
 
-type Deploy = DeployedPost & { metrics: PostMetrics | null };
+type Deploy = DeployAnalytics;
+
+const pct = (n: number) => `${n.toFixed(1)}%`;
+
+const EMPTY_SUMMARY: DeploySummary = {
+  totalImpressions: 0,
+  avgEngagementRate: null,
+  bestDeployId: null,
+  vsPreviousPeriodPct: null,
+};
+
+/** Per-post impressions oldest→newest, for the total-impressions spark. */
+function impressionSpark(deploys: Deploy[]): number[] {
+  return deploys
+    .filter((d) => d.metrics)
+    .map((d) => d.metrics!.views)
+    .reverse();
+}
+
+/** Engagement rate of the top post, for the "Best post" stat. */
+function bestLabel(deploys: Deploy[], bestId: string | null): string {
+  const best = deploys.find((d) => d.id === bestId);
+  const rate = best?.comparisons.engagementRate;
+  return rate === null || rate === undefined ? "—" : pct(rate);
+}
 
 const Icon = {
   reply: (
@@ -50,10 +77,18 @@ function Stat({ icon, value }: { icon: React.ReactNode; value: number | null }) 
   );
 }
 
-function DeployCard({ deploy, name }: { deploy: Deploy; name: string | null }) {
+function DeployCard({ deploy, name, onOpen }: { deploy: Deploy; name: string | null; onOpen: () => void }) {
   const displayName = name ?? `@${deploy.handle}`;
+  const c = deploy.comparisons;
+  const headlineDelta = c.vsRollingAvgPct ?? c.vsPreviousPct;
   return (
-    <article className="flex flex-col rounded-xl border border-line bg-surface px-5 py-4 transition-colors hover:border-line-strong">
+    <article
+      onClick={onOpen}
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && (e.preventDefault(), onOpen())}
+      className="flex cursor-pointer flex-col rounded-xl border border-line bg-surface px-5 py-4 text-left transition-colors hover:border-line-strong focus:outline-none focus-visible:border-accent"
+    >
       <header className="flex items-center gap-3">
         <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-accent/15 text-base font-semibold text-accent">
           {displayName.replace("@", "").slice(0, 1).toUpperCase()}
@@ -75,6 +110,7 @@ function DeployCard({ deploy, name }: { deploy: Deploy; name: string | null }) {
             target="_blank"
             rel="noreferrer"
             aria-label="View on X"
+            onClick={(e) => e.stopPropagation()}
             className="ml-auto rounded-md p-1.5 text-muted transition-colors hover:bg-raised hover:text-fg"
           >
             <ExternalLink size={15} strokeWidth={2} />
@@ -83,6 +119,22 @@ function DeployCard({ deploy, name }: { deploy: Deploy; name: string | null }) {
       </header>
 
       <p className="mt-3 flex-1 whitespace-pre-wrap text-[15px] leading-6">{deploy.text}</p>
+
+      {(c.engagementRate !== null || c.predicted) && (
+        <div className="mt-3 flex flex-wrap items-center gap-2">
+          {c.engagementRate !== null && (
+            <span className="rounded-full border border-line bg-raised/40 px-2.5 py-0.5 text-xs font-medium tabular-nums text-muted">
+              {pct(c.engagementRate)} engagement
+            </span>
+          )}
+          {headlineDelta !== null && <DeltaChip value={headlineDelta} />}
+          {c.predicted && (
+            <span className="rounded-full border border-accent/30 bg-accent/10 px-2.5 py-0.5 text-xs font-medium tabular-nums text-accent">
+              Predicted {pct(c.predicted.predictedRate)} · Actual {pct(c.predicted.actualRate)}
+            </span>
+          )}
+        </div>
+      )}
 
       <footer className="mt-4 flex items-center justify-between border-t border-line pt-3 pr-4">
         <Stat icon={Icon.reply} value={deploy.metrics?.replies ?? null} />
@@ -98,9 +150,11 @@ function DeployCard({ deploy, name }: { deploy: Deploy; name: string | null }) {
 export function DeploysHome() {
   const [settings, setSettings] = useState<PublicSettings | null>(null);
   const [deploys, setDeploys] = useState<Deploy[] | null>(null);
+  const [summary, setSummary] = useState<DeploySummary>(EMPTY_SUMMARY);
   const [live, setLive] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [loadError, setLoadError] = useState(false);
+  const [openId, setOpenId] = useState<string | null>(null);
 
   async function load() {
     setLoadError(false);
@@ -109,6 +163,7 @@ export function DeploysHome() {
       if (!dRes.ok || !sRes.ok) throw new Error("load failed");
       const d = await dRes.json();
       setDeploys(d.deploys);
+      setSummary(d.summary ?? EMPTY_SUMMARY);
       setLive(d.live);
       setSettings(await sRes.json());
     } catch {
@@ -119,6 +174,8 @@ export function DeploysHome() {
   useEffect(() => {
     load();
   }, []);
+
+  const openDeploy = deploys?.find((d) => d.id === openId) ?? null;
 
   return (
     <div className="flex h-dvh overflow-hidden">
@@ -173,10 +230,32 @@ export function DeploysHome() {
             </a>
           </div>
         ) : (
-          <div className="grid flex-1 grid-cols-[repeat(auto-fill,minmax(340px,1fr))] content-start gap-6 overflow-y-auto p-6">
-            {deploys.map((d) => (
-              <DeployCard key={d.id} deploy={d} name={settings?.profile.name ?? null} />
-            ))}
+          <div className="flex-1 overflow-y-auto p-6">
+            <section className="mb-6 grid grid-cols-2 gap-4 lg:grid-cols-4">
+              <StatCard
+                label="Total impressions"
+                value={fmt(summary.totalImpressions)}
+                spark={impressionSpark(deploys)}
+              />
+              <StatCard
+                label="Avg engagement"
+                value={summary.avgEngagementRate === null ? "—" : pct(summary.avgEngagementRate)}
+                delta={summary.vsPreviousPeriodPct}
+              />
+              <StatCard label="Best post" value={bestLabel(deploys, summary.bestDeployId)} />
+              <StatCard label="Shipped" value={String(deploys.length)} />
+            </section>
+
+            <div className="grid grid-cols-[repeat(auto-fill,minmax(340px,1fr))] content-start gap-6">
+              {deploys.map((d) => (
+                <DeployCard
+                  key={d.id}
+                  deploy={d}
+                  name={settings?.profile.name ?? null}
+                  onOpen={() => setOpenId(d.id)}
+                />
+              ))}
+            </div>
           </div>
         )}
 
@@ -187,6 +266,14 @@ export function DeploysHome() {
           </p>
         )}
       </main>
+
+      {openDeploy && (
+        <DeployDetailDrawer
+          deploy={openDeploy}
+          name={settings?.profile.name ?? null}
+          onClose={() => setOpenId(null)}
+        />
+      )}
 
       {showSettings && (
         <SettingsDialog
