@@ -85,7 +85,6 @@ export default function Waitlist() {
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     required
-                    placeholder="Ada Lovelace"
                     className="rounded-xl border border-line bg-surface px-3.5 py-2.5 text-sm placeholder:text-faint focus:border-accent focus:outline-none"
                   />
                 </label>
@@ -96,7 +95,6 @@ export default function Waitlist() {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required
-                    placeholder="ada@company.com"
                     className="rounded-xl border border-line bg-surface px-3.5 py-2.5 text-sm placeholder:text-faint focus:border-accent focus:outline-none"
                   />
                 </label>
