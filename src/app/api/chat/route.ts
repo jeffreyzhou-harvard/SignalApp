@@ -3,6 +3,7 @@ import { streamText, stepCountIs } from "ai";
 import { xai } from "@ai-sdk/xai";
 import { getStorage } from "@/lib/storage";
 import { getImageProvider, getVideoProvider } from "@/lib/providers/registry";
+import { mediaPromptError } from "@/lib/providers/limits";
 import { getAudienceProvider } from "@/lib/audience/registry";
 import { connectAudienceMcp } from "@/lib/mcp/audience-mcp";
 import { buildLaunchSystemPrompt, toModelMessages } from "@/lib/agents/launch-copilot";
@@ -62,6 +63,8 @@ export async function POST(req: Request) {
     try {
       const mediaType = body.mediaType === "video" ? "video" : "image";
       const styledPrompt = applyStyle(prompt, body.style);
+      const tooLong = mediaPromptError(styledPrompt, mediaType);
+      if (tooLong) return NextResponse.json({ error: tooLong }, { status: 400 });
       const urls: string[] = [];
       let modelUsed: string;
 

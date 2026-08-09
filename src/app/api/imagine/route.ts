@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getImageProvider, getVideoProvider } from "@/lib/providers/registry";
+import { mediaPromptError } from "@/lib/providers/limits";
 import { getStorage } from "@/lib/storage";
 
 export const runtime = "nodejs";
@@ -14,6 +15,9 @@ export const maxDuration = 300;
 export async function POST(req: Request) {
   const { kind, prompt, imageUrl, aspectRatio, duration } = await req.json().catch(() => ({}));
   if (!prompt) return NextResponse.json({ error: "prompt required" }, { status: 400 });
+
+  const tooLong = mediaPromptError(String(prompt), kind === "video" ? "video" : "image");
+  if (tooLong) return NextResponse.json({ error: tooLong }, { status: 400 });
 
   const storage = getStorage();
 
