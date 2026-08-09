@@ -19,4 +19,6 @@ COPY . .
 ENV PYTHONPATH=/app
 EXPOSE 8080
 
-CMD [".venv/bin/uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8080"]
+# Honor an injected $PORT (Render, Cloud Run, …); default 8080 (HF/Fly/local).
+# `exec` so uvicorn is PID 1's child target and receives SIGTERM cleanly.
+CMD ["sh", "-c", "exec .venv/bin/uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8080}"]

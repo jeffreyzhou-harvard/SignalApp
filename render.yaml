@@ -1,0 +1,21 @@
+# Render Blueprint for the AgentSim MCP server (free web service, no card).
+# Deploy: Render dashboard -> New -> Blueprint -> pick this repo. Or New -> Web
+# Service -> Docker, root dir `backend`. Free tier spins down after ~15 min idle
+# (cold start ~1 min) — keep it warm by pinging /health (see backend/README).
+services:
+  - type: web
+    name: agentsim-mcp
+    runtime: docker
+    rootDir: backend
+    dockerfilePath: ./Dockerfile
+    plan: free
+    healthCheckPath: /health
+    envVars:
+      - key: RUN_WORKER
+        value: "false"            # read-only MCP deploy — don't run the ingest worker
+      - key: MCP_ALLOWED_HOSTS
+        value: agentsim-mcp.onrender.com   # MUST match the live <name>.onrender.com host
+      - key: DATABASE_URL
+        sync: false               # set in the Render dashboard (secret)
+      - key: GEMINI_API_KEY
+        sync: false               # set in the Render dashboard (secret)

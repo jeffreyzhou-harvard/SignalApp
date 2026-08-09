@@ -117,26 +117,25 @@ uv run pytest -q        # 35 passing
   Either way, `MCP_ALLOWED_HOSTS` must include the public host (localhost is always
   trusted) or requests 421 from the DNS-rebinding check.
 
-### Deploy to Hugging Face Spaces (free, stable URL, no domain, no card)
+### Deploy to Render (free, no card, stable URL)
 
-Gives a permanent `https://<user>-<space>.hf.space/mcp` URL — set it on Vercel once
-and never touch it again. `Dockerfile` is host-agnostic (serves on `:8080`).
+Gives a permanent `https://<name>.onrender.com/mcp` URL — set it on Vercel once.
+Uses `render.yaml` (repo root) + the host-agnostic `Dockerfile` (honors `$PORT`).
 
-```bash
-pip install -U huggingface_hub          # one-time
-huggingface-cli login                   # paste an HF token with WRITE access
-# create a Docker Space at https://huggingface.co/new-space  (SDK: Docker), then:
-./scripts/deploy-hf-space.sh <hf-username>/agentsim-mcp      # deploy / redeploy
-```
+1. render.com → sign up (**no credit card**) → **New → Blueprint** → pick this repo
+   (grant the Render GitHub App access to the private repo when prompted).
+2. It reads `render.yaml` and creates the `agentsim-mcp` web service (free plan, Docker).
+3. Set the two secret env vars in the Render dashboard: `DATABASE_URL` (Neon),
+   `GEMINI_API_KEY`. (`RUN_WORKER=false` and `MCP_ALLOWED_HOSTS` are already in
+   `render.yaml` — update `MCP_ALLOWED_HOSTS` if your service name isn't `agentsim-mcp`.)
+4. On Vercel (once): `AUDIENCE_MCP_URL=https://<name>.onrender.com/mcp`.
 
-The script clones the Space, copies the backend build files in, writes the HF
-metadata, and pushes (HF builds on push). After the first deploy, set these in the
-Space's **Settings → Variables and secrets**:
-`DATABASE_URL` (Neon), `GEMINI_API_KEY`, `MCP_ALLOWED_HOSTS=<user>-agentsim-mcp.hf.space`,
-`RUN_WORKER=false`. Then on Vercel (once): `AUDIENCE_MCP_URL=https://<user>-agentsim-mcp.hf.space/mcp`.
+Free services **spin down after ~15 min idle** (~1 min cold start). Keep it warm so
+xAI's tool calls don't time out — ping `/health` every ~10 min (a free
+[cron-job.org](https://cron-job.org) job or a scheduled GitHub Action).
 
-> The same `Dockerfile` works on Render / Cloud Run / Fly too — set the same four
-> env vars there if you prefer another host.
+> Same `Dockerfile` runs on Fly / Cloud Run / HF Spaces too — but those now need a
+> card (Fly, Cloud Run) or a PRO plan (HF Docker Spaces). Render is the no-cost path.
 
 ### Stable URL without hosting — Cloudflare named tunnel
 
