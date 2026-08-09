@@ -1,10 +1,11 @@
 /**
- * X API v2 chunked media upload (INIT → APPEND → FINALIZE → STATUS), used to
- * attach the campaign's poster image or teaser video to a post. Requires the
- * OAuth token to carry the media.write scope.
+ * X API v2 media upload, used to attach the campaign's poster image or teaser
+ * video to a post. Images go through the one-shot simple upload; videos go
+ * through the chunked flow (initialize → append → finalize → status poll).
+ * Requires the OAuth token to carry the media.write scope.
  */
 
-const MEDIA_UPLOAD_URL = "https://api.x.com/2/media/upload";
+const BASE = "https://api.x.com/2/media/upload";
 const CHUNK_BYTES = 4 * 1024 * 1024;
 
 function mediaError(step: string, status: number, detail: string): Error {
@@ -16,12 +17,16 @@ function mediaError(step: string, status: number, detail: string): Error {
   return new Error(`X media ${step} failed (${status}): ${detail.slice(0, 200)}`);
 }
 
-async function call(token: string, form: FormData, step: string): Promise<Record<string, unknown>> {
-  const res = await fetch(MEDIA_UPLOAD_URL, {
-    method: "POST",
-    headers: { Authorization: `Bearer ${token}` },
-    body: form,
-  });
+async function req(
+  token: string,
+  url: string,
+  body: FormData | string | undefined,
+  step: string,
+  contentType?: string
+): Promise<Record<string, unknown>> {
+  const headers: Record<string, string> = { Authorization: `Bearer ${token}` };
+  if (contentType) headers["Content-Type"] = contentType;
+  const res = await fetch(url, { method: "POST", headers, body });
   const text = await res.text();
   if (!res.ok) throw mediaError(step, res.status, text);
   try {
@@ -43,6 +48,9 @@ interface ProcessingInfo {
   error?: { message?: string };
 }
 
+const processingInfo = (json: Record<string, unknown>): ProcessingInfo | undefined =>
+  ((json.data ?? json) as { processing_info?: ProcessingInfo }).processing_info;
+
 export async function uploadMediaToX(
   token: string,
   bytes: Buffer,
@@ -51,32 +59,39 @@ export async function uploadMediaToX(
 ): Promise<string> {
   const category = kind === "video" ? "tweet_video" : mime === "image/gif" ? "tweet_gif" : "tweet_image";
 
-  const init = new FormData();
-  init.set("command", "INIT");
-  init.set("total_bytes", String(bytes.length));
-  init.set("media_type", mime);
-  init.set("media_category", category);
-  const initJson = await call(token, init, "INIT");
+  // Images: one-shot simple upload — the file rides in the `media` form field.
+  if (kind !== "video") {
+    const form = new FormData();
+    form.set("media", new Blob([new Uint8Array(bytes)], { type: mime }));
+    form.set("media_category", category);
+    const json = await req(token, BASE, form, "upload", undefined);
+    const id = mediaId(json);
+    if (!id) throw new Error("X media upload returned no media id.");
+    return id;
+  }
+
+  // Videos: chunked flow with async processing.
+  const initJson = await req(
+    token,
+    `${BASE}/initialize`,
+    JSON.stringify({ media_type: mime, total_bytes: bytes.length, media_category: category }),
+    "initialize",
+    "application/json"
+  );
   const id = mediaId(initJson);
-  if (!id) throw new Error("X media INIT returned no media id.");
+  if (!id) throw new Error("X media initialize returned no media id.");
 
   for (let seg = 0; seg * CHUNK_BYTES < bytes.length; seg++) {
     const chunk = bytes.subarray(seg * CHUNK_BYTES, (seg + 1) * CHUNK_BYTES);
     const append = new FormData();
-    append.set("command", "APPEND");
-    append.set("media_id", id);
     append.set("segment_index", String(seg));
     append.set("media", new Blob([new Uint8Array(chunk)], { type: mime }));
-    await call(token, append, "APPEND");
+    await req(token, `${BASE}/${id}/append`, append, "append", undefined);
   }
 
-  const finalize = new FormData();
-  finalize.set("command", "FINALIZE");
-  finalize.set("media_id", id);
-  const finalized = await call(token, finalize, "FINALIZE");
+  const finalized = await req(token, `${BASE}/${id}/finalize`, undefined, "finalize", undefined);
 
-  // Videos process async: poll until X says succeeded (capped ~2 minutes).
-  let info = ((finalized.data ?? finalized) as { processing_info?: ProcessingInfo }).processing_info;
+  let info = processingInfo(finalized);
   const deadline = Date.now() + 120_000;
   while (info && info.state && info.state !== "succeeded") {
     if (info.state === "failed") {
@@ -85,14 +100,13 @@ export async function uploadMediaToX(
     if (Date.now() > deadline) throw new Error("X media processing timed out. Try again.");
     const waitSecs = Math.min(Math.max(info?.check_after_secs ?? 2, 1), 10);
     await new Promise((r) => setTimeout(r, waitSecs * 1000));
-    const statusRes = await fetch(`${MEDIA_UPLOAD_URL}?command=STATUS&media_id=${id}`, {
+    const statusRes = await fetch(`${BASE}?media_id=${id}&command=STATUS`, {
       headers: { Authorization: `Bearer ${token}` },
     });
     const statusText = await statusRes.text();
-    if (!statusRes.ok) throw mediaError("STATUS", statusRes.status, statusText);
+    if (!statusRes.ok) throw mediaError("status", statusRes.status, statusText);
     try {
-      const parsed = JSON.parse(statusText);
-      info = ((parsed.data ?? parsed) as { processing_info?: ProcessingInfo }).processing_info;
+      info = processingInfo(JSON.parse(statusText));
     } catch {
       info = undefined;
     }
