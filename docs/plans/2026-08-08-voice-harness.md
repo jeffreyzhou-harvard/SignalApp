@@ -1076,6 +1076,8 @@ git commit -m "feat(voice): Siri-style VoiceDock with voice/text toggle, mounted
 
 ---
 
+> **SUPERSEDED (post-`b9a4e05`):** the team shipped `/api/publish` (Ship button path: `getXAccessToken()` refresh, 280-char check). Task 9's `/api/x/post` route and the `X_POSTING_ENABLED` env var were removed; `post_to_x` in `tools.ts` is now draft-first client-side and calls `/api/publish` only with `confirm=true`. Kept below as originally written for the record.
+
 ### Task 9 (OPTIONAL, time-permitting): X posting route
 
 **Files:**

@@ -1,4 +1,4 @@
-import type { AppSettings, ChatMessage, Project, ProjectFolder } from "../types";
+import type { AppSettings, ChatMessage, DeployedPost, Project, ProjectFolder } from "../types";
 
 /**
  * Pluggable persistence. The default adapter writes JSON files under ./data;
@@ -28,6 +28,10 @@ export interface StorageAdapter {
 
   getSettings(): Promise<AppSettings>;
   putSettings(settings: AppSettings): Promise<AppSettings>;
+
+  /** Posts published from AgentSim, newest first. */
+  listDeploys(): Promise<DeployedPost[]>;
+  recordDeploy(post: DeployedPost): Promise<DeployedPost>;
 
   /** Persist an uploaded/generated binary; returns a URL the app can serve. */
   saveFile(name: string, bytes: Buffer, mime: string): Promise<string>;

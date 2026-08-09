@@ -1,11 +1,12 @@
 import { promises as fs } from "fs";
 import path from "path";
-import type { AppSettings, ChatMessage, Project, ProjectFolder } from "../types";
+import type { AppSettings, ChatMessage, DeployedPost, Project, ProjectFolder } from "../types";
 import type { StorageAdapter } from "./types";
 
 const DATA_DIR = process.env.DATA_DIR ?? path.join(process.cwd(), "data");
 const PROJECTS_FILE = path.join(DATA_DIR, "projects.json");
 const FOLDERS_FILE = path.join(DATA_DIR, "folders.json");
+const DEPLOYS_FILE = path.join(DATA_DIR, "deploys.json");
 const SETTINGS_FILE = path.join(DATA_DIR, "settings.json");
 const MESSAGES_DIR = path.join(DATA_DIR, "messages");
 const FILES_DIR = path.join(DATA_DIR, "files");
@@ -151,6 +152,18 @@ export const jsonFileStorage: StorageAdapter = {
   async putSettings(settings) {
     await writeJson(SETTINGS_FILE, settings);
     return settings;
+  },
+
+  async listDeploys() {
+    const deploys = await readJson<DeployedPost[]>(DEPLOYS_FILE, []);
+    return deploys.sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+  },
+
+  async recordDeploy(post) {
+    const deploys = await readJson<DeployedPost[]>(DEPLOYS_FILE, []);
+    deploys.push(post);
+    await writeJson(DEPLOYS_FILE, deploys);
+    return post;
   },
 
   async saveFile(name, bytes, mime) {

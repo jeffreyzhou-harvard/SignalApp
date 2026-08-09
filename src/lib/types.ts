@@ -54,6 +54,26 @@ export interface LinkedXAccount {
   scope?: string;
 }
 
+/** An X post published from AgentSim (via the Ship button or the copilot). */
+export interface DeployedPost {
+  /** X tweet id. */
+  id: string;
+  text: string;
+  url: string | null;
+  handle: string;
+  projectId?: string | null;
+  createdAt: string;
+}
+
+/** Live engagement for a deployed post, fetched from the X API. */
+export interface PostMetrics {
+  likes: number;
+  reposts: number;
+  replies: number;
+  views: number;
+  bookmarks: number;
+}
+
 export interface UserProfile {
   /** Display name, used in the shell and the copilot's address. */
   name: string | null;

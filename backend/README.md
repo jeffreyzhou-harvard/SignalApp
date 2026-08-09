@@ -87,3 +87,39 @@ with Grok persona cards, persisted to Neon, **$0.61** real spend.
 docker-compose up -d db
 uv run pytest -q        # 35 passing
 ```
+
+## Giving agents access to the MCP server
+
+- **Local MCP clients (Claude Desktop, Cursor, Claude Code):** run the server and
+  point the client at `http://localhost:8000/mcp`. The repo `.mcp.json` already
+  declares it — no tunnel, no deploy needed.
+- **The Grok voice agent (frontend):** xAI executes remote MCP **server-side**, so
+  it needs a **public HTTPS URL**. Two ways:
+
+  **Stable (recommended — set Vercel once, never touch again):** a Cloudflare
+  *named* tunnel gives a permanent hostname that survives restarts.
+  ```bash
+  # one-time: add a domain to Cloudflare, then auth
+  cloudflared tunnel login
+  # one command wires the tunnel + DNS + config + MCP_ALLOWED_HOSTS:
+  ./scripts/setup-named-tunnel.sh mcp.yourdomain.com
+  # then run the server + tunnel (the script prints these):
+  uv run uvicorn app.main:app --port 8000
+  cloudflared tunnel run agentsim-mcp        # or: sudo cloudflared service install (always-on)
+  ```
+  Set on Vercel once: `AUDIENCE_MCP_URL=https://mcp.yourdomain.com/mcp`. Because the
+  URL never rotates, Vercel stays valid forever.
+
+  **Quick + throwaway (demo only):** `cloudflared tunnel --url http://localhost:8000`
+  prints a random `*.trycloudflare.com` URL. Set `AUDIENCE_MCP_URL`/`MCP_ALLOWED_HOSTS`
+  to it — but it rotates on every restart, so you must update both each time.
+
+  Either way, `MCP_ALLOWED_HOSTS` must include the public host (localhost is always
+  trusted) or requests 421 from the DNS-rebinding check.
+
+### Container deploy (any host)
+
+`Dockerfile` builds a self-contained image (uvicorn on `:8080`) usable on any
+container host (Hugging Face Spaces, Render, Cloud Run, Fly, …). Set env/secrets:
+`DATABASE_URL` (Neon), `GEMINI_API_KEY`, `MCP_ALLOWED_HOSTS=<public-host>`, and
+`RUN_WORKER=false` (read-only MCP deploy — don't run the ingestion worker).

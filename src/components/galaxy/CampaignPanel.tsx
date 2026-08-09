@@ -279,7 +279,7 @@ export function CampaignPanel({
       const res = await fetch("/api/publish", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text: winner.copy }),
+        body: JSON.stringify({ text: winner.copy, projectId }),
       });
       const json = await res.json();
       if (!res.ok || !json.posted) throw new Error(json.error ?? "Publishing failed.");

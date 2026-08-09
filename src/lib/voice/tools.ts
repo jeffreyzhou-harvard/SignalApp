@@ -60,13 +60,20 @@ const handlers: Record<string, Handler> = {
     });
   },
 
-  async post_to_x(args, ctx) {
-    return callApi("/api/x/post", {
-      text: args.text,
-      mediaUrl: args.media_url ?? lastImageUrl,
-      confirm: args.confirm === true,
-      projectId: ctx.projectId,
-    });
+  async post_to_x(args) {
+    const text = String(args.text ?? "");
+    const draft = { text, mediaUrl: (args.media_url as string) ?? lastImageUrl ?? null };
+    // Draft-first safety lives here: no network call until the founder has
+    // explicitly confirmed. Publishing goes through the team's real path
+    // (/api/publish: linked OAuth account, token refresh, 280-char check).
+    if (args.confirm !== true) {
+      return {
+        posted: false,
+        draft,
+        note: "Draft preview. Call again with confirm=true after the founder explicitly approves.",
+      };
+    }
+    return callApi("/api/publish", { text });
   },
 };
 

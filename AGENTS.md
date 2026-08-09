@@ -15,5 +15,6 @@ the production path is the in-app VoiceDock (src/lib/voice/).
 - `src/lib/voice/tools.ts` — client-side handlers (add a tool: one entry in each)
 - `src/lib/voice/client.ts` — realtime WebSocket client (voice + text, one session)
 - `/api/voice/token` — ephemeral key mint + session payload
-- `/api/imagine`, `/api/x/post` — tool-shaped routes (posting is draft-first,
-  gated by X_POSTING_ENABLED)
+- `/api/imagine` — tool-shaped generation route over the pluggable providers
+- posting: the post_to_x tool is draft-first client-side and publishes through
+  the team's `/api/publish` (linked OAuth account) only after an explicit yes

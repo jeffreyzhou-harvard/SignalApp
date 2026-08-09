@@ -1,8 +1,11 @@
 """Semantic search over persona embeddings (pgvector cosine).
 
-Pure logic: a session and an embedder are passed in (DI). Degrades to
-`embeddings_not_ready` when the embedder is absent or no vectors are stored yet,
-so the tool never errors before Layer B populates personas.vector.
+Pure logic: a session and an embedder are passed in (DI). Never raises to the
+caller — degrades to a status dict:
+  - `embeddings_not_ready`: no embedder configured, or no vectors stored yet
+  - `query_embed_failed`: the query embedding call failed (e.g. Gemini quota /
+    429 / network) — transient, worth retrying
+so the MCP tool returns a clean payload instead of a 500.
 """
 from __future__ import annotations
 
@@ -36,7 +39,10 @@ def search(session, embedder, query: str, k: int = 10,
     if not have_vectors:
         return dict(_NOT_READY)
 
-    qvec = embedder.embed(query)
+    try:
+        qvec = embedder.embed(query)
+    except Exception as e:  # quota / network / provider error — don't 500 the tool
+        return {"status": "query_embed_failed", "results": [], "detail": str(e)[:200]}
     distance = db.PersonaRow.vector.cosine_distance(qvec)
     stmt = (
         select(db.PersonaRow.doc, distance.label("distance"))

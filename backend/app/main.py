@@ -19,7 +19,9 @@ async def lifespan(app: FastAPI):
     db.init_db()
     worker_task = None
     # Never start the live worker loop under pytest — it would make real X calls.
-    if not os.environ.get("PYTEST_CURRENT_TEST"):
+    # Also skip on read-only deploys (RUN_WORKER=false) so it doesn't race a
+    # local worker for jobs on the shared Neon DB.
+    if settings.run_worker and not os.environ.get("PYTEST_CURRENT_TEST"):
         worker_task = asyncio.create_task(worker_loop())
     # Run the MCP streamable-HTTP session manager for the app's lifetime.
     async with mcp_server.session_manager.run():

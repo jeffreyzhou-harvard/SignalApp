@@ -27,6 +27,29 @@ describe("dispatchTool", () => {
     expect(out.error).toContain("unknown tool");
   });
 
+  it("post_to_x without confirm returns a draft and never touches the network", async () => {
+    (globalThis as unknown as { fetch: unknown }).fetch = vi.fn();
+    const out = JSON.parse(
+      await dispatchTool("post_to_x", { text: "byte launches sept 4", confirm: false }, {}),
+    );
+    expect(out.posted).toBe(false);
+    expect(out.draft.text).toBe("byte launches sept 4");
+    expect(globalThis.fetch).not.toHaveBeenCalled();
+  });
+
+  it("post_to_x with confirm publishes via /api/publish", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: true,
+      json: async () => ({ posted: true, id: "123" }),
+    }));
+    (globalThis as unknown as { fetch: unknown }).fetch = fetchMock;
+    const out = JSON.parse(
+      await dispatchTool("post_to_x", { text: "go", confirm: true }, {}),
+    );
+    expect(out.posted).toBe(true);
+    expect(fetchMock).toHaveBeenCalledWith("/api/publish", expect.objectContaining({ method: "POST" }));
+  });
+
   it("handler exceptions become error payloads, never throws", async () => {
     (globalThis as unknown as { window: unknown }).window = {
       dispatchEvent: () => {

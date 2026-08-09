@@ -108,12 +108,12 @@ export function buildSessionPayload(opts: SessionOptions) {
       type: "function",
       name: "post_to_x",
       description:
-        "Draft (and, after explicit confirmation, publish) a post to X. Without confirm=true this only returns a preview.",
+        "Draft (and, after explicit confirmation, publish) a post from the founder's linked X account. Without confirm=true this only returns a preview. Publishing is text-only for now; generated media stays visible in the app.",
       parameters: {
         type: "object",
         properties: {
-          text: { type: "string" },
-          media_url: { type: "string", description: "Poster/video URL to attach" },
+          text: { type: "string", description: "Post copy, max 280 characters" },
+          media_url: { type: "string", description: "Poster/video URL to show in the draft preview" },
           confirm: { type: "boolean", description: "true ONLY after the founder explicitly says to post" },
         },
         required: ["text"],

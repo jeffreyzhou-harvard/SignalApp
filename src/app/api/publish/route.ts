@@ -13,6 +13,7 @@ export const runtime = "nodejs";
 export async function POST(req: Request) {
   const body = await req.json().catch(() => null);
   const text = typeof body?.text === "string" ? body.text.trim() : "";
+  const projectId = typeof body?.projectId === "string" ? body.projectId : null;
   if (!text) return NextResponse.json({ error: "text is required." }, { status: 400 });
   if (text.length > 280) {
     return NextResponse.json({ error: "Post is over 280 characters." }, { status: 400 });
@@ -59,9 +60,16 @@ export async function POST(req: Request) {
     );
   }
   const id: string | undefined = json.data?.id;
-  return NextResponse.json({
-    posted: true,
-    id,
-    url: id ? `https://x.com/${settings.xAccount.handle}/status/${id}` : null,
-  });
+  const url = id ? `https://x.com/${settings.xAccount.handle}/status/${id}` : null;
+  if (id) {
+    await getStorage().recordDeploy({
+      id,
+      text,
+      url,
+      handle: settings.xAccount.handle,
+      projectId,
+      createdAt: new Date().toISOString(),
+    });
+  }
+  return NextResponse.json({ posted: true, id, url });
 }
