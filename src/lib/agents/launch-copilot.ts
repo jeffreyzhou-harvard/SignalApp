@@ -96,6 +96,50 @@ export function buildLaunchSystemPrompt(ctx: LaunchContext): string {
 }
 
 /**
+ * Build the system prompt for the ephemeral "ask your audience" chat on the
+ * Audience Map: same real-audience grounding and MCP tool guidance as the
+ * launch copilot, but with no project attached. Optionally scoped to the niche
+ * the founder is currently looking at on the map.
+ */
+export function buildAudienceChatSystemPrompt({
+  settings,
+  snapshot,
+  hasMcp,
+  focusCluster,
+}: {
+  settings: AppSettings;
+  snapshot: AudienceSnapshot;
+  hasMcp: boolean;
+  focusCluster?: { id: string; label: string } | null;
+}): string {
+  const linked = settings.xAccount
+    ? `The founder's linked X account is @${settings.xAccount.handle}; this is that account's audience.`
+    : "No X account is linked yet; if audience data would help, suggest linking one in Settings.";
+
+  const focus = focusCluster
+    ? `The founder is currently looking at the "${focusCluster.label}" niche on the map (cluster id "${focusCluster.id}"). Focus your answer on that niche unless they ask about the whole audience.`
+    : undefined;
+
+  return [
+    "You are the Signal audience copilot. Help the founder understand this X audience and plan a",
+    "product launch: which niches to target, what they care about, who's in them, and how to speak to them.",
+    linked,
+    "",
+    audienceBrief(snapshot),
+    "",
+    hasMcp ? toolGuidance(snapshot) : "Audience tools are unavailable this turn; reason from the niches listed above and say when you would want deeper data.",
+    focus,
+    "",
+    "Be concrete and concise. Draft real copy, not descriptions of copy. Ask one question at a time.",
+    "Never use em dashes. To render posters, tell the founder to open a project and use Imagine mode;",
+    "you cannot generate images in this view.",
+    `When you draft an actual launch post, follow this guide. ${LAUNCH_COPY_GUIDE}`,
+  ]
+    .filter((l) => l !== undefined && l !== null)
+    .join("\n");
+}
+
+/**
  * Convert stored chat history into AI SDK model messages, inlining attached
  * images as vision parts (same behavior as the previous copilot, new format).
  */

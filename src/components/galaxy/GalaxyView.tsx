@@ -43,6 +43,19 @@ export function GalaxyView({
     return () => window.removeEventListener("agentsim:focus-cluster", onFocus);
   }, [snapshot]);
 
+  // Broadcast the current selection so the "ask your audience" chat can scope
+  // its answers to whichever niche the founder is looking at (null = overview).
+  useEffect(() => {
+    window.dispatchEvent(
+      new CustomEvent("agentsim:cluster-selected", {
+        detail: {
+          clusterId: selected,
+          label: selected ? snapshot?.clusters.find((c) => c.id === selected)?.label ?? null : null,
+        },
+      }),
+    );
+  }, [selected, snapshot]);
+
   useEffect(() => {
     let dead = false;
     setFailed(false);

@@ -6,11 +6,8 @@
 
 # Signal
 
-**Simulated audiences and A/B testing for product launches on X.**
-
-For solo founders and marketing teams who live on X. Your followers bios, posts, and
-engagement embedded into a living graph. We generate and A/B test different launches
-for simulated populations so every post hits maximum engagement.
+**Simulated audiences and A/B testing for product launches on X.** Test every launch on a
+living graph of your real followers before you post it.
 
 [How It Works](#how-it-works) ·
 [Getting Started](#getting-started) ·

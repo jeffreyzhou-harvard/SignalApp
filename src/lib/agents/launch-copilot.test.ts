@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { buildLaunchSystemPrompt, toModelMessages } from "./launch-copilot";
+import { buildAudienceChatSystemPrompt, buildLaunchSystemPrompt, toModelMessages } from "./launch-copilot";
 import type { AudienceSnapshot } from "@/lib/audience/types";
 import type { AppSettings, ChatMessage, Project } from "@/lib/types";
 
@@ -50,6 +50,30 @@ describe("buildLaunchSystemPrompt", () => {
     const p = buildLaunchSystemPrompt({ project, settings, snapshot: snapshot("1596"), hasMcp: false });
     expect(p).toContain("Audience tools are unavailable");
     expect(p).not.toContain("list_clusters");
+  });
+});
+
+describe("buildAudienceChatSystemPrompt", () => {
+  it("injects the real cluster catalog (no project needed)", () => {
+    const p = buildAudienceChatSystemPrompt({ settings, snapshot: snapshot("1596"), hasMcp: true });
+    expect(p).toContain("AI Infra Engineers");
+    expect(p).toContain("637");
+  });
+
+  it("scopes MCP tools to the founder's seed_account_id when known", () => {
+    const p = buildAudienceChatSystemPrompt({ settings, snapshot: snapshot("1596433997462048769"), hasMcp: true });
+    expect(p).toContain('seed_account_id="1596433997462048769"');
+  });
+
+  it("focuses on the niche in view when a focusCluster is passed", () => {
+    const p = buildAudienceChatSystemPrompt({
+      settings,
+      snapshot: snapshot("1596"),
+      hasMcp: true,
+      focusCluster: { id: "1", label: "Crypto Traders" },
+    });
+    expect(p).toContain("Crypto Traders");
+    expect(p).toContain("Focus your answer");
   });
 });
 
