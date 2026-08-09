@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { Check, Unlink } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Check, Orbit, Unlink } from "lucide-react";
 import { Dialog } from "./Dialog";
 import { XLogo } from "./XLogo";
 import { STYLE_PRESETS } from "@/lib/styles";
@@ -23,6 +23,22 @@ export function SettingsDialog({
   const [error, setError] = useState<string | null>(null);
   const linked = settings?.xAccount ?? null;
   const defaults = settings?.defaults ?? { style: "none", resolution: "1k" as const };
+  const audienceHandle = settings?.audienceHandle ?? null;
+  const [audiences, setAudiences] = useState<{ handle: string; personas: number }[]>([]);
+
+  // Available audience maps (ingested seeds with clusters) for the demo toggle.
+  useEffect(() => {
+    let dead = false;
+    fetch("/api/audiences")
+      .then((r) => (r.ok ? r.json() : []))
+      .then((rows) => {
+        if (!dead && Array.isArray(rows)) setAudiences(rows);
+      })
+      .catch(() => {});
+    return () => {
+      dead = true;
+    };
+  }, []);
 
   async function putSettings(body: Record<string, unknown>, opts?: { markName?: boolean }) {
     setBusy(true);
@@ -164,6 +180,62 @@ export function SettingsDialog({
             </p>
           )}
         </section>
+
+        {/* ── Audience map ────────────────────────────────────── */}
+        {audiences.length > 0 && (
+          <section aria-label="Audience map" className="border-t border-line pt-4">
+            <div className="flex items-center gap-2">
+              <Orbit size={14} strokeWidth={2} className="text-fg" />
+              <h3 className="text-sm font-semibold">Audience map</h3>
+            </div>
+            <p className="mt-1 text-[13px] leading-5 text-muted">
+              Which follower graph the galaxy shows. Auto follows your linked account; pick a seed
+              to explore its audience instead.
+            </p>
+            <div className="mt-3 flex flex-col gap-1.5">
+              <button
+                onClick={() => putSettings({ audienceHandle: null })}
+                disabled={busy}
+                aria-pressed={audienceHandle === null}
+                className={`flex items-center rounded-xl border px-3.5 py-2.5 text-left text-sm transition-colors ${
+                  audienceHandle === null
+                    ? "border-line-strong bg-raised"
+                    : "border-line hover:border-line-strong hover:bg-raised/50"
+                }`}
+              >
+                <span className="font-medium">Auto</span>
+                <span className="ml-2 text-xs text-faint">
+                  {linked ? `follows @${linked.handle}` : "follows your linked account"}
+                </span>
+                {audienceHandle === null && (
+                  <Check size={14} strokeWidth={2.5} className="ml-auto text-accent" />
+                )}
+              </button>
+              {audiences.map((a) => {
+                const active = audienceHandle?.toLowerCase() === a.handle.toLowerCase();
+                return (
+                  <button
+                    key={a.handle}
+                    onClick={() => putSettings({ audienceHandle: a.handle })}
+                    disabled={busy}
+                    aria-pressed={active}
+                    className={`flex items-center rounded-xl border px-3.5 py-2.5 text-left text-sm transition-colors ${
+                      active
+                        ? "border-line-strong bg-raised"
+                        : "border-line hover:border-line-strong hover:bg-raised/50"
+                    }`}
+                  >
+                    <span className="font-medium">@{a.handle}</span>
+                    <span className="ml-2 text-xs text-faint">
+                      {a.personas.toLocaleString()} followers mapped
+                    </span>
+                    {active && <Check size={14} strokeWidth={2.5} className="ml-auto text-accent" />}
+                  </button>
+                );
+              })}
+            </div>
+          </section>
+        )}
 
         {/* ── Creative defaults ───────────────────────────────── */}
         <section aria-label="Creative defaults" className="border-t border-line pt-4">

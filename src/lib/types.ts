@@ -166,6 +166,8 @@ export interface AppSettings {
   xAccount: LinkedXAccount | null;
   profile?: UserProfile;
   defaults?: CreativeDefaults;
+  /** Demo override: view this seed handle's audience map instead of the linked account's. Null = auto. */
+  audienceHandle?: string | null;
 }
 
 /** What the settings API exposes: no tokens, plus how linking works right now. */
@@ -173,6 +175,7 @@ export interface PublicSettings {
   xAccount: Pick<LinkedXAccount, "handle" | "linkedAt" | "provider"> | null;
   profile: UserProfile;
   defaults: CreativeDefaults;
+  audienceHandle: string | null;
   auth: {
     provider: string;
     /** "local" = type a handle; "redirect" = Sign in with X. */

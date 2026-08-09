@@ -121,6 +121,13 @@ def clusters(seed_account_id: str | None = None):
         return cluster_store.load_clusters(s, seed_account_id)
 
 
+@app.get("/audiences")
+def audiences():
+    """Ingested seed accounts (handle + persona counts) for the audience picker."""
+    with db.SessionLocal() as s:
+        return audience_store.list_audiences(s)
+
+
 @app.get("/audience")
 def audience(seed_account_id: str | None = None, handle: str | None = None):
     """Combined galaxy payload: active run + clusters + members with personas.

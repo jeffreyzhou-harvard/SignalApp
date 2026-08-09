@@ -21,6 +21,7 @@ function toPublic(settings: AppSettings): PublicSettings {
       style: settings.defaults?.style ?? "none",
       resolution: settings.defaults?.resolution ?? "1k",
     },
+    audienceHandle: settings.audienceHandle ?? null,
     auth: {
       provider: provider.id,
       mode: provider.mode,
@@ -49,6 +50,13 @@ export async function PUT(req: Request) {
       style: typeof body.defaults.style === "string" ? body.defaults.style : (settings.defaults?.style ?? "none"),
       resolution: body.defaults.resolution === "2k" ? "2k" : "1k",
     };
+  }
+
+  if ("audienceHandle" in body) {
+    settings.audienceHandle =
+      typeof body.audienceHandle === "string" && body.audienceHandle.trim()
+        ? body.audienceHandle.trim().replace(/^@/, "")
+        : null;
   }
 
   if ("xHandle" in body) {
