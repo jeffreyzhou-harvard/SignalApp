@@ -19,7 +19,7 @@ const AUTHORIZE_URL = "https://x.com/i/oauth2/authorize";
 const TOKEN_URL = "https://api.x.com/2/oauth2/token";
 const ME_URL = "https://api.x.com/2/users/me";
 
-export const X_SCOPES = ["users.read", "tweet.read", "follows.read", "like.read", "tweet.write", "offline.access"];
+export const X_SCOPES = ["users.read", "tweet.read", "follows.read", "like.read", "tweet.write", "media.write", "offline.access"];
 
 export function isOAuthConfigured(): boolean {
   return !!process.env.X_OAUTH_CLIENT_ID;

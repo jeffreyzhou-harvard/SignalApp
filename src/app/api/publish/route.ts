@@ -1,11 +1,13 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { getXAccessToken } from "@/lib/accounts/x-oauth";
+import { uploadMediaToX } from "@/lib/accounts/x-media";
 import { LINK_COOKIE, unsealAccount } from "@/lib/accounts/link-cookie";
 import { getStorage } from "@/lib/storage";
 import type { DeployPrediction } from "@/lib/types";
 
 export const runtime = "nodejs";
+export const maxDuration = 300;
 
 /**
  * Coerce a loosely-typed request body into a DeployPrediction, or null. Keeps
@@ -31,14 +33,16 @@ function parsePrediction(raw: unknown): DeployPrediction | null {
 
 /**
  * Publishes a post from the founder's own linked X account (OAuth token with
- * tweet.write, refreshed transparently by getXAccessToken). Text-first:
- * attaching media needs X's chunked upload and is a follow-up — locally-stored
- * media URLs are not public, so they are never appended to the text.
+ * tweet.write + media.write, refreshed transparently by getXAccessToken).
+ * When the campaign passes its poster/teaser, the media is pushed through X's
+ * chunked upload and attached to the post.
  */
 export async function POST(req: Request) {
   const body = await req.json().catch(() => null);
   const text = typeof body?.text === "string" ? body.text.trim() : "";
   const projectId = typeof body?.projectId === "string" ? body.projectId : null;
+  const mediaUrl = typeof body?.mediaUrl === "string" ? body.mediaUrl : null;
+  const mediaKind = body?.mediaKind === "image" || body?.mediaKind === "video" ? body.mediaKind : null;
   const prediction = parsePrediction(body?.prediction);
   if (!text) return NextResponse.json({ error: "text is required." }, { status: 400 });
   if (text.length > 280) {
@@ -76,10 +80,27 @@ export async function POST(req: Request) {
     );
   }
 
+  // Attach the campaign's media when it's ours to read (files under /api/files).
+  let mediaIds: string[] = [];
+  if (mediaUrl && mediaKind) {
+    const name = mediaUrl.split("/").pop();
+    const file = name ? await getStorage().readFile(name).catch(() => null) : null;
+    if (file) {
+      try {
+        mediaIds = [await uploadMediaToX(token, file.bytes, file.mime, mediaKind)];
+      } catch (err) {
+        return NextResponse.json(
+          { posted: false, error: err instanceof Error ? err.message : "Media upload failed." },
+          { status: 502 }
+        );
+      }
+    }
+  }
+
   const res = await fetch("https://api.x.com/2/tweets", {
     method: "POST",
     headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-    body: JSON.stringify({ text }),
+    body: JSON.stringify(mediaIds.length ? { text, media: { media_ids: mediaIds } } : { text }),
   });
   const json = await res.json().catch(() => ({}));
   if (!res.ok) {

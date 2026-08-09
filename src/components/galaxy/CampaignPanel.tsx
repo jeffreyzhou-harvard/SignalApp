@@ -20,6 +20,9 @@ type Stage = PanelStage;
 
 const VARIANT_COLOR: Record<"A" | "B", string> = { A: "#ffb02e", B: "#2fd6f6" };
 
+/** X compose window prefilled with the copy (media can't ride along on intents). */
+const composerUrl = (copy: string) => `https://x.com/intent/post?text=${encodeURIComponent(copy)}`;
+
 const ACTION_LABEL: Record<string, string> = {
   view: "viewed",
   like: "liked",
@@ -179,6 +182,8 @@ export function CampaignPanel({
   const variants: CampaignVariant[] | null = baseline && tailored ? [baseline, tailored] : null;
 
   const [result, setResult] = useState<SimResult | null>(null);
+  const [draftPrepared, setDraftPrepared] = useState(false);
+  const [shipPrepared, setShipPrepared] = useState(false);
   const [draftShipping, setDraftShipping] = useState(false);
   const [draftShipped, setDraftShipped] = useState<{ url: string | null } | null>(null);
   const [draftShipError, setDraftShipError] = useState<string | null>(null);
@@ -373,7 +378,12 @@ export function CampaignPanel({
       const res = await fetch("/api/publish", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text: baseline.copy, projectId }),
+        body: JSON.stringify({
+          text: baseline.copy,
+          projectId,
+          mediaUrl: baseline.mediaUrl,
+          mediaKind: baseline.mediaKind,
+        }),
       });
       const json = await res.json();
       if (!res.ok || !json.posted) throw new Error(json.error ?? "Publishing failed.");
@@ -480,6 +490,8 @@ export function CampaignPanel({
         body: JSON.stringify({
           text: winner.copy,
           projectId,
+          mediaUrl: winner.mediaUrl,
+          mediaKind: winner.mediaKind,
           // Capture the wind-tunnel prediction so Deploys can show predicted vs actual.
           prediction: {
             winner: result.verdict.winner,
@@ -544,6 +556,7 @@ export function CampaignPanel({
       setResult(null);
       setShipped(null);
       setShipError(null);
+      setShipPrepared(false);
       setStage("creative");
     } catch (err) {
       setError(err instanceof Error ? err.message : "The agent run failed.");
@@ -777,14 +790,47 @@ export function CampaignPanel({
                     </a>
                   )}
                 </div>
+              ) : draftPrepared ? (
+                <>
+                  <div className="rounded-xl border border-line-strong bg-raised px-4 py-3">
+                    <p className="text-sm font-medium">Prepared from @{xHandle ?? "your account"}.</p>
+                    <p className="mt-0.5 text-xs leading-4 text-muted">
+                      Nothing is posted yet. This publishes the post above, creative included.
+                    </p>
+                  </div>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => setDraftPrepared(false)}
+                      disabled={draftShipping}
+                      className="flex items-center gap-1.5 rounded-full border border-line px-3.5 py-2 text-[13px] font-medium text-muted transition-colors hover:border-line-strong hover:text-fg"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      onClick={shipDraft}
+                      disabled={draftShipping}
+                      className="flex flex-1 items-center justify-center gap-2 rounded-full bg-fg px-4 py-2 text-sm font-semibold text-ground transition-transform hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50"
+                    >
+                      <Send size={14} strokeWidth={2.5} />
+                      {draftShipping ? "Posting…" : "Post now"}
+                    </button>
+                  </div>
+                  <a
+                    href={composerUrl(baseline.copy)}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-center text-xs font-medium text-faint transition-colors hover:text-fg"
+                  >
+                    Or edit in the X composer (copy only, attach media there)
+                  </a>
+                </>
               ) : (
                 <button
-                  onClick={shipDraft}
-                  disabled={draftShipping}
-                  className="flex items-center justify-center gap-2 rounded-full bg-fg px-4 py-2.5 text-sm font-semibold text-ground transition-transform hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50"
+                  onClick={() => setDraftPrepared(true)}
+                  className="flex items-center justify-center gap-2 rounded-full bg-fg px-4 py-2.5 text-sm font-semibold text-ground transition-transform hover:scale-[1.02] active:scale-[0.98]"
                 >
                   <Send size={14} strokeWidth={2.5} />
-                  {draftShipping ? "Posting…" : "Post this to X"}
+                  Post this to X
                 </button>
               )}
               {draftShipError && (
@@ -1176,14 +1222,47 @@ export function CampaignPanel({
                     </a>
                   )}
                 </div>
+              ) : shipPrepared ? (
+                <>
+                  <div className="rounded-xl border border-line-strong bg-raised px-4 py-3">
+                    <p className="text-sm font-medium">Prepared from @{xHandle ?? "your account"}.</p>
+                    <p className="mt-0.5 text-xs leading-4 text-muted">
+                      Nothing is posted yet. This publishes variant {result.verdict.winner}, creative included.
+                    </p>
+                  </div>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => setShipPrepared(false)}
+                      disabled={shipping}
+                      className="flex items-center gap-1.5 rounded-full border border-line px-3.5 py-2 text-[13px] font-medium text-muted transition-colors hover:border-line-strong hover:text-fg"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      onClick={shipWinner}
+                      disabled={shipping}
+                      className="flex flex-1 items-center justify-center gap-2 rounded-full bg-fg px-4 py-2 text-sm font-semibold text-ground transition-transform hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50"
+                    >
+                      <Send size={14} strokeWidth={2.5} />
+                      {shipping ? "Posting…" : "Post now"}
+                    </button>
+                  </div>
+                  <a
+                    href={composerUrl((variants?.find((v) => v.id === result.verdict.winner) ?? variants?.[1])?.copy ?? "")}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-center text-xs font-medium text-faint transition-colors hover:text-fg"
+                  >
+                    Or edit in the X composer (copy only, attach media there)
+                  </a>
+                </>
               ) : (
                 <button
-                  onClick={shipWinner}
-                  disabled={shipping}
-                  className="flex items-center justify-center gap-2 rounded-full border border-line-strong bg-raised px-4 py-2.5 text-sm font-semibold text-fg transition-colors hover:bg-overlay disabled:opacity-50"
+                  onClick={() => setShipPrepared(true)}
+                  className="flex items-center justify-center gap-2 rounded-full border border-line-strong bg-raised px-4 py-2.5 text-sm font-semibold text-fg transition-colors hover:bg-overlay"
                 >
                   <Send size={14} strokeWidth={2.5} />
-                  {shipping ? "Posting…" : `Ship variant ${result.verdict.winner} to X`}
+                  Ship variant {result.verdict.winner} to X
                 </button>
               )}
               {shipError && (
