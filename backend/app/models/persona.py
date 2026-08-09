@@ -70,11 +70,14 @@ class PersonaCard(BaseModel):
 
 
 class Embedding(BaseModel):
+    """Full shape when the vector is stored inline; provenance-only
+    (model/dim/version) when the vector lives in the pgvector column — both
+    must parse, since ml write_vectors stamps provenance into every doc."""
     embedding_version: str
     model: str
     dim: int
-    embed_input: str
-    vector: list[float]
+    embed_input: str | None = None
+    vector: list[float] | None = None
 
 
 class PersonaDocument(BaseModel):
