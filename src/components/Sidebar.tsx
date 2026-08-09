@@ -206,6 +206,15 @@ export function Sidebar({
                 </button>
               </form>
             )}
+
+            <button
+              onClick={() => onSelectFolder?.("trash")}
+              className={`${navClass(activeFolderId === "trash")} w-full text-left`}
+            >
+              <Trash2 size={14} strokeWidth={2} className="shrink-0 text-muted" />
+              Trash
+              <span className="ml-auto text-xs text-faint">{folderCounts?.trash || ""}</span>
+            </button>
           </div>
         </div>
       )}

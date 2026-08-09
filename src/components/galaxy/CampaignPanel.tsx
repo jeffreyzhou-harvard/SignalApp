@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { ArrowLeft, ArrowRight, Bookmark, Bot, Check, ExternalLink, Heart, MessageCircle, Play, Repeat2, RotateCcw, Send, Sparkles } from "lucide-react";
+import { ArrowLeft, ArrowRight, Bookmark, Bot, Check, ExternalLink, Heart, ImagePlus, MessageCircle, Play, Repeat2, RotateCcw, Send, Sparkles, X } from "lucide-react";
 import type { AudienceCluster, AudienceSnapshot } from "@/lib/audience/types";
 import type { CampaignVariant, SimEvent, SimResult, SimTally } from "@/lib/simulation/types";
 import { applyEvent, emptyTally, engagementRate } from "@/lib/simulation/types";
@@ -14,7 +14,7 @@ import { PostCard } from "./PostCard";
  * Data colors: variant A amber #ffb02e, variant B cyan #2fd6f6.
  */
 
-export type PanelStage = "target" | "creative" | "sim" | "verdict";
+export type PanelStage = "brief" | "target" | "creative" | "sim" | "verdict";
 type Stage = PanelStage;
 
 const VARIANT_COLOR: Record<"A" | "B", string> = { A: "#ffb02e", B: "#2fd6f6" };
@@ -130,6 +130,7 @@ export function CampaignPanel({
   audience,
   xHandle,
   displayName = null,
+  seedCopy = null,
   selectedId,
   onSelect,
   onStageChange,
@@ -139,6 +140,8 @@ export function CampaignPanel({
   audience: AudienceSnapshot;
   xHandle: string | null;
   displayName?: string | null;
+  /** Copy iterated in chat; overrides the drafted baseline for the next test. */
+  seedCopy?: string | null;
   selectedId: string | null;
   onSelect: (id: string | null) => void;
   onStageChange?: (stage: PanelStage) => void;
@@ -152,6 +155,13 @@ export function CampaignPanel({
     },
     [onStageChange]
   );
+  const [briefChecked, setBriefChecked] = useState(false);
+  const [briefText, setBriefText] = useState("");
+  const [briefImages, setBriefImages] = useState<{ url: string; name: string }[]>([]);
+  const [briefUploading, setBriefUploading] = useState(false);
+  const [briefRendering, setBriefRendering] = useState(false);
+  const [briefError, setBriefError] = useState<string | null>(null);
+  const briefFileRef = useRef<HTMLInputElement>(null);
   const [baseline, setBaseline] = useState<CampaignVariant | null>(null);
   const [tailored, setTailored] = useState<CampaignVariant | null>(null);
   const [loadingBaseline, setLoadingBaseline] = useState(false);
@@ -185,6 +195,77 @@ export function CampaignPanel({
     if (playback.current) clearInterval(playback.current);
   }, []);
 
+  // A project with no messages yet starts at the brief: upload material,
+  // describe the look, render the first creative.
+  useEffect(() => {
+    let dead = false;
+    fetch(`/api/projects/${projectId}/messages`)
+      .then((r) => r.json())
+      .then((m) => {
+        if (!dead && Array.isArray(m) && m.length === 0) setStage("brief");
+      })
+      .catch(() => {})
+      .finally(() => {
+        if (!dead) setBriefChecked(true);
+      });
+    return () => {
+      dead = true;
+    };
+  }, [projectId, setStage]);
+
+  async function attachBriefFiles(files: FileList | null) {
+    if (!files?.length) return;
+    const images = Array.from(files).filter((f) => f.type.startsWith("image/"));
+    if (images.length === 0) return;
+    setBriefUploading(true);
+    setBriefError(null);
+    try {
+      for (const file of images) {
+        const form = new FormData();
+        form.append("file", file);
+        const res = await fetch("/api/uploads", { method: "POST", body: form });
+        const json = await res.json();
+        if (!res.ok) throw new Error(json.error ?? "Upload failed.");
+        setBriefImages((prev) => [...prev, { url: json.url, name: file.name }]);
+      }
+    } catch (err) {
+      setBriefError(err instanceof Error ? err.message : "Upload failed.");
+    } finally {
+      setBriefUploading(false);
+      if (briefFileRef.current) briefFileRef.current.value = "";
+    }
+  }
+
+  async function generateFromBrief() {
+    const text = briefText.trim();
+    if (!text || briefRendering) return;
+    setBriefRendering(true);
+    setBriefError(null);
+    try {
+      const res = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          projectId,
+          text,
+          images: briefImages.map((i) => i.url),
+          mode: "imagine",
+          mediaType: "image",
+          aspectRatio: "auto",
+          resolution: "1k",
+          style: "none",
+        }),
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error ?? "Rendering failed.");
+      setStage("target");
+    } catch (err) {
+      setBriefError(err instanceof Error ? err.message : "Rendering failed.");
+    } finally {
+      setBriefRendering(false);
+    }
+  }
+
   // Cycle the agent's progress caption while it works.
   useEffect(() => {
     if (!improving) return;
@@ -208,7 +289,8 @@ export function CampaignPanel({
       });
       const json = await res.json();
       if (!res.ok) throw new Error(json.error ?? "Could not load your draft post.");
-      setBaseline(json.variant);
+      // Copy iterated in chat wins over the auto-drafted baseline.
+      setBaseline(seedCopy ? { ...json.variant, copy: seedCopy.slice(0, 280) } : json.variant);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Could not load your draft post.");
     } finally {
@@ -366,8 +448,98 @@ export function CampaignPanel({
       className="absolute bottom-0 right-0 top-0 flex w-140 flex-col overflow-y-auto border-l border-line bg-surface/85 backdrop-blur max-md:inset-x-0 max-md:top-auto max-md:max-h-[62%] max-md:w-full max-md:border-l-0 max-md:border-t"
       aria-label="Campaign"
     >
+      {/* ── Brief ──────────────────────────────────────────────── */}
+      {stage === "brief" && (
+        <div className="flex flex-col gap-3 p-4">
+          <div>
+            <h2 className="text-sm font-semibold">Brief the launch</h2>
+            <p className="mt-1 text-[13px] leading-5 text-muted">
+              Upload your product shots and describe how the marketing material should look.
+              Grok Imagine renders the launch creative that goes into the wind tunnel.
+            </p>
+          </div>
+
+          {briefImages.length > 0 && (
+            <div className="flex flex-wrap gap-2">
+              {briefImages.map((img) => (
+                <span key={img.url} className="group relative block h-16 w-16">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={img.url}
+                    alt={img.name}
+                    className="h-16 w-16 rounded-lg border border-line object-cover"
+                  />
+                  <button
+                    onClick={() => setBriefImages((prev) => prev.filter((x) => x.url !== img.url))}
+                    aria-label={`Remove ${img.name}`}
+                    className="absolute -right-1.5 -top-1.5 rounded-full border border-line-strong bg-overlay p-0.5 text-muted hover:text-fg"
+                  >
+                    <X size={11} strokeWidth={2.5} />
+                  </button>
+                </span>
+              ))}
+            </div>
+          )}
+
+          <input
+            ref={briefFileRef}
+            type="file"
+            accept="image/png,image/jpeg,image/webp,image/gif"
+            multiple
+            hidden
+            onChange={(e) => attachBriefFiles(e.target.files)}
+          />
+          <button
+            onClick={() => briefFileRef.current?.click()}
+            disabled={briefUploading || briefRendering}
+            className="flex items-center justify-center gap-2 rounded-xl border border-dashed border-line px-4 py-3 text-[13px] font-medium text-muted transition-colors hover:border-line-strong hover:text-fg disabled:opacity-50"
+          >
+            <ImagePlus size={15} strokeWidth={2} />
+            {briefUploading ? "Uploading…" : "Add product shots"}
+          </button>
+
+          <textarea
+            value={briefText}
+            onChange={(e) => setBriefText(e.target.value)}
+            rows={4}
+            placeholder="What are you launching, and how should the material look? e.g. bold dark poster, product front and center, electric momentum"
+            aria-label="Launch brief"
+            className="w-full resize-none rounded-xl border border-line bg-raised px-3.5 py-2.5 text-[13px] leading-5 placeholder:text-faint focus:border-accent focus:outline-none"
+          />
+
+          {briefRendering ? (
+            <div className="flex h-16 items-center justify-center">
+              <Dots label="Rendering your creative with Grok Imagine" />
+            </div>
+          ) : (
+            <button
+              onClick={generateFromBrief}
+              disabled={!briefText.trim() || briefUploading}
+              className="flex items-center justify-center gap-1.5 rounded-full bg-fg px-4 py-2.5 text-sm font-semibold text-ground transition-transform enabled:hover:scale-[1.02] enabled:active:scale-[0.98] disabled:opacity-40"
+            >
+              <Sparkles size={14} strokeWidth={2} />
+              Generate creative
+            </button>
+          )}
+
+          <button
+            onClick={() => setStage("target")}
+            disabled={briefRendering}
+            className="text-center text-xs font-medium text-faint transition-colors hover:text-fg disabled:opacity-50"
+          >
+            Skip for now, pick a niche first
+          </button>
+
+          {briefError && (
+            <div className="rounded-lg border border-danger/40 bg-danger/10 px-3 py-2.5 text-[13px] leading-5 text-danger">
+              {briefError}
+            </div>
+          )}
+        </div>
+      )}
+
       {/* ── Target ─────────────────────────────────────────────── */}
-      {stage === "target" && (
+      {briefChecked && stage === "target" && (
         <div className="flex flex-col gap-3 p-4">
           <div>
             <h2 className="text-sm font-semibold">Who are we targeting?</h2>

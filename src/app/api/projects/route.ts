@@ -3,8 +3,10 @@ import { getStorage } from "@/lib/storage";
 
 export const runtime = "nodejs";
 
-export async function GET() {
-  const projects = await getStorage().listProjects();
+export async function GET(req: Request) {
+  const storage = getStorage();
+  const trash = new URL(req.url).searchParams.get("trash") === "1";
+  const projects = trash ? await storage.listTrash() : await storage.listProjects();
   return NextResponse.json(projects);
 }
 

@@ -14,6 +14,8 @@ export interface Project {
   thumbnail: string | null;
   /** Folder this project lives in; null/undefined = unfiled. */
   folderId?: string | null;
+  /** Set when the project is in the trash; null/undefined = active. */
+  deletedAt?: string | null;
 }
 
 export interface ProjectFolder {

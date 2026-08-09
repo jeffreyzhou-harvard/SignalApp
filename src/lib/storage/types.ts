@@ -8,14 +8,20 @@ import type { AppSettings, ChatMessage, DeployedPost, Project, ProjectFolder } f
 export interface StorageAdapter {
   id: string;
 
+  /** Active projects only; trashed ones come from listTrash(). */
   listProjects(): Promise<Project[]>;
+  listTrash(): Promise<Project[]>;
   getProject(id: string): Promise<Project | null>;
   createProject(title: string, folderId?: string | null): Promise<Project>;
   updateProject(
     id: string,
     patch: Partial<Pick<Project, "title" | "thumbnail" | "folderId">>
   ): Promise<Project | null>;
+  /** Soft delete: moves the project to the trash. */
   deleteProject(id: string): Promise<void>;
+  restoreProject(id: string): Promise<Project | null>;
+  /** Hard delete: removes the project and its messages permanently. */
+  purgeProject(id: string): Promise<void>;
 
   listFolders(): Promise<ProjectFolder[]>;
   createFolder(name: string): Promise<ProjectFolder>;

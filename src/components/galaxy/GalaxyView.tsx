@@ -16,10 +16,13 @@ export function GalaxyView({
   projectId,
   xHandle,
   displayName,
+  seedCopy,
 }: {
   projectId?: string;
   xHandle?: string | null;
   displayName?: string | null;
+  /** Copy iterated in chat, sent back to seed the next wind-tunnel run. */
+  seedCopy?: string | null;
 }) {
   const [snapshot, setSnapshot] = useState<AudienceSnapshot | null>(null);
   const [failed, setFailed] = useState(false);
@@ -74,7 +77,7 @@ export function GalaxyView({
   // Without a projectId this is the standalone audience map: pure visualization,
   // no campaign card. With one, selection locks once the panel moves past targeting.
   const vizOnly = !projectId;
-  const canRetarget = vizOnly || stage === "target";
+  const canRetarget = vizOnly || stage === "target" || stage === "brief";
   const selectedCluster = snapshot?.clusters.find((c) => c.id === selected) ?? null;
 
   return (
@@ -159,6 +162,7 @@ export function GalaxyView({
               audience={snapshot}
               xHandle={xHandle ?? null}
               displayName={displayName ?? null}
+              seedCopy={seedCopy ?? null}
               selectedId={selected}
               onSelect={setSelected}
               onStageChange={setStage}

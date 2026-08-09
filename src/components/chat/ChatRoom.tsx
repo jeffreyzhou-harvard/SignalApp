@@ -15,6 +15,7 @@ import {
   Palette,
   Pencil,
   Wand2,
+  Wind,
   X,
 } from "lucide-react";
 import { STYLE_PRESETS } from "@/lib/styles";
@@ -99,6 +100,7 @@ export function ChatRoom({ projectId }: { projectId: string }) {
   const [style, setStyle] = useState("none");
   const [ratioOpen, setRatioOpen] = useState(false);
   const [view, setView] = useState<"chat" | "galaxy">("chat");
+  const [tunnelSeed, setTunnelSeed] = useState<string | null>(null);
   const autoSwitched = useRef(false);
   const [streamingText, setStreamingText] = useState<string | null>(null);
   const [rendering, setRendering] = useState<"image" | "video" | null>(null);
@@ -132,8 +134,12 @@ export function ChatRoom({ projectId }: { projectId: string }) {
         setProject(await pRes.json());
         setSettings(s);
         setMessages(m);
-        // A fresh project opens ready to render: the initial brief goes to Grok Imagine.
-        if (m.length === 0) setImagineMode(true);
+        // A fresh project opens on the audience map, where the brief step lives.
+        if (m.length === 0) {
+          setImagineMode(true);
+          autoSwitched.current = true;
+          setView("galaxy");
+        }
         // Creative defaults from Settings seed the composer.
         if (s?.defaults) {
           setStyle(s.defaults.style ?? "none");
@@ -145,6 +151,18 @@ export function ChatRoom({ projectId }: { projectId: string }) {
       }
     })();
   }, [projectId, loadAttempt]);
+
+  // The brief step and campaign flow write messages while the map is open;
+  // refresh the transcript whenever the user switches back to chat.
+  useEffect(() => {
+    if (view !== "chat" || !loaded) return;
+    fetch(`/api/projects/${projectId}/messages`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((m) => {
+        if (Array.isArray(m)) setMessages(m);
+      })
+      .catch(() => {});
+  }, [view, loaded, projectId]);
 
   const scrollToBottom = useCallback(() => {
     const toBottom = () => scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight });
@@ -406,17 +424,6 @@ export function ChatRoom({ projectId }: { projectId: string }) {
           <div className="flex items-center rounded-full border border-line p-0.5" role="tablist" aria-label="Project view">
             <button
               role="tab"
-              aria-selected={view === "chat"}
-              onClick={() => setView("chat")}
-              className={`flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium transition-colors ${
-                view === "chat" ? "bg-raised text-fg" : "text-muted hover:text-fg"
-              }`}
-            >
-              <MessageSquare size={12} strokeWidth={2} />
-              Chat
-            </button>
-            <button
-              role="tab"
               aria-selected={view === "galaxy"}
               onClick={() => setView("galaxy")}
               className={`flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium transition-colors ${
@@ -425,6 +432,17 @@ export function ChatRoom({ projectId }: { projectId: string }) {
             >
               <Orbit size={12} strokeWidth={2} />
               Audience
+            </button>
+            <button
+              role="tab"
+              aria-selected={view === "chat"}
+              onClick={() => setView("chat")}
+              className={`flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium transition-colors ${
+                view === "chat" ? "bg-raised text-fg" : "text-muted hover:text-fg"
+              }`}
+            >
+              <MessageSquare size={12} strokeWidth={2} />
+              Chat
             </button>
           </div>
           <button
@@ -444,6 +462,7 @@ export function ChatRoom({ projectId }: { projectId: string }) {
             projectId={projectId}
             xHandle={settings?.xAccount?.handle ?? null}
             displayName={settings?.profile.name ?? null}
+            seedCopy={tunnelSeed}
           />
         </div>
       ) : (
@@ -454,11 +473,11 @@ export function ChatRoom({ projectId }: { projectId: string }) {
             <div className="my-auto py-10 text-center rise-in">
               <span className="logo-mask mx-auto block h-12 w-16 text-line-strong" aria-hidden="true" />
               <h2 className="mt-5 text-lg font-semibold tracking-tight">
-                Brief your copilot on “{project?.title ?? "this launch"}”
+                Iterate on “{project?.title ?? "this launch"}” with your copilot
               </h2>
               <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-muted">
-                Describe what you’re launching and how it should look. The first prompt renders a
-                poster or teaser video with Grok Imagine, then the map of your audience opens.
+                Refine the copy, re-render the creative, riff on angles. Any draft here can go
+                straight back into the wind tunnel for another A/B test.
               </p>
               <div className="mt-6 flex flex-wrap justify-center gap-2">
                 {BRIEF_STARTERS.map((s) => (
@@ -481,7 +500,18 @@ export function ChatRoom({ projectId }: { projectId: string }) {
 
           <div className="flex flex-col gap-6">
             {messages.map((m) => (
-              <MessageRow key={m.id} message={m} />
+              <MessageRow
+                key={m.id}
+                message={m}
+                onSendToTunnel={
+                  m.role === "assistant" && m.kind === "text"
+                    ? (copy) => {
+                        setTunnelSeed(copy);
+                        setView("galaxy");
+                      }
+                    : undefined
+                }
+              />
             ))}
 
             {streamingText !== null && (
@@ -802,7 +832,13 @@ export function ChatRoom({ projectId }: { projectId: string }) {
   );
 }
 
-function MessageRow({ message }: { message: ChatMessage }) {
+function MessageRow({
+  message,
+  onSendToTunnel,
+}: {
+  message: ChatMessage;
+  onSendToTunnel?: (copy: string) => void;
+}) {
   if (message.role === "user") {
     return (
       <div className="flex flex-col items-end gap-2">
@@ -863,8 +899,18 @@ function MessageRow({ message }: { message: ChatMessage }) {
   }
 
   return (
-    <div>
+    <div className="group">
       <Markdown text={message.content} />
+      {onSendToTunnel && (
+        <button
+          onClick={() => onSendToTunnel(message.content)}
+          className="mt-2 flex items-center gap-1.5 rounded-full border border-line px-3 py-1.5 text-xs font-medium text-muted opacity-0 transition-all hover:border-line-strong hover:text-fg focus-visible:opacity-100 group-hover:opacity-100"
+          title="Use this draft as the post in the wind tunnel"
+        >
+          <Wind size={12} strokeWidth={2} />
+          Test in the wind tunnel
+        </button>
+      )}
     </div>
   );
 }

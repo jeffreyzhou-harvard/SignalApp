@@ -45,7 +45,16 @@ export const jsonFileStorage: StorageAdapter = {
 
   async listProjects() {
     const projects = await readJson<Project[]>(PROJECTS_FILE, []);
-    return projects.sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
+    return projects
+      .filter((p) => !p.deletedAt)
+      .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
+  },
+
+  async listTrash() {
+    const projects = await readJson<Project[]>(PROJECTS_FILE, []);
+    return projects
+      .filter((p) => !!p.deletedAt)
+      .sort((a, b) => (b.deletedAt ?? "").localeCompare(a.deletedAt ?? ""));
   },
 
   async getProject(id) {
@@ -122,6 +131,24 @@ export const jsonFileStorage: StorageAdapter = {
   },
 
   async deleteProject(id) {
+    const projects = await readJson<Project[]>(PROJECTS_FILE, []);
+    const project = projects.find((p) => p.id === id);
+    if (project) {
+      project.deletedAt = new Date().toISOString();
+      await writeJson(PROJECTS_FILE, projects);
+    }
+  },
+
+  async restoreProject(id) {
+    const projects = await readJson<Project[]>(PROJECTS_FILE, []);
+    const project = projects.find((p) => p.id === id);
+    if (!project) return null;
+    project.deletedAt = null;
+    await writeJson(PROJECTS_FILE, projects);
+    return project;
+  },
+
+  async purgeProject(id) {
     const projects = await readJson<Project[]>(PROJECTS_FILE, []);
     await writeJson(PROJECTS_FILE, projects.filter((p) => p.id !== id));
     await fs.rm(path.join(MESSAGES_DIR, `${id}.json`), { force: true });

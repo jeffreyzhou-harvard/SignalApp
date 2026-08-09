@@ -14,6 +14,7 @@ type SortMode = "recent" | "name";
 
 export function ProjectsHome() {
   const [projects, setProjects] = useState<Project[] | null>(null);
+  const [trash, setTrash] = useState<Project[]>([]);
   const [folders, setFolders] = useState<ProjectFolder[]>([]);
   const [settings, setSettings] = useState<PublicSettings | null>(null);
   const [query, setQuery] = useState("");
@@ -25,21 +26,24 @@ export function ProjectsHome() {
   const [renaming, setRenaming] = useState<Project | null>(null);
   const [renameTitle, setRenameTitle] = useState("");
   const [deleting, setDeleting] = useState<Project | null>(null);
+  const [purging, setPurging] = useState<Project | null>(null);
   const [moving, setMoving] = useState<Project | null>(null);
   const [loadError, setLoadError] = useState(false);
 
   const load = useCallback(async () => {
     setLoadError(false);
     try {
-      const [pRes, sRes, fRes] = await Promise.all([
+      const [pRes, sRes, fRes, tRes] = await Promise.all([
         fetch("/api/projects"),
         fetch("/api/settings"),
         fetch("/api/folders"),
+        fetch("/api/projects?trash=1"),
       ]);
-      if (!pRes.ok || !sRes.ok || !fRes.ok) throw new Error("load failed");
+      if (!pRes.ok || !sRes.ok || !fRes.ok || !tRes.ok) throw new Error("load failed");
       setProjects(await pRes.json());
       setSettings(await sRes.json());
       setFolders(await fRes.json());
+      setTrash(await tRes.json());
     } catch {
       setLoadError(true);
     }
@@ -52,23 +56,27 @@ export function ProjectsHome() {
   const filtered = useMemo(() => {
     if (!projects) return null;
     const q = query.trim().toLowerCase();
-    let list = projects;
+    let list = folderSel === "trash" ? trash : projects;
     if (folderSel === "unfiled") list = list.filter((p) => !p.folderId);
-    else if (folderSel !== "all") list = list.filter((p) => p.folderId === folderSel);
+    else if (folderSel !== "all" && folderSel !== "trash") list = list.filter((p) => p.folderId === folderSel);
     if (q) list = list.filter((p) => p.title.toLowerCase().includes(q));
     return [...list].sort((a, b) =>
       sort === "name" ? a.title.localeCompare(b.title) : b.updatedAt.localeCompare(a.updatedAt)
     );
-  }, [projects, query, folderSel, sort]);
+  }, [projects, trash, query, folderSel, sort]);
 
   const folderCounts = useMemo(() => {
-    const counts: Record<string, number> = { all: projects?.length ?? 0, unfiled: 0 };
+    const counts: Record<string, number> = {
+      all: projects?.length ?? 0,
+      unfiled: 0,
+      trash: trash.length,
+    };
     for (const p of projects ?? []) {
       if (p.folderId) counts[p.folderId] = (counts[p.folderId] ?? 0) + 1;
       else counts.unfiled++;
     }
     return counts;
-  }, [projects]);
+  }, [projects, trash]);
 
   const activeFolder = folders.find((f) => f.id === folderSel) ?? null;
 
@@ -88,6 +96,22 @@ export function ProjectsHome() {
     if (!deleting) return;
     await fetch(`/api/projects/${deleting.id}`, { method: "DELETE" });
     setDeleting(null);
+    load();
+  }
+
+  async function confirmPurge() {
+    if (!purging) return;
+    await fetch(`/api/projects/${purging.id}?permanent=1`, { method: "DELETE" });
+    setPurging(null);
+    load();
+  }
+
+  async function restore(p: Project) {
+    await fetch(`/api/projects/${p.id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ restore: true }),
+    });
     load();
   }
 
@@ -155,7 +179,13 @@ export function ProjectsHome() {
         <header className="flex items-center gap-3 border-b border-line px-6 py-3.5 max-md:px-4">
           <span className="logo-mask block h-5 w-6 text-fg md:hidden" aria-hidden="true" />
           <h1 className="text-[15px] font-semibold tracking-tight">
-            {activeFolder ? activeFolder.name : folderSel === "unfiled" ? "Unfiled" : "Projects"}
+            {activeFolder
+              ? activeFolder.name
+              : folderSel === "unfiled"
+                ? "Unfiled"
+                : folderSel === "trash"
+                  ? "Trash"
+                  : "Projects"}
           </h1>
           <div className="relative ml-auto w-56 max-md:w-36">
             <Search
@@ -278,6 +308,13 @@ export function ProjectsHome() {
           </div>
         ) : filtered.length === 0 && !query && folderSel === "all" ? (
           <EmptyState onNewProject={() => setShowNew(true)} />
+        ) : filtered.length === 0 && !query && folderSel === "trash" ? (
+          <div className="flex flex-1 flex-col items-center justify-center pb-24 text-center">
+            <p className="text-sm font-medium">Trash is empty</p>
+            <p className="mt-1 text-[13px] text-muted">
+              Deleted projects land here so you can restore them or delete them forever.
+            </p>
+          </div>
         ) : filtered.length === 0 && query ? (
           <div className="flex flex-1 flex-col items-center justify-center pb-24 text-center">
             <p className="text-sm font-medium">No projects match “{query}”</p>
@@ -290,15 +327,17 @@ export function ProjectsHome() {
                 key={project.id}
                 project={project}
                 index={i}
+                trashed={folderSel === "trash"}
+                onRestore={restore}
                 onRename={(p) => {
                   setRenaming(p);
                   setRenameTitle(p.title);
                 }}
-                onDelete={(p) => setDeleting(p)}
+                onDelete={(p) => (folderSel === "trash" ? setPurging(p) : setDeleting(p))}
                 onMove={(p) => setMoving(p)}
               />
             ))}
-            {ghostCard}
+            {folderSel !== "trash" && ghostCard}
           </div>
         )}
       </main>
@@ -376,10 +415,10 @@ export function ProjectsHome() {
       )}
 
       {deleting && (
-        <Dialog title="Delete project" onClose={() => setDeleting(null)}>
+        <Dialog title="Move to Trash" onClose={() => setDeleting(null)}>
           <p className="text-sm leading-6 text-muted">
-            Delete <span className="font-medium text-fg">“{deleting.title}”</span> and its whole
-            conversation? This can’t be undone.
+            Move <span className="font-medium text-fg">“{deleting.title}”</span> to the Trash?
+            You can restore it from there, or delete it forever.
           </p>
           <div className="mt-4 flex justify-end gap-2">
             <button
@@ -392,7 +431,30 @@ export function ProjectsHome() {
               onClick={confirmDelete}
               className="rounded-lg bg-danger px-4 py-2 text-sm font-semibold text-ground"
             >
-              Delete
+              Move to Trash
+            </button>
+          </div>
+        </Dialog>
+      )}
+
+      {purging && (
+        <Dialog title="Delete forever" onClose={() => setPurging(null)}>
+          <p className="text-sm leading-6 text-muted">
+            Permanently delete <span className="font-medium text-fg">“{purging.title}”</span> and
+            its whole conversation? This can’t be undone.
+          </p>
+          <div className="mt-4 flex justify-end gap-2">
+            <button
+              onClick={() => setPurging(null)}
+              className="rounded-lg border border-line px-4 py-2 text-sm font-medium text-muted transition-colors hover:border-line-strong hover:text-fg"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={confirmPurge}
+              className="rounded-lg bg-danger px-4 py-2 text-sm font-semibold text-ground"
+            >
+              Delete forever
             </button>
           </div>
         </Dialog>
