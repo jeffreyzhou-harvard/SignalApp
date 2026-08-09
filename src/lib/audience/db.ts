@@ -63,6 +63,9 @@ function hash(s: string): number {
 /** Deterministic pseudo-random in [-1, 1) from a string key. */
 const jitter = (key: string) => ((hash(key) % 2000) / 1000) - 1;
 
+/** Deterministic pseudo-random in [0, 1) from a string key. */
+const unit = (key: string) => (hash(key) % 10000) / 10000;
+
 /** X serves 48px `_normal` avatars; lift to the 400px variant. */
 const upscaleAvatar = (url: string) => url.replace("_normal.", "_400x400.");
 
@@ -76,8 +79,10 @@ function mapSnapshot(snap: BackendSnapshot): AudienceSnapshot {
   const px = (x: number) => (x - minX) * scaleX - X_SPAN;
   const py = (y: number) => (y - minY) * scaleY - Y_SPAN;
 
-  // Tier-1 members are written with their cluster centroid's exact coords —
-  // count coordinate collisions so co-located members scatter into a disc.
+  // Deep-profiled members carry true UMAP positions; tier-1 members are written
+  // with their cluster centroid's exact coords. Mirror the 2D audience map:
+  // deep members sit at their measured spot, centroid-collided members scatter
+  // into a confidence-scaled disc (confident → tight core, uncertain → far out).
   const coordCounts = new Map<string, number>();
   for (const m of snap.members) {
     const key = `${m.map_x}:${m.map_y}`;
@@ -87,9 +92,28 @@ function mapSnapshot(snap: BackendSnapshot): AudienceSnapshot {
   const members: AudienceMember[] = snap.members.map((m, i) => {
     const key = `${m.map_x}:${m.map_y}`;
     const collided = (coordCounts.get(key) ?? 1) > 1;
-    const spread = collided ? 3.2 : 0.6;
     const doc = m.doc ?? null;
+    const deep = doc?.persona_card != null;
     const handle = doc?.handle ?? `@${m.user_id}`;
+    let x = px(m.map_x ?? 0);
+    let y = py(m.map_y ?? 0);
+    let z = jitter(`${m.user_id}:z`) * Z_JITTER;
+    if (collided) {
+      // sqrt-uniform disc at constant density — a 550-member tribe gets a wide
+      // halo, a 50-member one stays tight — shrunk further by assignment
+      // confidence so uncertain members drift outward.
+      const conf = Math.max(m.confidence ?? 1, 1);
+      const n = coordCounts.get(key) ?? 1;
+      const rBase = Math.min(6.5, 0.9 + 0.28 * Math.sqrt(n)) / conf;
+      const r = rBase * Math.sqrt(0.05 + 0.95 * unit(`${m.user_id}:r`));
+      const theta = unit(`${m.user_id}:t`) * Math.PI * 2;
+      x += r * Math.cos(theta);
+      y += r * Math.sin(theta) * (Y_SPAN / X_SPAN);
+      z *= 0.05 + 0.95 * (r / rBase); // core stays flat, halo gains depth
+    } else {
+      x += jitter(`${m.user_id}:x`) * 0.6;
+      y += jitter(`${m.user_id}:y`) * 0.6;
+    }
     return {
       id: i,
       name: doc?.display_name || handle.replace(/^@/, ""),
@@ -99,24 +123,27 @@ function mapSnapshot(snap: BackendSnapshot): AudienceSnapshot {
         ? upscaleAvatar(doc.profile_image_url)
         : `/avatars/${hash(m.user_id) % 2 === 0 ? "m" : "f"}${hash(m.user_id) % 100}.jpg`,
       clusterId: m.cluster_id,
-      pos: [
-        px(m.map_x ?? 0) + jitter(`${m.user_id}:x`) * spread,
-        py(m.map_y ?? 0) + jitter(`${m.user_id}:y`) * spread,
-        jitter(`${m.user_id}:z`) * Z_JITTER,
-      ],
+      pos: [x, y, z],
+      deep,
+      profileUrl: doc?.handle
+        ? `https://x.com/${doc.handle.replace(/^@/, "")}`
+        : `https://x.com/intent/user?user_id=${m.user_id}`,
     };
   });
 
-  // Cluster centers = mean of their members' mapped positions.
+  // Cluster centers = mean of the deep members' measured positions (they anchor
+  // the tribe core); jittered tier-1 discs only fill in when no deep exist.
   const sums = new Map<string, { x: number; y: number; z: number; n: number }>();
-  for (const m of members) {
+  const accumulate = (m: AudienceMember) => {
     const acc = sums.get(m.clusterId) ?? { x: 0, y: 0, z: 0, n: 0 };
     acc.x += m.pos[0];
     acc.y += m.pos[1];
     acc.z += m.pos[2];
     acc.n++;
     sums.set(m.clusterId, acc);
-  }
+  };
+  const deepClusters = new Set(members.filter((m) => m.deep).map((m) => m.clusterId));
+  for (const m of members) if (m.deep || !deepClusters.has(m.clusterId)) accumulate(m);
 
   const clusters: AudienceCluster[] = snap.clusters.map((c, i) => {
     const acc = sums.get(c.cluster_id);

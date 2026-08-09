@@ -24,6 +24,10 @@ export interface AudienceMember {
   avatar: string;
   clusterId: string;
   pos: [number, number, number];
+  /** False for bio-only tier-1 members placed by confidence jitter, not a measured position. */
+  deep?: boolean;
+  /** Real X profile link; absent for synthetic members. */
+  profileUrl?: string;
 }
 
 export interface AudienceSnapshot {

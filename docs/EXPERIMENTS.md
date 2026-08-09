@@ -138,3 +138,9 @@ Hypothesis: C or E wins; D shows homogenization (low separation, high silhouette
 - E1/E2 winner unclear → prefer the simpler arm and move on; composition can swap late without breaking contracts.
 - Total budget ~5–6 hrs. If behind at E3, freeze KMeans k=8 on best-known features and skip to E4 — labels and the map matter more to the demo than the last point of ARI.
 - Deliverables downstream (clusters.json, persona cards, 2D coords) are insensitive to which arm wins. Ship whatever the harness says at freeze time.
+
+## Lock-down (Aug 8, final night)
+
+- **E6 skipped** (out of time) and **@ishand full-depth enrichment stopped mid-run** — its ~840 timeline fetches are raw-cached, so resuming later via `backend/scripts/enrich_all_direct.py` costs ~nothing. No re-cluster: **v5-active (stability 0.780, 5 tribes) is the frozen @ishand demo run.**
+- @SpaceXAI engager ingest (job 5aaf848a) left running as the second demo entity; a 5-min heartbeat protects it from stale-requeue while any teammate worker is on pre-50e5057 code.
+- Frontend galaxy reworked to match the 2D everyone-map: deep members at true UMAP positions, tier-1 in confidence-scaled constant-density discs, all tribes visible at once (focus dims instead of hiding), avatars stream in progressively, bubbles click through to X profiles.

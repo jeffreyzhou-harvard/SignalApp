@@ -59,21 +59,28 @@ function useAvatarTextures(members: AudienceMember[], clusters: AudienceCluster[
   useEffect(() => {
     let dead = false;
     const colors = new Map(clusters.map((c) => [c.id, c.color]));
-    Promise.all(
-      members.map(async (m) => {
-        try {
-          const img = await loadImage(m.avatar);
-          return [m.id, makeAvatarTexture(img, colors.get(m.clusterId) ?? "#82898f")] as const;
-        } catch {
-          return null;
-        }
-      })
-    ).then((entries) => {
-      if (dead) return;
-      const next = new Map<number, THREE.Texture>();
-      for (const e of entries) if (e) next.set(e[0], e[1]);
-      setMap(next);
-    });
+    const loaded = new Map<number, THREE.Texture>();
+    setMap(new Map());
+    // Chunked so a 1k-member audience streams in instead of blocking on the
+    // slowest avatar fetch before anything renders.
+    const CHUNK = 48;
+    (async () => {
+      for (let i = 0; i < members.length && !dead; i += CHUNK) {
+        const entries = await Promise.all(
+          members.slice(i, i + CHUNK).map(async (m) => {
+            try {
+              const img = await loadImage(m.avatar);
+              return [m.id, makeAvatarTexture(img, colors.get(m.clusterId) ?? "#82898f")] as const;
+            } catch {
+              return null;
+            }
+          })
+        );
+        if (dead) return;
+        for (const e of entries) if (e) loaded.set(e[0], e[1]);
+        setMap(new Map(loaded));
+      }
+    })();
     return () => {
       dead = true;
     };
@@ -82,9 +89,14 @@ function useAvatarTextures(members: AudienceMember[], clusters: AudienceCluster[
 }
 
 function clusterEdges(members: AudienceMember[]): Float32Array {
+  // Edges connect only deep-profiled members: they sit at measured positions,
+  // so the web traces real structure. Wiring the confidence-jittered tier-1
+  // halo would draw a hairball of meaningless lines.
+  const anchors = members.filter((m) => m.deep !== false);
+  const nodes = anchors.length >= 3 ? anchors : members.slice(0, 40);
   const segs: number[] = [];
-  for (const m of members) {
-    const nearest = members
+  for (const m of nodes) {
+    const nearest = nodes
       .filter((o) => o.id !== m.id)
       .map((o) => ({
         o,
@@ -181,14 +193,21 @@ function ClusterGroup({
     const k = 1 - Math.exp(-6 * dt);
     const g = groupRef.current;
     if (!g) return;
-    const targetOp = dimmed ? 0.07 : 1;
     let i = 0;
     for (const child of g.children) {
       if ((child as THREE.Sprite).isSprite) {
         const s = child as THREE.Sprite;
         const m = s.material as THREE.SpriteMaterial;
+        const { memberId, baseScale, baseOpacity } = s.userData as {
+          memberId: number;
+          baseScale: number;
+          baseOpacity: number;
+        };
+        // Unselected tribes dim but stay legible — the whole audience map is
+        // always on screen, matching the 2D overlay.
+        const targetOp = dimmed ? 0.26 : baseOpacity;
         m.opacity += (targetOp - m.opacity) * k;
-        const base = hovered === members[i]?.id ? 1.3 : 0.92;
+        const base = hovered === memberId ? baseScale * 1.4 : baseScale;
         const pulse = live ? 1 + 0.18 * Math.sin(clock.elapsedTime * 3 + i * 1.7) : 1;
         const target = base * pulse;
         s.scale.x += (target - s.scale.x) * k;
@@ -197,7 +216,7 @@ function ClusterGroup({
       }
     }
     if (lineMat.current) {
-      const lt = dimmed ? 0.012 : 0.14;
+      const lt = dimmed ? 0.045 : 0.14;
       lineMat.current.opacity += (lt - lineMat.current.opacity) * k;
     }
   });
@@ -207,14 +226,19 @@ function ClusterGroup({
       {members.map((m) => {
         const tex = textures.get(m.id);
         if (!tex) return null;
+        const deep = m.deep !== false;
         return (
           <sprite
             key={m.id}
             position={m.pos}
-            scale={[0.92, 0.92, 1]}
+            scale={deep ? [0.92, 0.92, 1] : [0.5, 0.5, 1]}
+            userData={{ memberId: m.id, baseScale: deep ? 0.92 : 0.5, baseOpacity: deep ? 1 : 0.85 }}
             onClick={(e) => {
               e.stopPropagation();
-              onPick(cluster.id);
+              // A member's bubble is that person: open their X profile.
+              // Synthetic members have no profile — fall back to tribe zoom.
+              if (m.profileUrl) window.open(m.profileUrl, "_blank", "noopener");
+              else onPick(cluster.id);
             }}
             onPointerOver={(e) => {
               e.stopPropagation();
@@ -246,9 +270,11 @@ function ClusterGroup({
         />
       </lineSegments>
       <Html position={cluster.center} center zIndexRange={[30, 0]} style={{ pointerEvents: "none" }}>
-        <div
-          className={`flex flex-col items-center gap-0.5 whitespace-nowrap rounded-lg border border-line bg-surface/80 px-3 py-1.5 backdrop-blur transition-opacity duration-300 ${
-            dimmed ? "opacity-0" : "opacity-100"
+        <button
+          onClick={() => onPick(cluster.id)}
+          style={{ pointerEvents: "auto" }}
+          className={`flex cursor-pointer flex-col items-center gap-0.5 whitespace-nowrap rounded-lg border border-line bg-surface/80 px-3 py-1.5 backdrop-blur transition-opacity duration-300 hover:border-line-strong ${
+            dimmed ? "opacity-40 hover:opacity-90" : "opacity-100"
           }`}
         >
           <span className="flex items-center gap-1.5 text-xs font-medium text-fg">
@@ -256,7 +282,7 @@ function ClusterGroup({
             {cluster.label}
           </span>
           <span className="text-xs text-faint">{cluster.members.toLocaleString()} followers</span>
-        </div>
+        </button>
       </Html>
     </group>
   );
@@ -417,6 +443,7 @@ export function GalaxyScene({
                 <p className="truncate text-[13px] font-medium text-fg">{hovered.name}</p>
                 <p className="text-xs text-muted">{hovered.handle}</p>
                 <p className="mt-0.5 text-xs leading-4 text-faint">{hovered.bio}</p>
+                {hovered.profileUrl && <p className="mt-1 text-[11px] text-muted">Click to open on X ↗</p>}
               </div>
             </div>
           </Html>

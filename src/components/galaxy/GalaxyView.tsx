@@ -185,7 +185,7 @@ export function GalaxyView({
               </div>
             ) : (
               <p className="absolute bottom-5 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full border border-line bg-surface/70 px-4 py-2 text-xs text-faint backdrop-blur">
-                Click a niche to zoom in · hover a follower for their persona
+                Click a niche label to zoom · click a follower to open them on X
               </p>
             ))}
         </>
