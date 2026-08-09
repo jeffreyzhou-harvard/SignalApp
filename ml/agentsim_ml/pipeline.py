@@ -101,6 +101,11 @@ def _features(cfg: RunConfig, deep: list[PersonaDocument], run_dir: Path,
                 tax, tags = hierarchical_expand(deep, tax, tags)
         by_uid = {t.user_id: t for t in tags}
         tags = [by_uid[d.user_id] for d in deep if d.user_id in by_uid]
+        dropped = [d.user_id for d in deep if d.user_id not in by_uid]
+        if dropped:
+            print(f"[arm-T] WARNING: {len(dropped)} deep users missing from tags "
+                  f"file — excluded from this run (stale --tags-file? re-score "
+                  f"without --tags-file to cover them): {dropped[:5]}...")
         deep[:] = [d for d in deep if d.user_id in by_uid]
         run_dir.mkdir(parents=True, exist_ok=True)
         (run_dir / "tags.json").write_text(json.dumps({

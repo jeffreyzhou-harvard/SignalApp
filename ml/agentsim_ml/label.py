@@ -153,11 +153,22 @@ class GrokLabeler:
             resp.raise_for_status()
             data = json.loads(resp.json()["choices"][0]["message"]["content"])
             items = data if isinstance(data, list) else next(iter(data.values()))
-            return [
-                ClusterLabel(it["cluster_id"], it["name"], it.get("one_liner", ""),
-                             kw.get(it["cluster_id"], []))
-                for it in items
-            ]
+            out = {}
+            for it in items:
+                try:
+                    cid = int(it["cluster_id"])  # LLM often returns strings
+                except (KeyError, TypeError, ValueError):
+                    continue
+                out[cid] = ClusterLabel(cid, str(it.get("name") or ""),
+                                        str(it.get("one_liner") or ""),
+                                        kw.get(cid, []))
+            # any cluster the LLM skipped gets a heuristic label, never a bare id
+            for cid in sorted(kw):
+                if cid not in out or not out[cid].name:
+                    out[cid] = ClusterLabel(cid, " / ".join(kw[cid][:3]),
+                                            f"Users talking about {', '.join(kw[cid])}",
+                                            kw[cid])
+            return [out[c] for c in sorted(out)]
         except Exception:
             return HeuristicLabeler().label(docs, x, labels, centroids)
 

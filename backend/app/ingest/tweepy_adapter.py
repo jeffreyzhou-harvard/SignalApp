@@ -48,11 +48,15 @@ def _as_dict(obj):
 
 
 class TweepyAPI:
-    def __init__(self, client: "tweepy.Client", user_client: "tweepy.Client | None" = None):
+    def __init__(self, client: "tweepy.Client", user_client: "tweepy.Client | None" = None,
+                 user_auth: bool = False):
         self.client = client
         # user-context client (OAuth user token) — required by liking_users/
         # retweeted_by; falls back to app-only (which 403s and degrades upstream)
         self.user_client = user_client or client
+        # True ONLY for OAuth 1.0a clients (signing); OAuth2 user tokens are
+        # bearer-style and must NOT set tweepy's user_auth flag
+        self.user_auth = user_auth and user_client is not None
 
     # -- users -----------------------------------------------------------
     def get_user(self, handle_or_id) -> dict | None:
@@ -142,21 +146,18 @@ class TweepyAPI:
 
     # -- engagement ------------------------------------------------------
     def get_liking_users(self, post_id) -> list[dict]:
-        resp = self.user_client.get_liking_users(post_id, user_auth=self.user_client is not self.client and bool(settings.x_oauth1_access_token))
+        resp = self.user_client.get_liking_users(post_id, user_auth=self.user_auth)
         return [u.data for u in (resp.data or [])]
 
     def get_retweeters(self, post_id) -> list[dict]:
-        resp = self.user_client.get_retweeters(post_id, user_auth=self.user_client is not self.client and bool(settings.x_oauth1_access_token))
+        resp = self.user_client.get_retweeters(post_id, user_auth=self.user_auth)
         return [u.data for u in (resp.data or [])]
 
 
-def _make_user_client() -> "tweepy.Client | None":
-    """User-context client for co-engagement endpoints. Prefers an OAuth 2.0
-    user token (from the app's Sign-in-with-X flow), else OAuth 1.0a portal
-    credentials; None when neither is configured."""
-    if settings.x_user_access_token:
-        return tweepy.Client(bearer_token=settings.x_user_access_token,
-                             wait_on_rate_limit=True)
+def _make_user_client() -> "tuple[tweepy.Client | None, bool]":
+    """(client, needs_user_auth) for co-engagement endpoints. OAuth 1.0a portal
+    credentials are preferred (never expire, signed → user_auth=True); an
+    OAuth 2.0 user token is bearer-style (user_auth must stay False)."""
     if settings.x_consumer_key and settings.x_oauth1_access_token:
         return tweepy.Client(
             consumer_key=settings.x_consumer_key,
@@ -164,8 +165,11 @@ def _make_user_client() -> "tweepy.Client | None":
             access_token=settings.x_oauth1_access_token,
             access_token_secret=settings.x_oauth1_access_secret,
             wait_on_rate_limit=True,
-        )
-    return None
+        ), True
+    if settings.x_user_access_token:
+        return tweepy.Client(bearer_token=settings.x_user_access_token,
+                             wait_on_rate_limit=True), False
+    return None, False
 
 
 def make_api() -> TweepyAPI:
@@ -173,7 +177,8 @@ def make_api() -> TweepyAPI:
         bearer_token=settings.x_bearer_token,
         wait_on_rate_limit=True,
     )
-    return TweepyAPI(client, user_client=_make_user_client())
+    user_client, needs_user_auth = _make_user_client()
+    return TweepyAPI(client, user_client=user_client, user_auth=needs_user_auth)
 
 
 def make_grok():

@@ -17,6 +17,7 @@ from app.ingest.tweepy_adapter import make_api, make_grok
 from app.ingest.x_client import XClient
 from app.store import jobs
 from app.store.db import SessionLocal
+from app.store.personas import get_persona
 
 
 def main(job_id: str) -> None:
@@ -40,6 +41,10 @@ def main(job_id: str) -> None:
         if prep is None:
             skipped += 1
         else:
+            # empty engagers would zero real engagement counts — keep what's stored
+            existing = get_persona(s, uid)
+            if existing is not None and existing.seed_engagement is not None:
+                prep.seed_engagement = existing.seed_engagement
             preps.append(prep)
     print(f"{len(preps)} to enrich, {skipped} already tier-2, {failed} failed")
 

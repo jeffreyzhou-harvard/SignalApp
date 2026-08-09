@@ -24,6 +24,9 @@ class Tier2Prep:
 
 def enrich_tier1(session, raw_user: dict, seed_id: str,
                  relationship: str = "follower") -> PersonaDocument:
+    existing = personas.get_persona(session, str(raw_user["id"]))
+    if existing is not None and existing.enrichment_tier == 2:
+        return existing  # never demote an enriched persona (double-worker lesson)
     ident = clean.build_identity(raw_user, seed_id, tier=1, now_iso=_now_iso())
     ident["relationship"] = relationship
     doc = PersonaDocument(**ident)

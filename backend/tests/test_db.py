@@ -42,10 +42,32 @@ def test_claim_next_is_atomic_and_queued_only():
     second = jobs_store.claim_next(s2)
     assert first is not None and first.job_id == jid
     assert second is None or second.job_id != jid  # never double-claimed
-    for status in ("running", "done", "failed", "claimed"):
+    # claim keeps doc.status in sync with the column (API view consistency)
+    doc_status = s.execute(text("SELECT doc->>'status' FROM jobs WHERE job_id=:j"),
+                           {"j": jid}).scalar()
+    assert doc_status == "claimed"
+
+    # terminal states are never reclaimed
+    for status in ("done", "failed"):
         s.execute(text("UPDATE jobs SET status=:st WHERE job_id=:j"), {"st": status, "j": jid})
         s.commit()
         again = jobs_store.claim_next(s)
         assert again is None or again.job_id != jid
+
+    # FRESH claimed/running jobs are not stolen from a live worker...
+    from datetime import datetime, timezone
+    fresh = datetime.now(timezone.utc).isoformat()
+    s.execute(text("UPDATE jobs SET status='running',"
+                   " doc = jsonb_set(doc, '{updated_at}', to_jsonb(CAST(:ts AS text)))"),
+              {"ts": fresh}); s.commit()
+    again = jobs_store.claim_next(s)
+    assert again is None or again.job_id != jid
+    # ...but STALE ones are requeued and resumed (crash recovery)
+    s.execute(text("UPDATE jobs SET status='running',"
+                   " doc = jsonb_set(doc, '{updated_at}', '\"2026-08-08T00:00:00+00:00\"')"
+                   " WHERE job_id=:j"), {"j": jid}); s.commit()
+    recovered = jobs_store.claim_next(s)
+    assert recovered is not None and recovered.job_id == jid
+
     s.execute(text("DELETE FROM jobs WHERE job_id=:j"), {"j": jid}); s.commit()
     s.close(); s2.close()

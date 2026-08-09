@@ -39,16 +39,35 @@ def find_done(session, seed_account_id: str, relationship: str) -> IngestJob | N
     return None
 
 
+STALE_CLAIM_MINUTES = 20  # a claimed/running job silent this long is presumed dead
+
+
 def claim_next(session) -> IngestJob | None:
-    """Atomically claim the oldest QUEUED job. The row flips to 'claimed' in the
-    same statement (skipping rows other workers have locked), so two workers —
-    including two developers' laptops sharing Neon — can never run the same job.
-    Jobs stuck in 'running'/'claimed' are NOT re-claimed automatically; requeue
-    deliberately by setting status='queued'."""
+    """Atomically claim the oldest QUEUED job. The row flips to 'claimed' (both
+    the column AND doc.status, keeping the API's view consistent) in the same
+    statement, skipping rows other workers have locked — two workers, including
+    two developers' laptops sharing Neon, can never run the same job.
+
+    Crash recovery: jobs stuck in 'claimed'/'running' whose doc.updated_at is
+    older than STALE_CLAIM_MINUTES are requeued first — a crashed worker's job
+    resumes on the next healthy worker instead of hanging forever. (ISO-8601
+    UTC strings compare correctly lexicographically.)"""
+    from datetime import datetime, timedelta, timezone
+
     from sqlalchemy import text as _text
 
+    cutoff = (datetime.now(timezone.utc)
+              - timedelta(minutes=STALE_CLAIM_MINUTES)).isoformat()
+    session.execute(_text(
+        "UPDATE jobs SET status='queued',"
+        " doc = jsonb_set(doc, '{status}', '\"queued\"')"
+        " WHERE status IN ('claimed','running')"
+        " AND COALESCE(doc->>'updated_at', '') < :cutoff"
+    ), {"cutoff": cutoff})
     row = session.execute(_text(
-        "UPDATE jobs SET status='claimed' WHERE job_id = ("
+        "UPDATE jobs SET status='claimed',"
+        " doc = jsonb_set(doc, '{status}', '\"claimed\"')"
+        " WHERE job_id = ("
         "  SELECT job_id FROM jobs WHERE status='queued'"
         "  ORDER BY created_at LIMIT 1 FOR UPDATE SKIP LOCKED"
         ") RETURNING doc"

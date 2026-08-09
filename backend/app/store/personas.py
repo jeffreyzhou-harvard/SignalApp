@@ -30,14 +30,28 @@ def cache_tweets(session, author_id: str, tweets: list[dict]) -> None:
 
 
 def upsert_persona(session, doc: PersonaDocument) -> None:
-    session.merge(db.PersonaRow(
-        user_id=doc.user_id,
-        seed_account_id=doc.seed_account_id,
-        relationship=doc.relationship,
-        enrichment_tier=doc.enrichment_tier,
-        doc=doc.model_dump(),
-        vector=None,
-    ))
+    """Write the persona document WITHOUT clobbering ml-owned fields: the
+    pgvector embedding column and doc.embedding provenance are written only by
+    the ml layer (write_vectors) and must survive re-ingest/re-enrichment."""
+    existing = session.get(db.PersonaRow, doc.user_id)
+    payload = doc.model_dump()
+    if existing is not None:
+        if payload.get("embedding") is None and (existing.doc or {}).get("embedding"):
+            payload["embedding"] = existing.doc["embedding"]
+        existing.seed_account_id = doc.seed_account_id
+        existing.relationship = doc.relationship
+        existing.enrichment_tier = doc.enrichment_tier
+        existing.doc = payload
+        # existing.vector untouched — ml-owned
+    else:
+        session.add(db.PersonaRow(
+            user_id=doc.user_id,
+            seed_account_id=doc.seed_account_id,
+            relationship=doc.relationship,
+            enrichment_tier=doc.enrichment_tier,
+            doc=payload,
+            vector=None,
+        ))
 
 
 def get_persona(session, user_id: str) -> PersonaDocument | None:

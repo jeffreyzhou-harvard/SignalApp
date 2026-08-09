@@ -40,6 +40,8 @@ class XClient:
         Engager user objects are cached so engager-seeded ingest re-reads free."""
         likes, reposts, last = {}, {}, {}
         for pid in post_ids:
+            # ~100 likers + ~100 retweeters possible per post — enforce the cap
+            budget.guard(session, resource="engager", count=200, soft_limit=self.soft_limit)
             for u in self.api.get_liking_users(pid) or []:
                 uid = str(u["id"])
                 likes[uid] = likes.get(uid, 0) + 1

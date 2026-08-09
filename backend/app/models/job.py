@@ -5,6 +5,7 @@ from .persona import Relationship
 
 class JobStatus(str, Enum):
     queued = "queued"
+    claimed = "claimed"
     running = "running"
     done = "done"
     failed = "failed"

@@ -33,28 +33,30 @@ def main() -> None:
                    choices=["kmeans", "umap_hdbscan", "agglomerative"])
     p.add_argument("--k", type=int, default=8, help="n_clusters for kmeans/agglo")
     p.add_argument("--labeler", default="grok", choices=["heuristic", "grok"])
-    p.add_argument("--min-export", type=int, default=12)
+    p.add_argument("--min-export", type=int, default=None,
+                   help="min exportable cluster size (default: 10 synthetic, 12 real)")
     p.add_argument("--run-id", default=None)
     p.add_argument("--tags-file", default=None, help="reuse prior tags.json (arm T)")
     p.add_argument("--role-weight", type=float, default=0.5)
     p.add_argument("--strip-pc1", action="store_true")
     p.add_argument("--tax-dense-arm", default="A", choices=["A", "C", "F"])
+    p.add_argument("--tax-weights", default=None, help="taxonomy,bio,sparse e.g. 0.6,0.25,0.15")
     p.add_argument("--hierarchical", action="store_true", help="subdomain pass on dominant tags")
     args = p.parse_args()
 
     if args.synthetic:
         docs = make_fixtures(args.n)
-        min_export = args.min_export or 10
+        min_export = args.min_export if args.min_export is not None else 10
     elif args.data:
         raw = json.loads(args.data.read_text())
         docs = [PersonaDocument.from_ingest(r) for r in raw]
-        min_export = args.min_export or 25
+        min_export = args.min_export if args.min_export is not None else 12
     elif args.from_db:
         from .db import fetch_personas, get_engine
 
         raw = fetch_personas(get_engine(args.env), args.from_db)
         docs = [PersonaDocument.from_ingest(r) for r in raw]
-        min_export = args.min_export or 25
+        min_export = args.min_export if args.min_export is not None else 12
     else:
         p.error("need --synthetic, --data, or --from-db")
 
@@ -65,6 +67,7 @@ def main() -> None:
         n_clusters=args.k, labeler=args.labeler, min_export_size=min_export,
         tags_file=args.tags_file, role_weight=args.role_weight,
         tax_dense_arm=args.tax_dense_arm, hierarchical=args.hierarchical,
+        **({"tax_weights": tuple(float(x) for x in args.tax_weights.split(","))} if args.tax_weights else {}),
         strip_common_component=args.strip_pc1,
     )
     res = run(cfg, docs)
