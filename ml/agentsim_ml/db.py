@@ -50,7 +50,8 @@ def write_run(engine, cfg, aggregates, members, scores,
                 " share_of_audience, engagement_index, centroid)"
                 " VALUES (:r, :c, :l, :d, :n, :sh, :e, :cen)"
             ), {"r": cfg.run_id, "c": a.cluster_id, "l": a.label,
-                "d": json.dumps({"one_liner": a.one_liner, "keywords": a.keywords}),
+                "d": json.dumps({"one_liner": a.one_liner, "keywords": a.keywords,
+                                 "summary": a.summary}),
                 "n": a.size, "sh": a.share_of_audience, "e": a.engagement_index,
                 "cen": json.dumps(a.centroid)})
 

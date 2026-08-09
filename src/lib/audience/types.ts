@@ -12,6 +12,9 @@ export interface AudienceCluster {
   /** Categorical data color for nodes/edges/labels. */
   color: string;
   blurb: string;
+  /** Grok-written creative brief — richer than the blurb; steers Imagine
+   * toward cluster-distinct marketing material. */
+  summary?: string;
   /** Hand-tuned (or layout-computed) 3D centroid. */
   center: [number, number, number];
 }

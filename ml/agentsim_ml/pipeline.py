@@ -60,6 +60,7 @@ def _write_clusters_json(path: Path, deep_docs, aggregates: list[ClusterAggregat
         "seed_account_id": seed,
         "cluster_id": a.cluster_id,
         "label": a.label,
+        "summary": a.summary,
         "persona_card": None,  # C's contrastive card pass fills this
         "size": a.size,
         "share_of_audience": a.share_of_audience,

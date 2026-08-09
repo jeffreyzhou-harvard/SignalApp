@@ -23,6 +23,9 @@ class ClusterLabel:
     name: str
     one_liner: str
     keywords: list[str]
+    # Creative brief: what the cluster is about beyond the label — guides
+    # Grok Imagine toward cluster-distinct marketing material.
+    summary: str = ""
 
 
 def pick_exemplars(
@@ -97,7 +100,8 @@ class HeuristicLabeler:
         return [
             ClusterLabel(cid, name=" / ".join(words[:3]),
                          one_liner=f"Users talking about {', '.join(words)}",
-                         keywords=words)
+                         keywords=words,
+                         summary=f"Users talking about {', '.join(words)}")
             for cid, words in kw.items()
         ]
 
@@ -140,7 +144,11 @@ class GrokLabeler:
             "prefer role + interest-domain phrasing (e.g. 'Generative AI Creators', "
             "'Enterprise ML Engineers'), never 'tech enthusiasts'. "
             "Return JSON: [{\"cluster_id\": int, \"name\": str (<=4 words), "
-            "\"one_liner\": str}]\n\n" + "\n\n".join(sections)
+            '"one_liner": str, "summary": str (3-4 sentences briefing a creative '
+            "team: who this segment is, what they care about and talk about, and "
+            "what tone, aesthetics, and hooks resonate with them — concrete enough "
+            "to art-direct marketing imagery for THIS segment vs the others, while "
+            "staying durable months from now)}]\n\n" + "\n\n".join(sections)
         )
         try:
             resp = requests.post(
@@ -162,7 +170,8 @@ class GrokLabeler:
                     continue
                 out[cid] = ClusterLabel(cid, str(it.get("name") or ""),
                                         str(it.get("one_liner") or ""),
-                                        kw.get(cid, []))
+                                        kw.get(cid, []),
+                                        summary=str(it.get("summary") or ""))
             # any cluster the LLM skipped gets a heuristic label, never a bare id
             for cid in sorted(kw):
                 if cid not in out or not out[cid].name:

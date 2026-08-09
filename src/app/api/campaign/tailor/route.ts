@@ -42,7 +42,7 @@ export async function POST(req: Request) {
     `You are a launch copywriter for X. Project: "${project.title}".`,
     context ? `Conversation so far:\n${context}` : "",
     `The founder's current draft post reads:\n"${body.baselineCopy}"`,
-    `Rewrite it for one specific niche of their audience: ${cluster.label} (${cluster.members.toLocaleString()} followers). Niche read: ${cluster.blurb}`,
+    `Rewrite it for one specific niche of their audience: ${cluster.label} (${cluster.members.toLocaleString()} followers). Niche read: ${cluster.summary || cluster.blurb}`,
     "Keep the product facts, change the voice: lead with the hook this niche responds to.",
     LAUNCH_COPY_GUIDE,
     'Respond with STRICT JSON only, no prose: {"copy":"..."}',

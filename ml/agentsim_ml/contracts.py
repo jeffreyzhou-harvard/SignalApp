@@ -42,6 +42,7 @@ class ClusterAggregate:
     label: str
     one_liner: str
     keywords: list[str]
+    summary: str             # creative brief for cluster-distinct Imagine material
     size: int                # full audience: deep members + assigned tier-1
     share_of_audience: float
     engagement_index: float  # deep-sample based (tier-1 has no post signal)
@@ -117,6 +118,7 @@ def build_aggregates(deep_docs, result: ClusterResult,
             label=cl.name if cl else str(cid_i),
             one_liner=cl.one_liner if cl else "",
             keywords=cl.keywords if cl else [],
+            summary=cl.summary if cl else "",
             size=len(mem_ids),
             share_of_audience=round(len(mem_ids) / total, 4),
             engagement_index=round(cluster_engagement / pop_engagement, 3),

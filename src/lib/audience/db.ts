@@ -22,7 +22,7 @@ interface BackendCluster {
   run_id: string;
   cluster_id: string;
   label: string;
-  doc?: { one_liner?: string; keywords?: string[] } | null;
+  doc?: { one_liner?: string; keywords?: string[]; summary?: string } | null;
   size: number;
   share_of_audience?: number | null;
   engagement_index?: number | null;
@@ -221,6 +221,7 @@ function mapSnapshot(snap: BackendSnapshot): AudienceSnapshot {
       members: c.size,
       color: PALETTE[i % PALETTE.length],
       blurb: c.doc?.one_liner || (c.doc?.keywords ?? []).join(" · ") || "",
+      summary: c.doc?.summary || undefined,
       center: acc && acc.n > 0 ? [acc.x / acc.n, acc.y / acc.n, acc.z / acc.n] : [0, 0, 0],
     };
   });
