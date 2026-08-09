@@ -6,9 +6,17 @@ services:
   - type: web
     name: agentsim-mcp
     runtime: docker
-    rootDir: backend                 # scope rebuild triggers to backend/ changes
-    dockerfilePath: ./backend/Dockerfile   # docker paths are relative to REPO ROOT
-    dockerContext: ./backend
+    # Do NOT set `rootDir` here. Render resolves dockerfilePath/dockerContext
+    # *underneath* rootDir, so `rootDir: backend` + `./backend/Dockerfile` makes it
+    # look for `backend/backend/Dockerfile` — which doesn't exist, so the build
+    # exits 1 ("Exited with status 1 while building your code"). Keep the docker
+    # paths repo-root-relative (as documented) and scope rebuild triggers with
+    # `buildFilter` instead — that's rootDir's only job for a Docker service.
+    dockerfilePath: ./backend/Dockerfile   # relative to REPO ROOT
+    dockerContext: ./backend               # relative to REPO ROOT
+    buildFilter:
+      paths:
+        - backend/**                       # only rebuild when backend/ changes
     plan: free
     healthCheckPath: /health
     envVars:
