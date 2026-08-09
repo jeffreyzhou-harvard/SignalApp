@@ -3,6 +3,7 @@ import { getAudienceProvider } from "@/lib/audience/registry";
 import { getTextProvider } from "@/lib/providers/registry";
 import { getStorage } from "@/lib/storage";
 import { LAUNCH_COPY_GUIDE } from "@/lib/launch-copy";
+import { parseModelJson } from "@/lib/model-json";
 import type { CampaignVariant } from "@/lib/simulation/types";
 
 export const runtime = "nodejs";
@@ -69,10 +70,8 @@ export async function POST(req: Request) {
     for await (const delta of provider.stream({ messages: [{ role: "user", content: prompt }] })) {
       full += delta;
     }
-    const jsonMatch = full.match(/\{[\s\S]*\}/);
-    if (!jsonMatch) throw new Error("The copywriter returned no usable rewrite. Try again.");
-    const parsed = JSON.parse(jsonMatch[0]);
-    if (!parsed.copy || typeof parsed.copy !== "string") {
+    const parsed = parseModelJson<{ copy?: unknown }>(full);
+    if (!parsed || !parsed.copy || typeof parsed.copy !== "string") {
       throw new Error("The copywriter returned no usable rewrite. Try again.");
     }
 

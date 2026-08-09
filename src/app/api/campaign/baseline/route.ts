@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getStorage } from "@/lib/storage";
 import { getTextProvider } from "@/lib/providers/registry";
 import { buildLaunchPostPrompt } from "@/lib/launch-copy";
+import { parseModelJson } from "@/lib/model-json";
 import type { ProviderMessage } from "@/lib/providers/types";
 import type { CampaignVariant } from "@/lib/simulation/types";
 
@@ -74,11 +75,8 @@ export async function POST(req: Request) {
     for await (const delta of provider.stream({ messages: [message] })) {
       full += delta;
     }
-    const jsonMatch = full.match(/\{[\s\S]*\}/);
-    if (jsonMatch) {
-      const parsed = JSON.parse(jsonMatch[0]);
-      if (typeof parsed.copy === "string" && parsed.copy.trim()) copy = parsed.copy.trim();
-    }
+    const parsed = parseModelJson<{ copy?: unknown }>(full);
+    if (parsed && typeof parsed.copy === "string" && parsed.copy.trim()) copy = parsed.copy.trim();
   } catch {
     // Drafting is best-effort; the raw brief keeps the flow moving.
   }

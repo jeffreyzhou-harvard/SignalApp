@@ -3,6 +3,7 @@ import { getAudienceProvider } from "@/lib/audience/registry";
 import { getImageProvider, getTextProvider, getVideoProvider } from "@/lib/providers/registry";
 import { getStorage } from "@/lib/storage";
 import { LAUNCH_COPY_GUIDE } from "@/lib/launch-copy";
+import { parseModelJson } from "@/lib/model-json";
 import type { CampaignVariant } from "@/lib/simulation/types";
 
 export const runtime = "nodejs";
@@ -82,10 +83,8 @@ export async function POST(req: Request) {
     for await (const delta of textProvider.stream({ messages: [{ role: "user", content: prompt }] })) {
       full += delta;
     }
-    const jsonMatch = full.match(/\{[\s\S]*\}/);
-    if (!jsonMatch) throw new Error("The agent returned no usable plan. Try again.");
-    const plan = JSON.parse(jsonMatch[0]);
-    if (!plan.copy || !plan.media_prompt) throw new Error("The agent returned an incomplete plan. Try again.");
+    const plan = parseModelJson<{ copy?: string; media_prompt?: string; rationale?: unknown }>(full);
+    if (!plan?.copy || !plan.media_prompt) throw new Error("The agent returned an incomplete plan. Try again.");
 
     // Re-render the media per the agent's instruction.
     let mediaUrl: string | null = body.winner.mediaUrl;
