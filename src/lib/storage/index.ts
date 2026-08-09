@@ -1,8 +1,10 @@
 import type { StorageAdapter } from "./types";
 import { jsonFileStorage } from "./json-file";
+import { postgresStorage } from "./postgres";
 
 const adapters: Record<string, StorageAdapter> = {
   [jsonFileStorage.id]: jsonFileStorage,
+  [postgresStorage.id]: postgresStorage,
 };
 
 /** Register additional adapters (SQLite, Postgres…) here. */
