@@ -25,15 +25,15 @@ def main() -> None:
     p.add_argument("--from-db", metavar="SEED_ID", help="load personas for seed account from Neon")
     p.add_argument("--write-db", action="store_true", help="write run to Neon and activate it")
     p.add_argument("--env", default="../.env", help="path to .env with DATABASE_URL")
-    p.add_argument("--arm", default="C", choices=list("ABCDEF") + ["T"],
+    p.add_argument("--arm", default="T", choices=list("ABCDEF") + ["T"],
                    help="composition arm (F = +engaged targets, T = taxonomy backbone)")
     p.add_argument("--embedder", default="local", choices=["local", "gemini", "xai"])
     p.add_argument("--sparse", type=float, default=0.0, dest="sparse_weight")
     p.add_argument("--algo", default="kmeans",
                    choices=["kmeans", "umap_hdbscan", "agglomerative"])
     p.add_argument("--k", type=int, default=8, help="n_clusters for kmeans/agglo")
-    p.add_argument("--labeler", default="heuristic", choices=["heuristic", "grok"])
-    p.add_argument("--min-export", type=int, default=None)
+    p.add_argument("--labeler", default="grok", choices=["heuristic", "grok"])
+    p.add_argument("--min-export", type=int, default=12)
     p.add_argument("--run-id", default=None)
     p.add_argument("--tags-file", default=None, help="reuse prior tags.json (arm T)")
     p.add_argument("--role-weight", type=float, default=0.5)

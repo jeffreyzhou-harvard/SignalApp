@@ -31,9 +31,9 @@ TAXONOMY_ARM = "T"
 @dataclass
 class RunConfig:
     run_id: str
-    composition: str = "E"          # key into COMPOSITION_ARMS
+    composition: str = "T"          # frozen winner (see docs/EXPERIMENTS.md); A-F = experiment arms
     embedder: str = "local"          # "local" | "gemini" | "xai"
-    sparse_weight: float = 0.0       # 0 disables the sparse block
+    sparse_weight: float = 0.2       # used by text arms; arm T uses tax_weights
     algorithm: str = "kmeans"        # "kmeans" | "umap_hdbscan" | "agglomerative"
     n_clusters: int = 8              # kmeans / agglomerative
     hdbscan_min_cluster_frac: float = 0.035
@@ -41,7 +41,7 @@ class RunConfig:
     umap_neighbors: int = 30
     min_export_size: int = 25        # scaled-down default for ~1.5k deep samples
     n_posts_in_composition: int = 6
-    labeler: str = "heuristic"       # "heuristic" | "grok"
+    labeler: str = "grok"            # falls back to heuristic without XAI_API_KEY
     tags_file: str | None = None     # reuse a prior run's tags.json (skip Grok scoring)
     tax_weights: tuple = (0.5, 0.3, 0.2)  # taxonomy, bio-dense, sparse
     role_weight: float = 0.5         # 0 disables role one-hot in the tax block
