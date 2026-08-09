@@ -12,7 +12,15 @@ import { CampaignPanel, type PanelStage } from "./CampaignPanel";
  * (target → creative → wind tunnel → verdict). Self-contained — drop it
  * anywhere with a sized parent.
  */
-export function GalaxyView({ projectId, xHandle }: { projectId?: string; xHandle?: string | null }) {
+export function GalaxyView({
+  projectId,
+  xHandle,
+  displayName,
+}: {
+  projectId?: string;
+  xHandle?: string | null;
+  displayName?: string | null;
+}) {
   const [snapshot, setSnapshot] = useState<AudienceSnapshot | null>(null);
   const [failed, setFailed] = useState(false);
   const [selected, setSelected] = useState<string | null>(null);
@@ -97,7 +105,7 @@ export function GalaxyView({ projectId, xHandle }: { projectId?: string; xHandle
         <>
           <div
             className={`absolute left-4 top-4 flex flex-col gap-1.5 max-md:right-4 max-md:flex-row max-md:overflow-x-auto max-md:pb-1 ${
-              vizOnly ? "" : "md:max-w-[calc(100%-420px)]"
+              vizOnly ? "" : "md:max-w-[calc(100%-480px)]"
             }`}
           >
             {snapshot.clusters.map((c) => {
@@ -140,6 +148,7 @@ export function GalaxyView({ projectId, xHandle }: { projectId?: string; xHandle
               projectId={projectId}
               audience={snapshot}
               xHandle={xHandle ?? null}
+              displayName={displayName ?? null}
               selectedId={selected}
               onSelect={setSelected}
               onStageChange={setStage}

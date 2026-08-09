@@ -440,7 +440,11 @@ export function ChatRoom({ projectId }: { projectId: string }) {
 
       {view === "galaxy" ? (
         <div className="min-h-0 flex-1">
-          <GalaxyView projectId={projectId} xHandle={settings?.xAccount?.handle ?? null} />
+          <GalaxyView
+            projectId={projectId}
+            xHandle={settings?.xAccount?.handle ?? null}
+            displayName={settings?.profile.name ?? null}
+          />
         </div>
       ) : (
         <>

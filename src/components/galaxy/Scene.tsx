@@ -266,9 +266,44 @@ function CameraRig({
   galaxyRef: RefObject<THREE.Group | null>;
   shifted: boolean;
 }) {
-  const { camera } = useThree();
+  const { camera, gl } = useThree();
   const look = useRef(new THREE.Vector3(0, 0, 0));
   const tmp = useRef(new THREE.Vector3());
+  const pan = useRef({ x: 0, y: 0 });
+
+  // Drag to pan: offsets the camera and its look-target along the view plane.
+  useEffect(() => {
+    const el = gl.domElement;
+    let dragging = false;
+    let last = { x: 0, y: 0 };
+    const down = (e: PointerEvent) => {
+      if (e.button !== 0) return;
+      dragging = true;
+      last = { x: e.clientX, y: e.clientY };
+    };
+    const move = (e: PointerEvent) => {
+      if (!dragging) return;
+      pan.current.x = Math.max(-30, Math.min(30, pan.current.x - (e.clientX - last.x) * 0.035));
+      pan.current.y = Math.max(-20, Math.min(20, pan.current.y + (e.clientY - last.y) * 0.035));
+      last = { x: e.clientX, y: e.clientY };
+    };
+    const up = () => {
+      dragging = false;
+    };
+    el.addEventListener("pointerdown", down);
+    window.addEventListener("pointermove", move);
+    window.addEventListener("pointerup", up);
+    return () => {
+      el.removeEventListener("pointerdown", down);
+      window.removeEventListener("pointermove", move);
+      window.removeEventListener("pointerup", up);
+    };
+  }, [gl]);
+
+  // Re-center the pan when focus changes; the lerp makes it a glide.
+  useEffect(() => {
+    pan.current = { x: 0, y: 0 };
+  }, [selectedId]);
 
   useFrame((_, dt) => {
     const g = galaxyRef.current;
@@ -276,7 +311,7 @@ function CameraRig({
     const k = 1 - Math.exp(-2.2 * dt);
 
     // slide the field left while the campaign panel is open
-    g.position.x += ((shifted ? -8 : 0) - g.position.x) * k;
+    g.position.x += ((shifted ? -9 : 0) - g.position.x) * k;
 
     if (!selectedId) g.rotation.y += dt * 0.03;
 
@@ -293,6 +328,13 @@ function CameraRig({
       desired = new THREE.Vector3(0, 9, 44);
       target = new THREE.Vector3(0, 0, 0);
     }
+
+    // Apply the user's pan along the camera's view plane.
+    const right = new THREE.Vector3(1, 0, 0).applyQuaternion(camera.quaternion).setY(0).normalize();
+    const drift = right.multiplyScalar(pan.current.x).add(new THREE.Vector3(0, pan.current.y, 0));
+    desired.add(drift);
+    target.add(drift);
+
     camera.position.lerp(desired, k);
     look.current.lerp(target, k);
     camera.lookAt(look.current);
