@@ -711,6 +711,9 @@ export function CampaignPanel({
                     <span className="ml-auto text-xs text-faint">{c.members.toLocaleString()}</span>
                   </span>
                   {active && <span className="mt-1 block text-xs leading-4 text-muted">{c.blurb}</span>}
+                  {active && c.summary && (
+                    <span className="mt-1.5 block text-xs leading-[1.15rem] text-faint">{c.summary}</span>
+                  )}
                 </button>
               );
             })}

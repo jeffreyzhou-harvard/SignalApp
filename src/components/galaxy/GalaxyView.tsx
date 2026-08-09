@@ -199,15 +199,22 @@ export function GalaxyView({
 
           {vizOnly &&
             (selectedCluster ? (
-              <div className="absolute bottom-5 left-1/2 flex -translate-x-1/2 items-center gap-3 max-md:w-[calc(100%-2rem)]">
+              <div className="absolute bottom-5 left-1/2 flex -translate-x-1/2 items-end gap-3 max-md:w-[calc(100%-2rem)]">
                 <button
                   onClick={() => setSelected(null)}
                   className="flex shrink-0 items-center gap-1.5 rounded-full border border-line bg-surface/80 px-3.5 py-2 text-xs font-medium text-muted backdrop-blur transition-colors hover:border-line-strong hover:text-fg"
                 >
                   Overview
                 </button>
-                <div className="max-w-md rounded-full border border-line bg-surface/80 px-4 py-2 text-xs text-muted backdrop-blur max-md:truncate">
-                  <span className="font-medium text-fg">{selectedCluster.label}:</span> {selectedCluster.blurb}
+                <div className="max-w-lg rounded-2xl border border-line bg-surface/85 px-4 py-3 text-xs backdrop-blur">
+                  <p className="font-medium text-fg">
+                    {selectedCluster.label}
+                    <span className="font-normal text-faint"> · {selectedCluster.members.toLocaleString()} followers</span>
+                  </p>
+                  <p className="mt-0.5 text-muted">{selectedCluster.blurb}</p>
+                  {selectedCluster.summary && (
+                    <p className="mt-1.5 leading-[1.15rem] text-faint max-md:hidden">{selectedCluster.summary}</p>
+                  )}
                 </div>
               </div>
             ) : (
