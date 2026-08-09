@@ -25,21 +25,21 @@ export function registerVideoProvider(p: VideoProvider) {
 }
 
 export function getTextProvider(): TextProvider {
-  const id = process.env.AI_TEXT_PROVIDER ?? grokText.id;
+  const id = process.env.AI_TEXT_PROVIDER || grokText.id;
   const provider = textProviders[id];
   if (!provider) throw new Error(`Unknown text provider "${id}". Registered: ${Object.keys(textProviders).join(", ")}`);
   return provider;
 }
 
 export function getImageProvider(): ImageProvider {
-  const id = process.env.AI_IMAGE_PROVIDER ?? grokImagine.id;
+  const id = process.env.AI_IMAGE_PROVIDER || grokImagine.id;
   const provider = imageProviders[id];
   if (!provider) throw new Error(`Unknown image provider "${id}". Registered: ${Object.keys(imageProviders).join(", ")}`);
   return provider;
 }
 
 export function getVideoProvider(): VideoProvider {
-  const id = process.env.AI_VIDEO_PROVIDER ?? grokImagineVideo.id;
+  const id = process.env.AI_VIDEO_PROVIDER || grokImagineVideo.id;
   const provider = videoProviders[id];
   if (!provider) throw new Error(`Unknown video provider "${id}". Registered: ${Object.keys(videoProviders).join(", ")}`);
   return provider;

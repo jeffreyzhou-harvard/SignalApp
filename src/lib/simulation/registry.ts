@@ -13,7 +13,7 @@ export function registerSimulationProvider(p: SimulationProvider) {
 }
 
 export function getSimulationProvider(): SimulationProvider {
-  const id = process.env.SIMULATION_PROVIDER ?? mockAgentSim.id;
+  const id = process.env.SIMULATION_PROVIDER || mockAgentSim.id;
   const provider = providers[id];
   if (!provider) throw new Error(`Unknown simulation provider "${id}". Registered: ${Object.keys(providers).join(", ")}`);
   return provider;

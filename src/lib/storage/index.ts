@@ -11,7 +11,7 @@ export function registerStorageAdapter(a: StorageAdapter) {
 }
 
 export function getStorage(): StorageAdapter {
-  const id = process.env.STORAGE_ADAPTER ?? jsonFileStorage.id;
+  const id = process.env.STORAGE_ADAPTER || jsonFileStorage.id;
   const adapter = adapters[id];
   if (!adapter) throw new Error(`Unknown storage adapter "${id}". Registered: ${Object.keys(adapters).join(", ")}`);
   return adapter;
