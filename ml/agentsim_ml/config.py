@@ -47,6 +47,7 @@ class RunConfig:
     tax_weights: tuple = (0.5, 0.3, 0.2)  # taxonomy, bio-dense, sparse
     role_weight: float = 0.5         # 0 disables role one-hot in the tax block
     strip_common_component: bool = False  # remove shared 1st PC (audience-wide sameness)
+    hierarchical: bool = False       # subdomain pass on dominant tags (needs XAI key)
     stability_bootstraps: int = 5
     out_dir: Path = field(default=Path("runs"))
 

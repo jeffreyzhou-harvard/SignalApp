@@ -99,3 +99,15 @@ def test_arm_T_pipeline_runs(tmp_path):
     res = run(cfg, docs)
     assert (tmp_path / "test-armT" / "tags.json").exists()
     assert res.scores.n_clusters >= 2
+
+
+def test_dominance_detection_and_hierarchical_noop_offline():
+    from agentsim_ml.taxonomy import Taxonomy, UserTags, detect_dominant, hierarchical_expand
+
+    tax = Taxonomy(domains=["ai-ml", "gaming"])
+    tags = [UserTags(f"u{i}", {"ai-ml": 0.8} if i < 7 else {"gaming": 0.9}, "builder")
+            for i in range(10)]
+    assert detect_dominant(tags, tax) == ["ai-ml"]  # 70% > 50% coverage
+    # offline (no XAI key): must be a lossless no-op
+    tax2, tags2 = hierarchical_expand([], tax, tags)
+    assert tax2.domains == ["ai-ml", "gaming"] and len(tags2) == 10

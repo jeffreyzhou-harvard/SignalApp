@@ -145,6 +145,68 @@ def taxonomy_block(tags: list[UserTags], tax: Taxonomy,
     return m
 
 
+DOMINANCE_THRESHOLD = 0.5   # a tag held (>=0.4) by more than half the users
+SUBDOMAIN_SCORE_MIN = 0.4   # which users get rescored against subdomains
+
+
+def detect_dominant(tags: list[UserTags], tax: Taxonomy,
+                    coverage: float = DOMINANCE_THRESHOLD) -> list[str]:
+    """Tags so widespread they carry no separating information (the '@ishand:
+    everyone is ai-ml' problem). Those get a subdomain pass."""
+    n = max(1, len(tags))
+    out = []
+    for dom in tax.domains:
+        holders = sum(1 for t in tags if t.tag_scores.get(dom, 0) >= SUBDOMAIN_SCORE_MIN)
+        if holders / n > coverage:
+            out.append(dom)
+    return out
+
+
+def derive_subdomains(parent: str, docs: list[PersonaDocument],
+                      max_subs: int = 10, sample: int = 40) -> list[str]:
+    """One corpus call: subdomains of `parent` present in this audience.
+    Returned namespaced as 'parent/child' so the block stays interpretable."""
+    if not os.environ.get("XAI_API_KEY"):
+        return []
+    step = max(1, len(docs) // sample)
+    corpus = "\n---\n".join(_evidence_text(d, 3) for d in docs[::step][:sample])
+    try:
+        out = _grok(
+            f"Everyone in this audience shares the interest domain '{parent}', so it "
+            "no longer separates them. Propose up to "
+            f"{max_subs} kebab-case SUBDOMAINS of '{parent}' that are clearly present "
+            "and would split this audience into distinct marketing segments. Return "
+            'JSON: {"subdomains": ["..."]}\n\nAUDIENCE SAMPLE:\n' + corpus
+        )
+        return [f"{parent}/{s}" for s in out.get("subdomains", [])
+                if isinstance(s, str)][:max_subs]
+    except Exception:
+        return []
+
+
+def hierarchical_expand(docs: list[PersonaDocument], tax: Taxonomy,
+                        tags: list[UserTags]) -> tuple[Taxonomy, list[UserTags]]:
+    """For each dominant tag: derive subdomains, rescore its holders against
+    them, merge namespaced scores. No-op offline or when nothing dominates."""
+    dominant = detect_dominant(tags, tax)
+    if not dominant or not os.environ.get("XAI_API_KEY"):
+        return tax, tags
+    by_uid = {t.user_id: t for t in tags}
+    doc_by_uid = {d.user_id: d for d in docs}
+    for parent in dominant:
+        holders = [t for t in tags if t.tag_scores.get(parent, 0) >= SUBDOMAIN_SCORE_MIN]
+        holder_docs = [doc_by_uid[t.user_id] for t in holders if t.user_id in doc_by_uid]
+        subs = derive_subdomains(parent, holder_docs)
+        if not subs:
+            continue
+        sub_tax = Taxonomy(domains=subs)
+        sub_scores = score_users(holder_docs, sub_tax)
+        for st in sub_scores:
+            by_uid[st.user_id].tag_scores.update(st.tag_scores)
+        tax.domains.extend(subs)
+    return tax, list(by_uid.values())
+
+
 def load_tags(path) -> tuple[Taxonomy, list[UserTags]]:
     """Reuse a prior run's tags.json — geometry experiments are then Grok-free."""
     d = json.loads(open(path).read())

@@ -95,6 +95,10 @@ def _features(cfg: RunConfig, deep: list[PersonaDocument], run_dir: Path,
         else:
             tax = derive_taxonomy(deep)
             tags = score_users(deep, tax)
+            if cfg.hierarchical:
+                from .taxonomy import hierarchical_expand
+
+                tax, tags = hierarchical_expand(deep, tax, tags)
         by_uid = {t.user_id: t for t in tags}
         tags = [by_uid[d.user_id] for d in deep if d.user_id in by_uid]
         deep[:] = [d for d in deep if d.user_id in by_uid]

@@ -30,3 +30,16 @@ def test_min_n_floor_and_skips_empty_bio():
     picked = sampler.select_tier2(docs, sample_pct=0.2, min_n=100)
     assert len(picked) >= 100
     assert "empty" not in picked
+
+
+def test_random_stratum_included():
+    # 100 high-signal + 100 low-signal eligible users; target 50 →
+    # 35 ranked + 15 random. Random stratum must reach outside the top-35.
+    docs = [_doc(f"top{i}", 100000 - i, engaged=True) for i in range(100)]
+    docs += [_doc(f"tail{i}", 10) for i in range(100)]
+    picked = sampler.select_tier2(docs, sample_pct=0.25, min_n=1)
+    assert len(picked) == 50
+    tail_picked = [u for u in picked if u.startswith("tail")]
+    assert len(tail_picked) > 0, "random stratum never reached the tail"
+    # determinism: same seed, same sample
+    assert picked == sampler.select_tier2(docs, sample_pct=0.25, min_n=1)
