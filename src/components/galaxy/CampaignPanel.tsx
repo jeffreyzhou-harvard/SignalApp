@@ -1,7 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { ArrowLeft, ArrowRight, Bookmark, Bot, Check, ExternalLink, Film, Heart, Image as ImageIcon, ImagePlus, MessageCircle, Play, Repeat2, RotateCcw, Send, Sparkles, X } from "lucide-react";
+import { ArrowLeft, ArrowRight, Bookmark, Bot, Check, ExternalLink, Film, Heart, Image as ImageIcon, ImagePlus, MessageCircle, Play, Repeat2, RotateCcw, Send, SlidersHorizontal, Sparkles, X } from "lucide-react";
+import { CreativeOptionsPanel } from "../creative/CreativeOptions";
 import type { AudienceCluster, AudienceSnapshot } from "@/lib/audience/types";
 import type { CampaignVariant, SimEvent, SimResult, SimTally } from "@/lib/simulation/types";
 import { applyEvent, emptyTally, engagementRate } from "@/lib/simulation/types";
@@ -162,6 +163,10 @@ export function CampaignPanel({
   const [briefRendering, setBriefRendering] = useState(false);
   const [briefError, setBriefError] = useState<string | null>(null);
   const [briefKind, setBriefKind] = useState<"image" | "video">("image");
+  const [briefStyle, setBriefStyle] = useState("none");
+  const [briefRatio, setBriefRatio] = useState("auto");
+  const [briefRes, setBriefRes] = useState<"1k" | "2k">("1k");
+  const [briefOptsOpen, setBriefOptsOpen] = useState(false);
   const [briefDragging, setBriefDragging] = useState(false);
   const briefDragDepth = useRef(0);
   const briefFileRef = useRef<HTMLInputElement>(null);
@@ -294,9 +299,9 @@ export function CampaignPanel({
           images: briefImages.map((i) => i.url),
           mode: "imagine",
           mediaType: briefKind,
-          aspectRatio: "auto",
-          resolution: "1k",
-          style: "none",
+          aspectRatio: briefRatio,
+          resolution: briefRes,
+          style: briefStyle,
         }),
       });
       const json = await res.json();
@@ -563,8 +568,42 @@ export function CampaignPanel({
             {briefUploading ? "Uploading…" : "Add product shots, or drag them anywhere"}
           </button>
 
-          <div className="flex items-center justify-between rounded-xl border border-line bg-raised/50 px-3.5 py-2">
+          <div className="flex items-center justify-between gap-2 rounded-xl border border-line bg-raised/50 px-3.5 py-2">
             <span className="text-xs text-muted">Creative</span>
+            <div className="relative ml-auto">
+              <button
+                onClick={() => setBriefOptsOpen((v) => !v)}
+                aria-expanded={briefOptsOpen}
+                aria-label="Customize style and size"
+                className={`flex items-center gap-1.5 rounded-lg border border-line px-2 py-1 text-xs font-medium transition-colors ${
+                  briefOptsOpen || briefStyle !== "none" || briefRatio !== "auto" || briefRes !== "1k"
+                    ? "bg-raised text-fg"
+                    : "text-muted hover:border-line-strong hover:text-fg"
+                }`}
+              >
+                <SlidersHorizontal size={12} strokeWidth={2} />
+                Customize
+              </button>
+              {briefOptsOpen && (
+                <>
+                  <div className="fixed inset-0 z-10" onClick={() => setBriefOptsOpen(false)} aria-hidden="true" />
+                  <div className="absolute right-0 top-full z-20 mt-2 w-64 rounded-xl border border-line-strong bg-overlay p-1.5 shadow-[0_12px_32px_-8px_rgba(0,0,0,0.7)]">
+                    <CreativeOptionsPanel
+                      mediaKind={briefKind}
+                      style={briefStyle}
+                      onStyle={setBriefStyle}
+                      aspectRatio={briefRatio}
+                      onAspectRatio={(v) => {
+                        setBriefRatio(v);
+                        setBriefOptsOpen(false);
+                      }}
+                      resolution={briefRes}
+                      onResolution={setBriefRes}
+                    />
+                  </div>
+                </>
+              )}
+            </div>
             <div className="flex items-center rounded-lg border border-line p-0.5" role="tablist" aria-label="Creative type">
               <button
                 role="tab"

@@ -19,6 +19,7 @@ import {
   X,
 } from "lucide-react";
 import { STYLE_PRESETS } from "@/lib/styles";
+import { CreativeOptionsPanel, RATIO_OPTIONS, RatioGlyph } from "../creative/CreativeOptions";
 import type { ChatMessage, Project, PublicSettings } from "@/lib/types";
 import { XLogo } from "../XLogo";
 import { SettingsDialog } from "../SettingsDialog";
@@ -31,36 +32,6 @@ const GalaxyView = dynamic(() => import("../galaxy/GalaxyView").then((m) => m.Ga
 interface Attachment {
   url: string;
   name: string;
-}
-
-const RATIO_OPTIONS = [
-  { value: "auto", label: "Auto", hint: "Grok picks the best fit from your prompt" },
-  { value: "1:1", label: "Square", hint: "Standard post image" },
-  { value: "16:9", label: "Wide", hint: "Banner or link card" },
-  { value: "3:2", label: "Landscape", hint: "Photo-style card" },
-  { value: "2:3", label: "Poster", hint: "Portrait launch poster" },
-  { value: "9:16", label: "Tall", hint: "Full-bleed vertical" },
-];
-
-function RatioGlyph({ value, size = 15 }: { value: string; size?: number }) {
-  if (value === "auto") {
-    return (
-      <span
-        aria-hidden="true"
-        className="block shrink-0 rounded-[3px] border border-dashed border-current"
-        style={{ width: size, height: size }}
-      />
-    );
-  }
-  const [w, h] = value.split(":").map(Number);
-  const scale = size / Math.max(w, h);
-  return (
-    <span
-      aria-hidden="true"
-      className="block shrink-0 rounded-[3px] border border-current"
-      style={{ width: Math.max(6, w * scale), height: Math.max(6, h * scale) }}
-    />
-  );
 }
 
 const BRIEF_STARTERS = [
@@ -700,96 +671,18 @@ export function ChatRoom({ projectId }: { projectId: string }) {
                   <>
                     <div className="fixed inset-0 z-10" onClick={() => setRatioOpen(false)} aria-hidden="true" />
                     <div className="absolute bottom-full left-0 z-20 mb-2 w-64 rounded-xl border border-line-strong bg-overlay p-1.5 shadow-[0_12px_32px_-8px_rgba(0,0,0,0.7)]">
-                      <p className="px-2.5 pb-1 pt-1.5 text-xs uppercase tracking-wide text-faint">Style</p>
-                      <div className="flex flex-wrap gap-1 px-1.5 pb-1.5">
-                        {STYLE_PRESETS.map((s) => (
-                          <button
-                            key={s.id}
-                            onClick={() => setStyle(s.id)}
-                            aria-pressed={style === s.id}
-                            title={s.hint}
-                            className={`rounded-full border px-2.5 py-1 text-xs font-medium transition-colors ${
-                              style === s.id
-                                ? "border-line-strong bg-raised text-fg"
-                                : "border-line text-muted hover:border-line-strong hover:text-fg"
-                            }`}
-                          >
-                            {s.label}
-                          </button>
-                        ))}
-                      </div>
-                      {mediaKind === "video" && (
-                        <>
-                          <p className="border-t border-line px-2.5 pb-1 pt-2 text-xs uppercase tracking-wide text-faint">
-                            Length
-                          </p>
-                          <div className="flex items-center gap-1 px-1.5 pb-1.5">
-                            {[5, 10, 15].map((secs) => (
-                              <button
-                                key={secs}
-                                onClick={() => setVideoDuration(secs)}
-                                aria-pressed={videoDuration === secs}
-                                className={`flex-1 rounded-lg border px-2.5 py-1.5 text-xs font-medium transition-colors ${
-                                  videoDuration === secs
-                                    ? "border-line-strong bg-raised text-fg"
-                                    : "border-line text-muted hover:border-line-strong hover:text-fg"
-                                }`}
-                              >
-                                {secs}s
-                              </button>
-                            ))}
-                          </div>
-                          <p className="px-2.5 pb-1.5 text-xs text-faint">Renders at 1080p</p>
-                        </>
-                      )}
-                      {mediaKind === "image" && (
-                        <>
-                      <p className="border-t border-line px-2.5 pb-1 pt-2 text-xs uppercase tracking-wide text-faint">
-                        Size
-                      </p>
-                      {RATIO_OPTIONS.map((r) => (
-                        <button
-                          key={r.value}
-                          onClick={() => {
-                            setAspectRatio(r.value);
-                            setRatioOpen(false);
-                          }}
-                          className={`flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-left transition-colors hover:bg-raised ${
-                            aspectRatio === r.value ? "bg-raised" : ""
-                          }`}
-                        >
-                          <span className="flex w-5 justify-center text-muted">
-                            <RatioGlyph value={r.value} />
-                          </span>
-                          <span className="min-w-0 flex-1">
-                            <span className="flex items-baseline gap-1.5 text-[13px] font-medium text-fg">
-                              {r.label}
-                              {r.value !== "auto" && <span className="font-mono text-xs text-faint">{r.value}</span>}
-                            </span>
-                            <span className="block text-xs text-faint">{r.hint}</span>
-                          </span>
-                          {aspectRatio === r.value && <Check size={14} strokeWidth={2.5} className="text-accent" />}
-                        </button>
-                      ))}
-                      <div className="mt-1 flex items-center justify-between border-t border-line px-2.5 pb-1 pt-2">
-                        <span className="text-xs text-muted">Resolution</span>
-                        <div className="flex items-center rounded-lg border border-line p-0.5">
-                          {(["1k", "2k"] as const).map((res) => (
-                            <button
-                              key={res}
-                              onClick={() => setResolution(res)}
-                              aria-pressed={resolution === res}
-                              className={`rounded-md px-2 py-0.5 font-mono text-xs font-medium transition-colors ${
-                                resolution === res ? "bg-raised text-fg" : "text-muted hover:text-fg"
-                              }`}
-                            >
-                              {res}
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-                        </>
-                      )}
+                      <CreativeOptionsPanel
+                        mediaKind={mediaKind}
+                        style={style}
+                        onStyle={setStyle}
+                        aspectRatio={aspectRatio}
+                        onAspectRatio={(v) => {
+                          setAspectRatio(v);
+                          setRatioOpen(false);
+                        }}
+                        resolution={resolution}
+                        onResolution={setResolution}
+                      />
                     </div>
                   </>
                 )}
