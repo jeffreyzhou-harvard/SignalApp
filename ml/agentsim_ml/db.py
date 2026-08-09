@@ -79,3 +79,26 @@ def _activate_in_txn(c, run_id: str, seed_account_id: str) -> None:
 def activate_run(engine, run_id: str, seed_account_id: str) -> None:
     with engine.begin() as c:
         _activate_in_txn(c, run_id, seed_account_id)
+
+
+def write_vectors(engine, user_ids: list[str], vectors, model: str, dim: int,
+                  embedding_version: str) -> int:
+    """Backfill personas.vector so MCP/pgvector search works. Only call with
+    vectors from the SAME space the backend embeds queries in (gemini-embedding-001,
+    dim 1536, task CLUSTERING) — mixed spaces make search silently wrong.
+
+    Also stamps doc.embedding metadata (model/dim/version, no vector copy) so
+    provenance is inspectable from the persona document itself."""
+    meta = json.dumps({"model": model, "dim": dim,
+                       "embedding_version": embedding_version})
+    rows = [
+        {"u": uid, "v": "[" + ",".join(f"{float(x):.6f}" for x in vec) + "]",
+         "meta": meta}
+        for uid, vec in zip(user_ids, vectors)
+    ]
+    with engine.begin() as c:
+        c.execute(text(
+            "UPDATE personas SET vector = CAST(:v AS vector),"
+            " doc = jsonb_set(doc, '{embedding}', CAST(:meta AS jsonb))"
+            " WHERE user_id = :u"), rows)
+    return len(rows)

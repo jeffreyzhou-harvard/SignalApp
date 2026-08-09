@@ -73,9 +73,23 @@ def main() -> None:
         from .db import get_engine, write_run
 
         seed = res.deep_docs[0].seed_account_id if res.deep_docs else (args.from_db or "")
-        write_run(get_engine(args.env), cfg, res.aggregates, res.members, res.scores,
+        engine = get_engine(args.env)
+        write_run(engine, cfg, res.aggregates, res.members, res.scores,
                   seed_account_id=seed, activate=True)
         print(f"wrote + activated run {cfg.run_id} in DB (seed {seed})")
+
+        # Backfill personas.vector — only from the space the backend queries in
+        # (gemini-embedding-001 / 1536 / CLUSTERING); local TF-IDF vectors would
+        # silently poison pgvector search.
+        if cfg.embedder == "gemini" and res.dense is not None:
+            from .db import write_vectors
+
+            n = write_vectors(engine, [d.user_id for d in res.deep_docs],
+                              res.dense, model="gemini-embedding-001",
+                              dim=res.dense.shape[1], embedding_version=cfg.run_id)
+            print(f"backfilled {n} persona vectors")
+        elif args.write_db and cfg.embedder != "gemini":
+            print("skipped vector backfill (embedder is not gemini — space mismatch)")
 
 
 if __name__ == "__main__":

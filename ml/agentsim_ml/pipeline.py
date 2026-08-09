@@ -36,6 +36,7 @@ class RunResult:
     deep_docs: list[PersonaDocument]
     members: list[MemberRecord]
     aggregates: list[ClusterAggregate]
+    dense: np.ndarray | None = None  # the dense embedding block (for personas.vector backfill)
 
 
 def _profile_card(d) -> dict:
@@ -81,7 +82,9 @@ def _norm(m: np.ndarray) -> np.ndarray:
 
 
 def _features(cfg: RunConfig, deep: list[PersonaDocument], run_dir: Path,
-              embedder) -> np.ndarray:
+              embedder) -> tuple[np.ndarray, np.ndarray]:
+    """Returns (fused feature matrix, dense embedding block). The dense block is
+    what gets backfilled into personas.vector for pgvector search."""
     if cfg.composition == "T":
         # Arm T: taxonomy backbone ⊕ dense bio ⊕ sparse annotations/mentions.
         from .taxonomy import (derive_taxonomy, load_tags, score_users,
@@ -108,18 +111,19 @@ def _features(cfg: RunConfig, deep: list[PersonaDocument], run_dir: Path,
         w_tax, w_bio, w_sparse = cfg.tax_weights
         blocks = [(tax_m, w_tax), (bio_dense, w_bio),
                   (sparse_features(deep), w_sparse)]
-        return np.hstack([w * _norm(b) for b, w in blocks if w > 0]).astype(np.float32)
+        fused = np.hstack([w * _norm(b) for b, w in blocks if w > 0]).astype(np.float32)
+        return fused, bio_dense
 
     texts = [compose(d, cfg.composition, cfg.n_posts_in_composition) for d in deep]
     dense = embedder.embed(texts)
-    return fuse(dense, sparse_features(deep), cfg.sparse_weight)
+    return fuse(dense, sparse_features(deep), cfg.sparse_weight), dense
 
 
 def run(cfg: RunConfig, docs: list[PersonaDocument]) -> RunResult:
     deep = [d for d in docs if d.is_deep]
     shallow = [d for d in docs if not d.is_deep]
     embedder = get_embedder(cfg.embedder)
-    x = _features(cfg, deep, cfg.out_dir / cfg.run_id, embedder)
+    x, dense = _features(cfg, deep, cfg.out_dir / cfg.run_id, embedder)
 
     result = run_clustering(x, cfg)
     cluster_labels = get_labeler(cfg.labeler).label(deep, x, result.labels, result.centroids)
@@ -142,4 +146,4 @@ def run(cfg: RunConfig, docs: list[PersonaDocument]) -> RunResult:
     log_run(cfg.out_dir, {**cfg.to_row(), **scores.to_row(), "report": str(report)})
     return RunResult(cfg, scores, result.labels, cluster_labels, report,
                      cluster_result=result, coords=coords, deep_docs=deep,
-                     members=members, aggregates=aggregates)
+                     members=members, aggregates=aggregates, dense=dense)
