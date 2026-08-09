@@ -1,7 +1,11 @@
 import { NextResponse } from "next/server";
+import { streamText, stepCountIs } from "ai";
+import { xai } from "@ai-sdk/xai";
 import { getStorage } from "@/lib/storage";
-import { getImageProvider, getTextProvider, getVideoProvider } from "@/lib/providers/registry";
-import { buildCopilotMessages } from "@/lib/copilot";
+import { getImageProvider, getVideoProvider } from "@/lib/providers/registry";
+import { getAudienceProvider } from "@/lib/audience/registry";
+import { connectAudienceMcp } from "@/lib/mcp/audience-mcp";
+import { buildLaunchSystemPrompt, toModelMessages } from "@/lib/agents/launch-copilot";
 import { applyStyle } from "@/lib/styles";
 import type { ChatMessage } from "@/lib/types";
 
@@ -123,7 +127,18 @@ export async function POST(req: Request) {
 
   const settings = await storage.getSettings();
   const history = await storage.listMessages(project.id);
-  const providerMessages = await buildCopilotMessages(project, settings, history, async (url) => {
+
+  // Ground the copilot in the founder's real audience (same snapshot the galaxy
+  // renders) and connect the audience MCP so it can pull niche/member/interest
+  // data live while it drafts the launch.
+  const snapshot = await getAudienceProvider().getAudience({
+    handle: settings.xAccount?.handle,
+    projectId: project.id,
+  });
+  const mcp = await connectAudienceMcp();
+
+  const system = buildLaunchSystemPrompt({ project, settings, snapshot, hasMcp: !!mcp });
+  const modelMessages = await toModelMessages(history, async (url) => {
     const name = url.split("/").pop();
     if (!name) return null;
     const file = await storage.readFile(name);
@@ -131,53 +146,42 @@ export async function POST(req: Request) {
     return `data:${file.mime};base64,${file.bytes.toString("base64")}`;
   });
 
-  const provider = getTextProvider();
-  const encoder = new TextEncoder();
-  let full = "";
+  const model = process.env.XAI_TEXT_MODEL ?? "grok-4.5";
 
   try {
-    const iterator = provider.stream({ messages: providerMessages, signal: req.signal })[Symbol.asyncIterator]();
-    const first = await iterator.next();
-
-    const stream = new ReadableStream<Uint8Array>({
-      async start(controller) {
-        try {
-          if (!first.done && first.value) {
-            full += first.value;
-            controller.enqueue(encoder.encode(first.value));
-          }
-          while (true) {
-            const { done, value } = await iterator.next();
-            if (done) break;
-            full += value;
-            controller.enqueue(encoder.encode(value));
-          }
-        } catch (err) {
-          const note = `\n\n[Grok stream interrupted: ${err instanceof Error ? err.message : "unknown error"}]`;
-          full += note;
-          controller.enqueue(encoder.encode(note));
-        } finally {
-          if (full.trim()) {
-            await storage.appendMessage({
-              id: crypto.randomUUID(),
-              projectId: project.id,
-              role: "assistant",
-              kind: "text",
-              content: full,
-              images: [],
-              model: provider.defaultModel,
-              createdAt: new Date().toISOString(),
-            });
-          }
-          controller.close();
+    const result = streamText({
+      model: xai(model),
+      system,
+      messages: modelMessages,
+      // Audience MCP tools (undefined if the MCP was unreachable → plain chat).
+      tools: mcp?.tools,
+      // The Vercel AI SDK tool loop: let Grok call audience tools, then answer.
+      stopWhen: stepCountIs(8),
+      abortSignal: req.signal,
+      onFinish: async ({ text }) => {
+        await mcp?.close();
+        if (text.trim()) {
+          await storage.appendMessage({
+            id: crypto.randomUUID(),
+            projectId: project.id,
+            role: "assistant",
+            kind: "text",
+            content: text,
+            images: [],
+            model,
+            createdAt: new Date().toISOString(),
+          });
         }
+      },
+      onError: async () => {
+        await mcp?.close();
       },
     });
 
-    return new Response(stream, {
-      headers: { "Content-Type": "text/plain; charset=utf-8", "Cache-Control": "no-store" },
-    });
+    // Plain text stream keeps the existing ChatRoom reader contract unchanged.
+    return result.toTextStreamResponse();
   } catch (err) {
+    await mcp?.close();
     return NextResponse.json(
       { error: err instanceof Error ? err.message : "Chat request failed." },
       { status: 502 }

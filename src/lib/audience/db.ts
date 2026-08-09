@@ -231,6 +231,7 @@ function mapSnapshot(snap: BackendSnapshot): AudienceSnapshot {
     members,
     source: `db:${snap.run_id}`,
     synthetic: false,
+    seedAccountId: snap.seed_account_id ?? undefined,
   };
 }
 

@@ -73,6 +73,12 @@ export interface AudienceSnapshot {
   /** Which provider produced this — the UI labels mock data as a sample. */
   source: string;
   synthetic: boolean;
+  /**
+   * The ingested seed account this audience belongs to (backend `seed_account_id`).
+   * Copilots pass it to the audience MCP tools so they query the right audience.
+   * Undefined for the seeded mock (no real ingested account).
+   */
+  seedAccountId?: string;
 }
 
 export interface AudienceProvider {
