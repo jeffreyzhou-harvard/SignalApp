@@ -193,7 +193,20 @@ export function CampaignPanel({
   const [progress, setProgress] = useState(0);
   const playback = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  const cluster: AudienceCluster | null = audience.clusters.find((c) => c.id === selectedId) ?? null;
+  // Multi-target: the niches the creative is tailored to. The map focus
+  // (selectedId) stays single — focusing a niche adds it to the targets.
+  const [targetIds, setTargetIds] = useState<string[]>([]);
+  useEffect(() => {
+    if (selectedId) setTargetIds((prev) => (prev.includes(selectedId) ? prev : [...prev, selectedId]));
+  }, [selectedId]);
+  const targets = audience.clusters.filter((c) => targetIds.includes(c.id));
+  const allTargeted = targets.length === audience.clusters.length && targets.length > 0;
+  const cluster: AudienceCluster | null = targets[0] ?? null;
+  const targetLabel = allTargeted
+    ? "all niches"
+    : targets.length > 1
+      ? `${targets.length} niches`
+      : (cluster?.label ?? "this niche");
   const memberById = useCallback(
     (id: number) => audience.members.find((m) => m.id === id),
     [audience.members]
@@ -346,8 +359,8 @@ export function CampaignPanel({
     }
   }
 
-  async function tailor(clusterId: string) {
-    if (!baseline) return;
+  async function tailor() {
+    if (!baseline || targets.length === 0) return;
     setTailoring(true);
     setError(null);
     try {
@@ -356,7 +369,8 @@ export function CampaignPanel({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           projectId,
-          clusterId,
+          clusterId: targets[0].id,
+          clusterIds: targets.map((c) => c.id),
           baselineCopy: baseline.copy,
           mediaUrl: baseline.mediaUrl,
           mediaKind: baseline.mediaKind,
@@ -474,6 +488,7 @@ export function CampaignPanel({
         body: JSON.stringify({
           projectId,
           clusterId: cluster.id,
+          clusterIds: targets.map((c) => c.id),
           winner,
           loser,
           verdict: result.verdict,
@@ -690,16 +705,35 @@ export function CampaignPanel({
           <div>
             <h2 className="text-sm font-semibold">Who are we targeting?</h2>
             <p className="mt-1 text-[13px] leading-5 text-muted">
-              Pick the niche this campaign is for. The creative gets tailored to how they read.
+              Pick one or more niches. Every selected niche&apos;s creative brief goes into the Grok prompt.
             </p>
           </div>
           <div className="flex flex-col gap-1.5">
+            <button
+              onClick={() => {
+                setTargetIds(allTargeted ? [] : audience.clusters.map((c) => c.id));
+                if (allTargeted) onSelect(null);
+              }}
+              aria-pressed={allTargeted}
+              className={`rounded-xl border px-3.5 py-2.5 text-left transition-colors ${
+                allTargeted ? "border-line-strong bg-raised" : "border-line hover:border-line-strong hover:bg-raised/50"
+              }`}
+            >
+              <span className="flex items-center gap-2 text-[13px] font-medium">
+                <Sparkles size={13} strokeWidth={2} className="text-muted" />
+                All niches
+                <span className="ml-auto text-xs text-faint">{audience.totalFollowers.toLocaleString()}</span>
+              </span>
+            </button>
             {audience.clusters.map((c) => {
-              const active = selectedId === c.id;
+              const active = targetIds.includes(c.id);
               return (
                 <button
                   key={c.id}
-                  onClick={() => onSelect(active ? null : c.id)}
+                  onClick={() => {
+                    setTargetIds((prev) => (active ? prev.filter((x) => x !== c.id) : [...prev, c.id]));
+                    onSelect(active ? null : c.id);
+                  }}
                   aria-pressed={active}
                   className={`rounded-xl border px-3.5 py-2.5 text-left transition-colors ${
                     active ? "border-line-strong bg-raised" : "border-line hover:border-line-strong hover:bg-raised/50"
@@ -723,7 +757,7 @@ export function CampaignPanel({
             onClick={() => cluster && openPost()}
             className="mt-1 flex items-center justify-center gap-1.5 rounded-full bg-fg px-4 py-2.5 text-sm font-semibold text-ground transition-opacity disabled:opacity-40"
           >
-            Target this niche
+            {allTargeted ? "Target all niches" : targets.length > 1 ? `Target ${targets.length} niches` : "Target this niche"}
             <ArrowRight size={15} strokeWidth={2.5} />
           </button>
         </div>
@@ -744,7 +778,7 @@ export function CampaignPanel({
               <ArrowLeft size={15} strokeWidth={2} />
             </button>
             <div>
-              <h2 className="text-sm font-semibold">Post for {cluster?.label ?? "this niche"}</h2>
+              <h2 className="text-sm font-semibold">Post for {targetLabel}</h2>
               <p className="text-xs text-faint">
                 {tailored ? "Two versions. The wind tunnel decides." : "Your draft as it stands today."}
               </p>
@@ -772,7 +806,7 @@ export function CampaignPanel({
 
               {tailoring ? (
                 <div className="flex h-24 items-center justify-center">
-                  <Dots label={`Grok is tailoring for ${cluster?.label ?? "this niche"}`} />
+                  <Dots label={`Grok is tailoring for ${targetLabel}`} />
                 </div>
               ) : tailored ? (
                 <>
@@ -781,7 +815,7 @@ export function CampaignPanel({
                     handle={xHandle}
                     name={displayName}
                     label={
-                      round > 1 ? "Agent-improved challenger" : `Tailored for ${cluster?.label ?? "this niche"}`
+                      round > 1 ? "Agent-improved challenger" : `Tailored for ${targetLabel}`
                     }
                   />
                   <div className="flex items-center justify-between rounded-xl border border-line bg-raised/50 px-3.5 py-2">
@@ -811,7 +845,7 @@ export function CampaignPanel({
                   </div>
                   <div className="mt-1 flex gap-2">
                     <button
-                      onClick={() => cluster && tailor(cluster.id)}
+                      onClick={() => cluster && tailor()}
                       className="flex items-center gap-1.5 rounded-full border border-line px-3.5 py-2 text-[13px] font-medium text-muted transition-colors hover:border-line-strong hover:text-fg"
                     >
                       <RotateCcw size={13} strokeWidth={2} />
@@ -829,10 +863,10 @@ export function CampaignPanel({
               ) : (
                 <>
                   <button
-                    onClick={() => cluster && tailor(cluster.id)}
+                    onClick={() => cluster && tailor()}
                     className="flex items-center justify-center gap-1.5 rounded-full bg-fg px-4 py-2.5 text-sm font-semibold text-ground transition-transform hover:scale-[1.02] active:scale-[0.98]"
                   >
-                    Tailor for {cluster?.label ?? "this niche"}
+                    Tailor for {targetLabel}
                     <ArrowRight size={15} strokeWidth={2.5} />
                   </button>
                   <p className="text-center text-xs leading-5 text-faint">
@@ -847,7 +881,7 @@ export function CampaignPanel({
             <div className="rounded-lg border border-danger/40 bg-danger/10 px-3 py-2.5 text-[13px] leading-5 text-danger">
               {error}
               <button
-                onClick={() => (baseline ? cluster && tailor(cluster.id) : openPost())}
+                onClick={() => (baseline ? cluster && tailor() : openPost())}
                 className="ml-2 font-semibold underline underline-offset-2"
               >
                 Try again

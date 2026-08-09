@@ -11,6 +11,7 @@ export const maxDuration = 300;
 interface ImproveRequest {
   projectId: string;
   clusterId: string;
+  clusterIds?: string[];
   winner: CampaignVariant;
   loser: CampaignVariant;
   verdict: { winner: "A" | "B"; liftPct: number; confidencePct: number; driver: string };
@@ -40,8 +41,17 @@ export async function POST(req: Request) {
     handle: settings.xAccount?.handle,
     projectId: project.id,
   });
-  const cluster = audience.clusters.find((c) => c.id === body.clusterId);
-  if (!cluster) return NextResponse.json({ error: "Unknown audience niche." }, { status: 400 });
+  const ids = body.clusterIds?.length ? body.clusterIds : [body.clusterId];
+  const targets = audience.clusters.filter((c) => ids.includes(c.id));
+  if (targets.length === 0) return NextResponse.json({ error: "Unknown audience niche." }, { status: 400 });
+  const cluster = targets[0];
+  const nicheRead =
+    targets.length === 1
+      ? `Target niche: ${cluster.label} (${cluster.members.toLocaleString()} followers). Niche read: ${cluster.summary || cluster.blurb}`
+      : `Target niches (the copy must land with all of them):\n` +
+        targets
+          .map((c) => `- ${c.label} (${c.members.toLocaleString()} followers): ${c.summary || c.blurb}`)
+          .join("\n");
 
   const replyLines = (body.replies ?? [])
     .slice(0, 8)
@@ -50,7 +60,7 @@ export async function POST(req: Request) {
 
   const prompt = [
     `You are the Signal optimization agent for the project "${project.title}".`,
-    `Target niche: ${cluster.label} (${cluster.members.toLocaleString()} followers). Niche read: ${cluster.summary || cluster.blurb}`,
+    nicheRead,
     `A simulated A/B test just finished. Winner: variant ${body.verdict.winner} with ${body.engagement[body.verdict.winner]}% engagement (loser: ${body.engagement[body.verdict.winner === "A" ? "B" : "A"]}%). Lift: +${body.verdict.liftPct}%, confidence ${body.verdict.confidencePct}%, driven by ${body.verdict.driver}.`,
     `Winning copy:\n"${body.winner.copy}"`,
     `Losing copy:\n"${body.loser?.copy ?? "(none)"}"`,

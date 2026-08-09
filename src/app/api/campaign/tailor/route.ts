@@ -15,8 +15,10 @@ export const maxDuration = 300;
  */
 export async function POST(req: Request) {
   const body = await req.json().catch(() => null);
-  if (!body?.projectId || !body?.clusterId || typeof body.baselineCopy !== "string") {
-    return NextResponse.json({ error: "projectId, clusterId, and baselineCopy are required." }, { status: 400 });
+  const ids: string[] =
+    Array.isArray(body?.clusterIds) && body.clusterIds.length ? body.clusterIds : body?.clusterId ? [body.clusterId] : [];
+  if (!body?.projectId || ids.length === 0 || typeof body.baselineCopy !== "string") {
+    return NextResponse.json({ error: "projectId, clusterId(s), and baselineCopy are required." }, { status: 400 });
   }
 
   const storage = getStorage();
@@ -28,8 +30,19 @@ export async function POST(req: Request) {
     handle: settings.xAccount?.handle,
     projectId: project.id,
   });
-  const cluster = audience.clusters.find((c) => c.id === body.clusterId);
-  if (!cluster) return NextResponse.json({ error: "Unknown audience niche." }, { status: 400 });
+  const targets = audience.clusters.filter((c) => ids.includes(c.id));
+  if (targets.length === 0) return NextResponse.json({ error: "Unknown audience niche." }, { status: 400 });
+  const cluster = targets[0];
+
+  // One niche keeps the sharp single-audience rewrite; several niches hand
+  // Grok every cluster's creative brief and ask for the shared hook.
+  const nicheDirective =
+    targets.length === 1
+      ? `Rewrite it for one specific niche of their audience: ${cluster.label} (${cluster.members.toLocaleString()} followers). Niche read: ${cluster.summary || cluster.blurb}`
+      : `Rewrite it to land with ALL of these niches of their audience at once — find the hook they share without flattening into generic copy:\n` +
+        targets
+          .map((c) => `- ${c.label} (${c.members.toLocaleString()} followers): ${c.summary || c.blurb}`)
+          .join("\n");
 
   const messages = await storage.listMessages(project.id);
   const context = messages
@@ -42,7 +55,7 @@ export async function POST(req: Request) {
     `You are a launch copywriter for X. Project: "${project.title}".`,
     context ? `Conversation so far:\n${context}` : "",
     `The founder's current draft post reads:\n"${body.baselineCopy}"`,
-    `Rewrite it for one specific niche of their audience: ${cluster.label} (${cluster.members.toLocaleString()} followers). Niche read: ${cluster.summary || cluster.blurb}`,
+    nicheDirective,
     "Keep the product facts, change the voice: lead with the hook this niche responds to.",
     LAUNCH_COPY_GUIDE,
     'Respond with STRICT JSON only, no prose: {"copy":"..."}',
