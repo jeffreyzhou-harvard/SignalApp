@@ -1,4 +1,5 @@
-# AgentSim backend (FastAPI + MCP server) for Fly.io.
+# AgentSim backend (FastAPI + MCP server). Host-agnostic container image
+# (HF Spaces, Render, Cloud Run, Fly, local — all serve on :8080).
 FROM python:3.12-slim
 
 # uv for fast, lockfile-pinned installs.
@@ -13,8 +14,11 @@ RUN uv sync --frozen --no-dev
 # App code.
 COPY . .
 
-ENV PORT=8080
+# Run the venv's uvicorn directly (no `uv` at runtime → no cache/permission
+# needs under non-root hosts like HF Spaces). PYTHONPATH makes `app` importable.
+ENV PYTHONPATH=/app
 EXPOSE 8080
 
-# 0.0.0.0 so Fly's proxy can reach it; port matches fly.toml internal_port.
-CMD ["uv", "run", "uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8080"]
+# Honor an injected $PORT (Render, Cloud Run, …); default 8080 (HF/Fly/local).
+# `exec` so uvicorn is PID 1's child target and receives SIGTERM cleanly.
+CMD ["sh", "-c", "exec .venv/bin/uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8080}"]

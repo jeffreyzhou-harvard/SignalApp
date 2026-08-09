@@ -117,9 +117,28 @@ uv run pytest -q        # 35 passing
   Either way, `MCP_ALLOWED_HOSTS` must include the public host (localhost is always
   trusted) or requests 421 from the DNS-rebinding check.
 
-### Container deploy (any host)
+### Deploy to Render (free, no card, stable URL)
 
-`Dockerfile` builds a self-contained image (uvicorn on `:8080`) usable on any
-container host (Hugging Face Spaces, Render, Cloud Run, Fly, …). Set env/secrets:
-`DATABASE_URL` (Neon), `GEMINI_API_KEY`, `MCP_ALLOWED_HOSTS=<public-host>`, and
-`RUN_WORKER=false` (read-only MCP deploy — don't run the ingestion worker).
+Gives a permanent `https://<name>.onrender.com/mcp` URL — set it on Vercel once.
+Uses `render.yaml` (repo root) + the host-agnostic `Dockerfile` (honors `$PORT`).
+
+1. render.com → sign up (**no credit card**) → **New → Blueprint** → pick this repo
+   (grant the Render GitHub App access to the private repo when prompted).
+2. It reads `render.yaml` and creates the `agentsim-mcp` web service (free plan, Docker).
+3. Set the two secret env vars in the Render dashboard: `DATABASE_URL` (Neon),
+   `GEMINI_API_KEY`. (`RUN_WORKER=false` and `MCP_ALLOWED_HOSTS` are already in
+   `render.yaml` — update `MCP_ALLOWED_HOSTS` if your service name isn't `agentsim-mcp`.)
+4. On Vercel (once): `AUDIENCE_MCP_URL=https://<name>.onrender.com/mcp`.
+
+Free services **spin down after ~15 min idle** (~1 min cold start). Keep it warm so
+xAI's tool calls don't time out — ping `/health` every ~10 min (a free
+[cron-job.org](https://cron-job.org) job or a scheduled GitHub Action).
+
+> Same `Dockerfile` runs on Fly / Cloud Run / HF Spaces too — but those now need a
+> card (Fly, Cloud Run) or a PRO plan (HF Docker Spaces). Render is the no-cost path.
+
+### Stable URL without hosting — Cloudflare named tunnel
+
+If you'd rather keep the server on your own machine but still have a permanent URL,
+`scripts/setup-named-tunnel.sh` wires a Cloudflare *named* tunnel (needs a domain
+on Cloudflare). See the Grok-agent section above.
