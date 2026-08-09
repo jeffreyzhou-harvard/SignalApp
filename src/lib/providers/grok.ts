@@ -8,6 +8,7 @@ import type {
   VideoGenOptions,
   VideoProvider,
 } from "./types";
+import { withHouseStyle } from "./house-style";
 
 const XAI_BASE_URL = process.env.XAI_BASE_URL ?? "https://api.x.ai/v1";
 
@@ -89,12 +90,12 @@ export const grokImagine: ImageProvider = {
     const body = editing
       ? {
           model: model ?? grokImagine.defaultModel,
-          prompt,
+          prompt: withHouseStyle(prompt),
           image: { url: sourceImages![0], type: "image_url" },
         }
       : {
           model: model ?? grokImagine.defaultModel,
-          prompt,
+          prompt: withHouseStyle(prompt),
           n: n ?? 1,
           ...(aspectRatio ? { aspect_ratio: aspectRatio } : {}),
           ...(resolution ? { resolution } : {}),
@@ -152,7 +153,7 @@ export const grokImagineVideo: VideoProvider = {
       },
       body: JSON.stringify({
         model: model ?? grokImagineVideo.defaultModel,
-        prompt,
+        prompt: withHouseStyle(prompt),
         duration: duration ?? 6,
         // Image-to-video defaults to the source's aspect ratio; only force one without a source.
         ...(sourceImage ? { image: { url: sourceImage } } : { aspect_ratio: aspectRatio ?? "16:9" }),
