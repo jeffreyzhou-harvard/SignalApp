@@ -1,0 +1,22 @@
+name: MCP keep-warm
+
+# Render's free tier spins down after ~15 min idle (cold start ~1 min), which
+# would make xAI's first MCP call after idle time out. This pings /health every
+# ~10 min to keep the MCP server warm, and doubles as an uptime check (the job
+# goes red if the server isn't returning 200).
+on:
+  schedule:
+    - cron: "*/10 * * * *"   # every 10 min (GitHub may drift a few min under load)
+  workflow_dispatch:          # allow manual runs
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping MCP /health
+        run: |
+          url="https://agentsim-mcp.onrender.com/health"
+          # -m 60 gives a cold instance time to wake before we call it down.
+          code=$(curl -s -o /dev/null -w "%{http_code}" -m 60 "$url")
+          echo "health: $code"
+          [ "$code" = "200" ]

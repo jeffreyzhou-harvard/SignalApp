@@ -6,8 +6,9 @@ services:
   - type: web
     name: agentsim-mcp
     runtime: docker
-    rootDir: backend
-    dockerfilePath: ./Dockerfile
+    rootDir: backend                 # scope rebuild triggers to backend/ changes
+    dockerfilePath: ./backend/Dockerfile   # docker paths are relative to REPO ROOT
+    dockerContext: ./backend
     plan: free
     healthCheckPath: /health
     envVars:

@@ -89,17 +89,18 @@ export const mockAgentSim: SimulationProvider = {
   id: "mock-agents",
   label: "Simulated agents (seeded)",
 
-  async run({ projectId, clusterId, audience }: SimulationInput): Promise<SimResult> {
+  async run({ projectId, clusterId, audience, scope }: SimulationInput): Promise<SimResult> {
     const rng = mulberry32(hashSeed(`${projectId}:${clusterId}`));
     const targetMembers = audience.members.filter((m) => m.clusterId === clusterId);
     const pool = targetMembers.length > 0 ? targetMembers : audience.members;
+    // niche scope: only the target niche reacts; all: 70% niche, 30% spillover
+    const nicheShare = scope === "all" ? 0.7 : 1;
 
     const events: SimEvent[] = [];
     let a = 0;
     let b = 0;
     for (let i = 0; i < EVENT_COUNT; i++) {
-      // 70% target niche, 30% spillover from the wider graph
-      const member = rng() < 0.7 ? pick(rng, pool) : pick(rng, audience.members);
+      const member = rng() < nicheShare ? pick(rng, pool) : pick(rng, audience.members);
       const variant: "A" | "B" = rng() < 0.44 ? "A" : "B";
       const action = weightedAction(rng, variant);
       const ev: SimEvent = { memberId: member.id, variant, action };

@@ -319,7 +319,7 @@ function CameraRig({
     const k = 1 - Math.exp(-2.2 * dt);
 
     // slide the field left while the campaign panel is open
-    g.position.x += ((shifted ? -10 : 0) - g.position.x) * k;
+    g.position.x += ((shifted ? -12 : 0) - g.position.x) * k;
 
     if (!selectedId) g.rotation.y += dt * 0.03;
 

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getAudienceProvider } from "@/lib/audience/registry";
 import { getTextProvider } from "@/lib/providers/registry";
 import { getStorage } from "@/lib/storage";
+import { LAUNCH_COPY_GUIDE } from "@/lib/launch-copy";
 import type { CampaignVariant } from "@/lib/simulation/types";
 
 export const runtime = "nodejs";
@@ -42,7 +43,8 @@ export async function POST(req: Request) {
     context ? `Conversation so far:\n${context}` : "",
     `The founder's current draft post reads:\n"${body.baselineCopy}"`,
     `Rewrite it for one specific niche of their audience: ${cluster.label} (${cluster.members.toLocaleString()} followers). Niche read: ${cluster.blurb}`,
-    "Keep the product facts, change the voice: lead with the hook this niche responds to, keep it under 260 characters, add a clear call to action. No hashtags unless they earn it. Never use em dashes.",
+    "Keep the product facts, change the voice: lead with the hook this niche responds to.",
+    LAUNCH_COPY_GUIDE,
     'Respond with STRICT JSON only, no prose: {"copy":"..."}',
   ]
     .filter(Boolean)

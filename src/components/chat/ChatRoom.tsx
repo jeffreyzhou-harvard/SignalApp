@@ -21,7 +21,6 @@ import { STYLE_PRESETS } from "@/lib/styles";
 import type { ChatMessage, Project, PublicSettings } from "@/lib/types";
 import { XLogo } from "../XLogo";
 import { SettingsDialog } from "../SettingsDialog";
-import { VoiceDock } from "../VoiceDock";
 import { Markdown } from "./Markdown";
 
 const GalaxyView = dynamic(() => import("../galaxy/GalaxyView").then((m) => m.GalaxyView), {
@@ -799,7 +798,6 @@ export function ChatRoom({ projectId }: { projectId: string }) {
           onSaved={(s) => setSettings(s)}
         />
       )}
-      <VoiceDock projectId={projectId} />
     </div>
   );
 }
