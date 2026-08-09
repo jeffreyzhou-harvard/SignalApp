@@ -56,7 +56,7 @@ export interface LinkedXAccount {
   scope?: string;
 }
 
-/** An X post published from AgentSim (via the Ship button or the copilot). */
+/** An X post published from Signal (via the Ship button or the copilot). */
 export interface DeployedPost {
   /** X tweet id. */
   id: string;

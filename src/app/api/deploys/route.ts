@@ -6,7 +6,7 @@ import type { PostMetrics } from "@/lib/types";
 export const runtime = "nodejs";
 
 /**
- * Posts published from AgentSim, enriched with live engagement from the X API
+ * Posts published from Signal, enriched with live engagement from the X API
  * when an OAuth token is available. Without one (stub link), metrics are null
  * and the UI shows placeholders.
  */

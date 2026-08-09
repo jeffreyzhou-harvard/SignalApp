@@ -1,0 +1,99 @@
+name: Render build
+
+# Reproduce Render's Docker build (same Dockerfile + context as render.yaml) so a
+# broken build is caught here in CI instead of failing the Render deploy with the
+# opaque "Exited with status 1 while building your code". Then boot the image
+# against a throwaway pgvector Postgres and hit /health — that exercises the whole
+# startup lifespan (db.init_db creates the `vector` extension + schema, and the MCP
+# streamable-HTTP session manager starts), catching runtime regressions too.
+on:
+  push:
+    branches: [main]
+    paths:
+      - backend/**
+      - render.yaml
+      - .github/workflows/render-build.yml
+  pull_request:
+    paths:
+      - backend/**
+      - render.yaml
+      - .github/workflows/render-build.yml
+  workflow_dispatch:
+
+jobs:
+  render-build:
+    runs-on: ubuntu-latest
+
+    # pgvector image so `CREATE EXTENSION IF NOT EXISTS vector` in init_db() works.
+    services:
+      postgres:
+        image: pgvector/pgvector:pg16
+        env:
+          POSTGRES_USER: agentsim
+          POSTGRES_PASSWORD: agentsim
+          POSTGRES_DB: agentsim
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U agentsim"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 12
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # Guardrail against the exact bug that broke the deploy: the Dockerfile must
+      # exist at the render.yaml-declared path, and rootDir must not double-nest it.
+      - name: Validate render.yaml docker paths
+        run: |
+          pip install --quiet pyyaml
+          python3 - <<'PY'
+          import os, sys, yaml
+          svc = yaml.safe_load(open("render.yaml"))["services"][0]
+          root = svc.get("rootDir") or ""
+          df = svc["dockerfilePath"].lstrip("./")
+          ctx = svc["dockerContext"].lstrip("./")
+          # Render resolves docker paths under rootDir; replicate that to fail fast.
+          df_resolved = os.path.normpath(os.path.join(root, df))
+          ctx_resolved = os.path.normpath(os.path.join(root, ctx))
+          ok = True
+          if not os.path.isfile(df_resolved):
+              print(f"::error::dockerfilePath resolves to '{df_resolved}' (rootDir='{root}') which does not exist")
+              ok = False
+          if not os.path.isdir(ctx_resolved):
+              print(f"::error::dockerContext resolves to '{ctx_resolved}' (rootDir='{root}') which is not a directory")
+              ok = False
+          if ok:
+              print(f"OK: build context '{ctx_resolved}', dockerfile '{df_resolved}'")
+          sys.exit(0 if ok else 1)
+          PY
+
+      # Same context/dockerfile Render uses. linux/amd64 = Render's build platform.
+      - name: Build image (as Render does)
+        run: docker build --platform linux/amd64 -f backend/Dockerfile backend/ -t agentsim-mcp:ci
+
+      # Boot the built image against the pgvector service and verify /health.
+      # --network host so the container's localhost reaches the mapped Postgres.
+      # RUN_WORKER=false keeps the ingest worker (which makes real X calls) off.
+      - name: Smoke test (boot container + /health)
+        run: |
+          docker run -d --name mcp --network host \
+            -e DATABASE_URL='postgresql+psycopg://agentsim:agentsim@localhost:5432/agentsim' \
+            -e RUN_WORKER=false \
+            -e MCP_ALLOWED_HOSTS=localhost \
+            -e PORT=8080 \
+            agentsim-mcp:ci
+          echo "Waiting for /health..."
+          for i in $(seq 1 30); do
+            code=$(curl -s -o /dev/null -w "%{http_code}" -m 3 http://localhost:8080/health || true)
+            if [ "$code" = "200" ]; then echo "health: 200 OK"; exit 0; fi
+            sleep 2
+          done
+          echo "::error::container did not become healthy in time"
+          docker logs mcp
+          exit 1
+
+      - name: Container logs (always)
+        if: always()
+        run: docker logs mcp 2>/dev/null || true

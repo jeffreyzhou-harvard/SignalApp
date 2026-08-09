@@ -7,7 +7,7 @@ import * as THREE from "three";
 import type { AudienceCluster, AudienceMember } from "@/lib/audience/types";
 
 /*
- * The audience galaxy, in AgentSim's own world: near-black space (#08090a),
+ * The audience galaxy, in Signal's own world: near-black space (#08090a),
  * quiet gray-blue stars, one faint accent nebula, hairline-chip labels.
  * Structure (avatar sprites, neighbor edges, click-to-zoom camera) follows
  * the stage demo in demo/src/three — kept as reference, not imported.

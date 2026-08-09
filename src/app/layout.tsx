@@ -7,10 +7,10 @@ const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
 const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "AgentSim",
+  title: "Signal",
   description:
-    "A wind tunnel for product launches on X: cluster your audience, brief the copilot, ship tailored creative.",
-  icons: { icon: "/AgentSim.png" },
+    "Your followers' bios, posts, and engagement — embedded into constellations. One launch, engagement-tuned for every niche.",
+  icons: { icon: "/signal-tile.png" },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -22,7 +22,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           dangerouslySetInnerHTML={{
             __html: `<!--
 THESIS: A launch studio's flight deck — each project is a wind-tunnel run for a launch on X. Refuses the SaaS dashboard of stat cards and the generic chatbot shell; the file-browser grid and the copilot chat are the product.
-OWN-WORLD: layered near-blacks (#08090a ground, #0e0f11 surface, #16181b raised) under hairline #212428 borders; crisp white type (Geist); white pill primary actions in the Grok idiom; one signal blue #4da3ff reserved for identity, links, focus, and the X account; masked AgentSim mark in currentColor; drifting streamline motif for empty air.
+OWN-WORLD: layered near-blacks (#08090a ground, #0e0f11 surface, #16181b raised) under hairline #212428 borders; crisp white type (Geist); white pill primary actions in the Grok idiom; one signal blue #4da3ff reserved for identity, links, focus, and the X account; masked Signal mark in currentColor; drifting streamline motif for empty air.
 STORY: a founder lands on their runs, links their X account once (bottom of the rail), titles a new run, and is dropped straight into a copilot chat where the brief + product shots become posts and Imagine posters.
 FIRST VIEWPORT: fixed left rail (mark, nav, X account + settings pinned to the bottom); content column with title row and "New project" white pill top right; thumbnail grid of runs — or the authored wind-tunnel empty state.
 FORM: brief-pinned by the user (Figma drafts browser structure, dark Grok-native skin); no seed roll — pinned direction beats the roll.

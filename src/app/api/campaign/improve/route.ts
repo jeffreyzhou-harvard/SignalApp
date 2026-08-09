@@ -49,7 +49,7 @@ export async function POST(req: Request) {
     .join("\n");
 
   const prompt = [
-    `You are the AgentSim optimization agent for the project "${project.title}".`,
+    `You are the Signal optimization agent for the project "${project.title}".`,
     `Target niche: ${cluster.label} (${cluster.members.toLocaleString()} followers). Niche read: ${cluster.blurb}`,
     `A simulated A/B test just finished. Winner: variant ${body.verdict.winner} with ${body.engagement[body.verdict.winner]}% engagement (loser: ${body.engagement[body.verdict.winner === "A" ? "B" : "A"]}%). Lift: +${body.verdict.liftPct}%, confidence ${body.verdict.confidencePct}%, driven by ${body.verdict.driver}.`,
     `Winning copy:\n"${body.winner.copy}"`,

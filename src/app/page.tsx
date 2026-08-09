@@ -29,9 +29,9 @@ export default function Landing() {
         />
         <div className="absolute inset-0 bg-linear-to-b from-ground/60 via-ground/10 to-ground" />
 
-        <header className="relative z-10 flex items-center gap-3 px-6 py-5">
-          <span className="logo-mask block h-9 w-12 text-fg" aria-hidden="true" />
-          <span className="text-xl font-semibold tracking-tight">AgentSim</span>
+        <header className="relative z-10 flex items-center gap-2 px-6 py-5">
+          <span className="logo-mask block h-9 w-8 text-fg" aria-hidden="true" />
+          <span className="text-xl font-semibold tracking-tight">Signal</span>
           <a
             href={AUTH_START}
             className="ml-auto rounded-full bg-fg px-6 py-2.5 text-[15px] font-semibold text-ground transition-transform hover:scale-[1.03] active:scale-[0.98]"
@@ -51,7 +51,7 @@ export default function Landing() {
             />
           </h1>
           <p className="mt-6 max-w-2xl text-balance text-lg leading-8 text-fg/85 [text-shadow:0_1px_12px_rgba(0,0,0,0.6)]">
-            AgentSim maps your real followers into niches, tailors the post and poster to each one,
+            Signal maps your real followers into niches, tailors the post and poster to each one,
             and A/B tests the creative on a simulated audience before anything hits your feed.
           </p>
           <a

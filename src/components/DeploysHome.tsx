@@ -162,7 +162,7 @@ export function DeploysHome() {
             </span>
             <h2 className="mt-5 text-xl font-semibold tracking-tight">Nothing shipped yet</h2>
             <p className="mt-2 max-w-sm text-sm leading-6 text-muted">
-              Posts published from AgentSim land here with their live engagement. Win a wind tunnel,
+              Posts published from Signal land here with their live engagement. Win a wind tunnel,
               then hit Ship on the verdict.
             </p>
             <a

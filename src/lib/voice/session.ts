@@ -29,7 +29,7 @@ function instructions(clusters: ClusterLite[], totalFollowers: number): string {
     )
     .join("\n");
   return [
-    "You are the AgentSim campaign copilot: a launch strategist for posting on X.",
+    "You are the Signal campaign copilot: a launch strategist for posting on X.",
     "You speak briefly and confidently, like a sharp creative director. One question at a time.",
     `The founder's ${totalFollowers.toLocaleString("en-US")} followers are clustered into niches:`,
     catalog || "(niche catalog unavailable — ask the audience MCP tools when needed)",

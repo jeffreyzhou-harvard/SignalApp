@@ -4,7 +4,7 @@ import type { CampaignVariant } from "@/lib/simulation/types";
 
 /*
  * An X-style draft post, following the stage demo's TweetCard
- * (demo/src/components/TweetCard.tsx) in AgentSim's own skin.
+ * (demo/src/components/TweetCard.tsx) in Signal's own skin.
  * Action icons are X's canonical glyph paths.
  */
 

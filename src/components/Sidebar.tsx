@@ -54,9 +54,9 @@ export function Sidebar({
 
   return (
     <aside className="flex w-60 shrink-0 flex-col border-r border-line bg-surface max-md:hidden">
-      <a href="/" className="flex items-center gap-2.5 px-4 pb-5 pt-5">
-        <span className="logo-mask block h-7 w-9 text-fg" aria-hidden="true" />
-        <span className="text-[15px] font-semibold tracking-tight">AgentSim</span>
+      <a href="/" className="flex items-center gap-2 px-4 pb-5 pt-5">
+        <span className="logo-mask block h-7 w-6 text-fg" aria-hidden="true" />
+        <span className="text-[15px] font-semibold tracking-tight">Signal</span>
       </a>
 
       <nav className="flex flex-col gap-0.5 px-2" aria-label="Main">
