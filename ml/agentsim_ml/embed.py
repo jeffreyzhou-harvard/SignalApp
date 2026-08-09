@@ -62,6 +62,8 @@ class GeminiEmbedder:
         from google.genai import errors, types
 
         client = genai.Client(api_key=os.environ["GEMINI_API_KEY"])
+        # Gemini rejects empty content parts; blank docs get a neutral placeholder
+        texts = [t if t.strip() else "(no profile text)" for t in texts]
         out: list[list[float]] = []
         for i in range(0, len(texts), self.batch):
             for attempt in range(6):
