@@ -335,8 +335,8 @@ function CameraRig({
       const dx = e.clientX - last.x;
       const dy = e.clientY - last.y;
       if (orbiting) {
-        orbit.current.yaw -= dx * 0.005;
-        orbit.current.pitch = Math.max(-1.15, Math.min(1.15, orbit.current.pitch + dy * 0.005));
+        orbit.current.yaw += dx * 0.005;
+        orbit.current.pitch = Math.max(-1.15, Math.min(1.15, orbit.current.pitch - dy * 0.005));
       } else {
         pan.current.x = Math.max(-30, Math.min(30, pan.current.x + dx * 0.035));
         pan.current.y = Math.max(-20, Math.min(20, pan.current.y - dy * 0.035));
