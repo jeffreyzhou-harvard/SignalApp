@@ -51,7 +51,7 @@ export function createPkce() {
 }
 
 export function redirectUri(origin: string): string {
-  return process.env.X_OAUTH_REDIRECT_URI ?? `${origin}/api/auth/x/callback`;
+  return process.env.X_OAUTH_REDIRECT_URI || `${origin}/api/auth/x/callback`;
 }
 
 export function buildAuthorizeUrl(input: { origin: string; challenge: string; state: string }): string {
