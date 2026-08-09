@@ -36,12 +36,42 @@ class XClient:
         return out[:max_followers]
 
     def fetch_engagers(self, session, post_ids: list[str], job_id: str) -> dict:
-        likes, reposts, last = set(), set(), {}
+        """Counts per user (a user liking 5 posts is 5x the signal of liking 1).
+        Engager user objects are cached so engager-seeded ingest re-reads free."""
+        likes, reposts, last = {}, {}, {}
         for pid in post_ids:
             for u in self.api.get_liking_users(pid) or []:
-                likes.add(str(u["id"])); last[str(u["id"])] = u.get("_engaged_at", "")
+                uid = str(u["id"])
+                likes[uid] = likes.get(uid, 0) + 1
+                last[uid] = u.get("_engaged_at", "")
+                if personas.get_cached_user(session, uid) is None:
+                    personas.cache_user(session, uid, u)  # never clobber a richer cached object
                 budget.record_cost(session, resource="engager", count=1, job_id=job_id)
             for u in self.api.get_retweeters(pid) or []:
-                reposts.add(str(u["id"])); last[str(u["id"])] = u.get("_engaged_at", "")
+                uid = str(u["id"])
+                reposts[uid] = reposts.get(uid, 0) + 1
+                last[uid] = u.get("_engaged_at", "")
+                if personas.get_cached_user(session, uid) is None:
+                    personas.cache_user(session, uid, u)
                 budget.record_cost(session, resource="engager", count=1, job_id=job_id)
-        return {"likes": likes, "reposts": reposts, "replies": set(), "last": last}
+        return {"likes": likes, "reposts": reposts, "replies": {}, "last": last}
+
+    def fetch_users_bulk(self, session, ids: list[str], job_id: str) -> list[dict]:
+        """Cache-first hydration of explicit user ids (engager-seeded ingest)."""
+        out, missing = [], []
+        for uid in ids:
+            cached = personas.get_cached_user(session, uid)
+            # engager-endpoint stubs lack profile fields; only a full object is a hit
+            if cached is not None and cached.get("created_at"):
+                budget.record_cost(session, resource="user", count=1, job_id=job_id, dedup_hit=True)
+                out.append(cached)
+            else:
+                missing.append(uid)
+        if missing:
+            budget.guard(session, resource="user", count=len(missing), soft_limit=self.soft_limit)
+            fresh = self.api.get_users_bulk(missing)
+            for u in fresh:
+                personas.cache_user(session, str(u["id"]), u)
+                out.append(u)
+            budget.record_cost(session, resource="user", count=len(fresh), job_id=job_id)
+        return out

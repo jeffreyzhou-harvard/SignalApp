@@ -60,7 +60,7 @@ def _grok(prompt: str, timeout: int = 90) -> dict:
     resp = requests.post(
         XAI_URL,
         headers={"Authorization": f"Bearer {os.environ['XAI_API_KEY']}"},
-        json={"model": GROK_MODEL,
+        json={"model": GROK_MODEL, "temperature": 0.1,
               "messages": [{"role": "user", "content": prompt}],
               "response_format": {"type": "json_object"}},
         timeout=timeout,

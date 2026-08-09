@@ -130,7 +130,8 @@ def run(cfg: RunConfig, docs: list[PersonaDocument]) -> RunResult:
     x, dense = _features(cfg, deep, cfg.out_dir / cfg.run_id, embedder)
 
     result = run_clustering(x, cfg)
-    cluster_labels = get_labeler(cfg.labeler).label(deep, x, result.labels, result.centroids)
+    cluster_labels = get_labeler(cfg.labeler).label(deep, x, result.labels, result.centroids,
+                                                   tags_path=cfg.out_dir / cfg.run_id / "tags.json")
     scores = evaluate(x, result.labels, result.was_noise, deep, cfg)
 
     coords = display_projection(x)

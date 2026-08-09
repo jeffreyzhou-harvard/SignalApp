@@ -40,8 +40,18 @@ def find_done(session, seed_account_id: str, relationship: str) -> IngestJob | N
 
 
 def claim_next(session) -> IngestJob | None:
-    row = session.execute(
-        select(db.JobRow).where(db.JobRow.status.in_(["queued", "running"]))
-        .order_by(db.JobRow.created_at).limit(1)
-    ).scalars().first()
-    return IngestJob(**row.doc) if row else None
+    """Atomically claim the oldest QUEUED job. The row flips to 'claimed' in the
+    same statement (skipping rows other workers have locked), so two workers —
+    including two developers' laptops sharing Neon — can never run the same job.
+    Jobs stuck in 'running'/'claimed' are NOT re-claimed automatically; requeue
+    deliberately by setting status='queued'."""
+    from sqlalchemy import text as _text
+
+    row = session.execute(_text(
+        "UPDATE jobs SET status='claimed' WHERE job_id = ("
+        "  SELECT job_id FROM jobs WHERE status='queued'"
+        "  ORDER BY created_at LIMIT 1 FOR UPDATE SKIP LOCKED"
+        ") RETURNING doc"
+    )).scalar()
+    session.commit()
+    return IngestJob(**row) if row else None

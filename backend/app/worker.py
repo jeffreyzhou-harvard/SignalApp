@@ -16,26 +16,46 @@ def run_job(session, job, xclient, grok_client=None):
         job.seed_account_id = str(seed["id"])
         jobs.save(session, job); session.commit()
 
-        # fetch followers -> tier 1
-        job.phase = JobPhase.fetch_followers
-        raw_followers = xclient.fetch_followers(session, job.seed_account_id,
-                                                job.params.max_followers, job.job_id)
-        tier1 = [pipeline.enrich_tier1(session, u, job.seed_account_id) for u in raw_followers]
-        job.progress.discovered = len(tier1)
-        jobs.save(session, job); session.commit()
+        engagers = {"likes": {}, "reposts": {}, "replies": {}, "last": {}}
 
-        # co-engagement (degradable): liking_users/retweeters need OAuth user-context;
-        # an app-only bearer 403s here. Degrade to empty engagers and continue —
-        # seed_engagement stays null, the rest of the pipeline still runs.
-        job.phase = JobPhase.co_engage
-        engagers = {"likes": set(), "reposts": set(), "replies": set(), "last": {}}
-        try:
+        if job.relationship == "engager":
+            # Engager-seeded ingest: the population IS the engagers of the seed's
+            # recent posts (mega-account fix — newest followers are churn/bots;
+            # likers/retweeters are the marketing-relevant audience). Engagement
+            # fetch failure is fatal here, not degradable.
+            job.phase = JobPhase.co_engage
             post_ids = xclient.api.get_recent_seed_posts(job.seed_account_id)
             engagers = xclient.fetch_engagers(session, post_ids, job.job_id)
-        except budget.BudgetExceeded:
-            raise
-        except Exception as e:
-            print(f"[worker] co_engage degraded for job {job.job_id}: {e}")
+            score = {uid: engagers["likes"].get(uid, 0) + 2 * engagers["reposts"].get(uid, 0)
+                     for uid in set(engagers["likes"]) | set(engagers["reposts"])}
+            ids = sorted(score, key=score.get, reverse=True)[: job.params.max_followers]
+            job.phase = JobPhase.fetch_followers
+            raw_pop = xclient.fetch_users_bulk(session, ids, job.job_id)
+            tier1 = [pipeline.enrich_tier1(session, u, job.seed_account_id,
+                                           relationship="engager") for u in raw_pop]
+            job.progress.discovered = len(tier1)
+            jobs.save(session, job); session.commit()
+        else:
+            # fetch followers -> tier 1
+            job.phase = JobPhase.fetch_followers
+            raw_followers = xclient.fetch_followers(session, job.seed_account_id,
+                                                    job.params.max_followers, job.job_id)
+            tier1 = [pipeline.enrich_tier1(session, u, job.seed_account_id) for u in raw_followers]
+            job.progress.discovered = len(tier1)
+            jobs.save(session, job); session.commit()
+
+            # co-engagement (degradable): liking_users/retweeters need OAuth
+            # user-context; an app-only bearer 403s here. Degrade to empty
+            # engagers and continue — seed_engagement stays null, the rest of
+            # the pipeline still runs.
+            job.phase = JobPhase.co_engage
+            try:
+                post_ids = xclient.api.get_recent_seed_posts(job.seed_account_id)
+                engagers = xclient.fetch_engagers(session, post_ids, job.job_id)
+            except budget.BudgetExceeded:
+                raise
+            except Exception as e:
+                print(f"[worker] co_engage degraded for job {job.job_id}: {e}")
 
         # reload tier1 docs with seed_engagement for sampling
         docs = [personas.get_persona(session, d.user_id) for d in tier1]

@@ -128,6 +128,14 @@ class TweepyAPI:
                 return {"id": str(author.id), "handle": "@" + author.username}
         return None
 
+    def get_users_bulk(self, ids: list[str]) -> list[dict]:
+        """Hydrate user objects for explicit ids (engager-seeded ingest), 100/call."""
+        out = []
+        for i in range(0, len(ids), 100):
+            resp = self.client.get_users(ids=ids[i : i + 100], user_fields=_USER_FIELDS)
+            out.extend(u.data for u in (resp.data or []))
+        return out
+
     def get_recent_seed_posts(self, seed_id) -> list[str]:
         resp = self.client.get_users_tweets(seed_id, max_results=settings.seed_posts_lookback)
         return [str(t.id) for t in (resp.data or [])]

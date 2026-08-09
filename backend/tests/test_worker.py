@@ -89,3 +89,56 @@ def test_worker_generates_persona_cards_concurrently():
             assert personas.get_persona(s, uid).persona_card is not None
     # the three card calls overlapped instead of running one at a time
     assert grok.max_concurrent > 1
+
+
+def test_engager_seeded_ingest(monkeypatch):
+    """relationship='engager': population = likers/retweeters of seed posts,
+    ranked by engagement count, with seed_engagement populated from counts."""
+    from app import worker
+    from app.models.job import IngestJob, IngestParams
+    from app.ingest.x_client import XClient
+    from app.store import personas
+    from app.store.db import SessionLocal
+    from sqlalchemy import text as _text
+
+    class EngagerAPI(FakeAPI):
+        def get_recent_seed_posts(self, sid, **kw):
+            return ["p1", "p2"]
+
+        def get_liking_users(self, pid):
+            return [{"id": "e1", "username": "eng1", "name": "E One",
+                     "description": "ml researcher", "public_metrics": {"followers_count": 10, "following_count": 1, "tweet_count": 5, "listed_count": 0}, "_engaged_at": "2026-08-08T00:00:00Z"}]
+
+        def get_retweeters(self, pid):
+            return ([{"id": "e2", "username": "eng2", "name": "E Two",
+                      "description": "founder building agents", "public_metrics": {"followers_count": 99, "following_count": 1, "tweet_count": 5, "listed_count": 0}, "_engaged_at": "2026-08-08T00:00:00Z"}]
+                    if pid == "p1" else [])
+
+        def get_users_bulk(self, ids):
+            # engager stubs are incomplete -> bulk hydration returns full objects
+            full = {
+                "e1": {"id": "e1", "username": "eng1", "name": "E One", "created_at": "2020-01-01T00:00:00Z",
+                       "description": "ml researcher", "public_metrics": {"followers_count": 10, "following_count": 1, "tweet_count": 5, "listed_count": 0}},
+                "e2": {"id": "e2", "username": "eng2", "name": "E Two", "created_at": "2021-01-01T00:00:00Z",
+                       "description": "founder building agents", "public_metrics": {"followers_count": 99, "following_count": 1, "tweet_count": 5, "listed_count": 0}},
+            }
+            return [full[i] for i in ids if i in full]
+
+    s = SessionLocal()
+    s.execute(_text("DELETE FROM personas WHERE user_id IN ('e1','e2')")); s.commit()
+    job = IngestJob(job_id="test-engager", seed="@seedco", relationship="engager",
+                    params=IngestParams(sample_pct=1.0, max_followers=10, posts_per_user=2),
+                    created_at="2026-08-09T00:00:00Z", updated_at="2026-08-09T00:00:00Z")
+    from app.store import jobs as jobs_store
+    jobs_store.save(s, job); s.commit()
+
+    worker.run_job(s, job, XClient(EngagerAPI()), grok_client=None)
+    assert job.status == "done", job.error
+    assert job.progress.discovered == 2
+    p1 = personas.get_persona(s, "e1")
+    assert p1.relationship == "engager"
+    assert p1.seed_engagement.likes_on_seed_posts == 2  # liked both posts
+    p2 = personas.get_persona(s, "e2")
+    assert p2.seed_engagement.reposts == 1
+    s.execute(_text("DELETE FROM personas WHERE user_id IN ('e1','e2')"))
+    s.execute(_text("DELETE FROM jobs WHERE job_id='test-engager'")); s.commit(); s.close()

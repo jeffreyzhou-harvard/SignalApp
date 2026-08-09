@@ -22,8 +22,10 @@ class Tier2Prep:
         return self.ident["bio"]
 
 
-def enrich_tier1(session, raw_user: dict, seed_id: str) -> PersonaDocument:
+def enrich_tier1(session, raw_user: dict, seed_id: str,
+                 relationship: str = "follower") -> PersonaDocument:
     ident = clean.build_identity(raw_user, seed_id, tier=1, now_iso=_now_iso())
+    ident["relationship"] = relationship
     doc = PersonaDocument(**ident)
     personas.upsert_persona(session, doc)
     return doc
@@ -38,6 +40,8 @@ def enrich_tier2_fetch(session, user_id, seed_id, xclient, posts_per_user, engag
         return None                         # idempotent skip
     raw_user = personas.get_cached_user(session, user_id)
     ident = clean.build_identity(raw_user, seed_id, tier=2, now_iso=_now_iso())
+    if existing is not None:
+        ident["relationship"] = existing.relationship  # engager-seeded stays engager
     tweets = xclient.fetch_timeline(session, user_id, max_results=posts_per_user, job_id=job_id)
     content = clean.build_content(tweets)
     se = clean.aggregate_seed_engagement(user_id, engagers)

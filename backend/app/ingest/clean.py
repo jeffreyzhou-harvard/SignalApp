@@ -76,10 +76,14 @@ def build_content(raw_tweets: list[dict]) -> Content:
 
 
 def aggregate_seed_engagement(user_id: str, engagers: dict) -> SeedEngagement:
+    def _n(bucket) -> int:
+        v = engagers.get(bucket) or {}
+        return int(v.get(user_id, 0)) if isinstance(v, dict) else int(user_id in v)
+
     return SeedEngagement(
-        likes_on_seed_posts=1 if user_id in engagers["likes"] else 0,
-        reposts=1 if user_id in engagers["reposts"] else 0,
-        replies=1 if user_id in engagers["replies"] else 0,
+        likes_on_seed_posts=_n("likes"),
+        reposts=_n("reposts"),
+        replies=_n("replies"),
         last_engaged_at=engagers["last"].get(user_id),
     )
 
