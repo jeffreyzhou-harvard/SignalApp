@@ -66,3 +66,18 @@ def test_seed_account_filter():
         out = search_core.search(s, FakeEmbedder([1.0, 0.0, 0.0]), "ai", k=5,
                                  seed_account_id="seedB")
     assert [r["user_id"] for r in out["results"]] == ["u2"]
+
+
+class _BoomEmbedder:
+    """Simulates a query-time embed failure (e.g. Gemini 429 quota)."""
+    def embed(self, text):
+        raise RuntimeError("429 RESOURCE_EXHAUSTED")
+
+
+def test_query_embed_failure_is_graceful():
+    with db.SessionLocal() as s:
+        _insert(s, "u1", "@a", ["ai"], [1.0, 0.0, 0.0]); s.commit()
+        out = search_core.search(s, _BoomEmbedder(), "ai", k=3)
+    assert out["status"] == "query_embed_failed"
+    assert out["results"] == []
+    assert "429" in out["detail"]
