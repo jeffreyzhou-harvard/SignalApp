@@ -13,7 +13,7 @@ def create_job(session, req: IngestRequest) -> IngestJob:
     job = IngestJob(
         job_id=str(uuid.uuid4()), seed=req.seed, relationship=req.relationship,
         params=IngestParams(sample_pct=req.sample_pct, max_followers=req.max_followers,
-                            posts_per_user=req.posts_per_user),
+                            posts_per_user=req.posts_per_user, enrich_all=req.enrich_all),
         budget_cap_usd=settings.x_api_spend_soft_limit_usd, created_at=_now(), updated_at=_now(),
     )
     save(session, job)

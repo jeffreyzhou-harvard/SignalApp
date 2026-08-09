@@ -142,3 +142,46 @@ def test_engager_seeded_ingest(monkeypatch):
     assert p2.seed_engagement.reposts == 1
     s.execute(_text("DELETE FROM personas WHERE user_id IN ('e1','e2')"))
     s.execute(_text("DELETE FROM jobs WHERE job_id='test-engager'")); s.commit(); s.close()
+
+
+def test_enrich_all_deep_enriches_existing_tier1(monkeypatch):
+    """enrich_all: no discovery — every bio-having tier-1 persona for the seed
+    gets tier-2 enrichment; stored seed_engagement survives the empty fetch."""
+    from app import worker
+    from app.models.job import IngestJob, IngestParams
+    from app.models.persona import SeedEngagement
+    from app.ingest.x_client import XClient
+    from app.store import personas, jobs as jobs_store
+    from app.store.db import SessionLocal
+    from app.pipeline import enrich_tier1
+    from sqlalchemy import text as _text
+
+    class EnrichAPI(FakeAPI):
+        def get_user(self, h):
+            return {"id": "seedEA", "username": "seedea", "name": "Seed", "created_at": "2020-01-01T00:00:00Z",
+                    "description": "seed", "public_metrics": {"followers_count": 1, "following_count": 1, "tweet_count": 1, "listed_count": 0}}
+
+    s = SessionLocal()
+    s.execute(_text("DELETE FROM personas WHERE user_id IN ('ea1','ea2','ea3')")); s.commit()
+    for uid, bio in [("ea1", "ml engineer"), ("ea2", ""), ("ea3", "designer")]:
+        enrich_tier1(s, {"id": uid, "username": uid, "name": uid, "created_at": "2021-01-01T00:00:00Z",
+                         "description": bio, "public_metrics": {"followers_count": 5, "following_count": 1, "tweet_count": 3, "listed_count": 0}},
+                     "seedEA")
+    # ea1 has stored engagement that must survive
+    p = personas.get_persona(s, "ea1")
+    p.seed_engagement = SeedEngagement(likes_on_seed_posts=7)
+    personas.upsert_persona(s, p); s.commit()
+
+    job = IngestJob(job_id="test-enrichall", seed="@seedea",
+                    params=IngestParams(enrich_all=True, posts_per_user=2),
+                    created_at="2026-08-09T00:00:00Z", updated_at="2026-08-09T00:00:00Z")
+    jobs_store.save(s, job); s.commit()
+    worker.run_job(s, job, XClient(EnrichAPI()), grok_client=None)
+    assert job.status == "done", job.error
+    assert job.progress.sampled == 2                       # ea2 (empty bio) excluded
+    assert personas.get_persona(s, "ea1").enrichment_tier == 2
+    assert personas.get_persona(s, "ea3").enrichment_tier == 2
+    assert personas.get_persona(s, "ea2").enrichment_tier == 1
+    assert personas.get_persona(s, "ea1").seed_engagement.likes_on_seed_posts == 7
+    s.execute(_text("DELETE FROM personas WHERE user_id IN ('ea1','ea2','ea3')"))
+    s.execute(_text("DELETE FROM jobs WHERE job_id='test-enrichall'")); s.commit(); s.close()

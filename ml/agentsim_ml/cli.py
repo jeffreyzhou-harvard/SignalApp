@@ -41,6 +41,8 @@ def main() -> None:
     p.add_argument("--strip-pc1", action="store_true")
     p.add_argument("--tax-dense-arm", default="A", choices=["A", "C", "F"])
     p.add_argument("--tax-weights", default=None, help="taxonomy,bio,sparse e.g. 0.6,0.25,0.15")
+    p.add_argument("--min-cluster-frac", type=float, default=None, help="HDBSCAN min cluster size as frac of sample")
+    p.add_argument("--umap-neighbors", type=int, default=None)
     p.add_argument("--hierarchical", action="store_true", help="subdomain pass on dominant tags")
     args = p.parse_args()
 
@@ -68,6 +70,8 @@ def main() -> None:
         tags_file=args.tags_file, role_weight=args.role_weight,
         tax_dense_arm=args.tax_dense_arm, hierarchical=args.hierarchical,
         **({"tax_weights": tuple(float(x) for x in args.tax_weights.split(","))} if args.tax_weights else {}),
+        **({"hdbscan_min_cluster_frac": args.min_cluster_frac} if args.min_cluster_frac else {}),
+        **({"umap_neighbors": args.umap_neighbors} if args.umap_neighbors else {}),
         strip_common_component=args.strip_pc1,
     )
     res = run(cfg, docs)

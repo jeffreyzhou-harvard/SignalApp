@@ -42,12 +42,23 @@ def enrich_tier2_fetch(session, user_id, seed_id, xclient, posts_per_user, engag
     if existing and existing.enrichment_tier == 2:
         return None                         # idempotent skip
     raw_user = personas.get_cached_user(session, user_id)
-    ident = clean.build_identity(raw_user, seed_id, tier=2, now_iso=_now_iso())
+    if raw_user is not None:
+        ident = clean.build_identity(raw_user, seed_id, tier=2, now_iso=_now_iso())
+    elif existing is not None:
+        # no raw cache (e.g. enrich_all on an old ingest) — reuse stored identity
+        ident = existing.model_dump(
+            exclude={"content", "persona_card", "embedding", "seed_engagement"})
+        ident["enrichment_tier"] = 2
+    else:
+        raise ValueError(f"no cached user or persona for {user_id}")
     if existing is not None:
         ident["relationship"] = existing.relationship  # engager-seeded stays engager
     tweets = xclient.fetch_timeline(session, user_id, max_results=posts_per_user, job_id=job_id)
     content = clean.build_content(tweets)
     se = clean.aggregate_seed_engagement(user_id, engagers)
+    no_engagement_data = not (engagers.get("likes") or engagers.get("reposts"))
+    if no_engagement_data and existing is not None and existing.seed_engagement is not None:
+        se = existing.seed_engagement  # never zero stored counts with an empty fetch
     return Tier2Prep(user_id=user_id, ident=ident, content=content, seed_engagement=se)
 
 

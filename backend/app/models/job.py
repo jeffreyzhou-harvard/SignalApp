@@ -25,11 +25,13 @@ class IngestParams(BaseModel):
     sample_pct: float = 0.2
     max_followers: int = 1000
     posts_per_user: int = 10
+    enrich_all: bool = False   # deep-enrich every bio-having tier-1 already in DB (no discovery)
 
 
 class IngestRequest(BaseModel):
     seed: str
     relationship: Relationship = "follower"
+    enrich_all: bool = False
     sample_pct: float = 0.2
     max_followers: int = 1000
     posts_per_user: int = 10

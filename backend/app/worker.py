@@ -18,7 +18,19 @@ def run_job(session, job, xclient, grok_client=None):
 
         engagers = {"likes": {}, "reposts": {}, "replies": {}, "last": {}}
 
-        if job.relationship == "engager":
+        if job.params.enrich_all:
+            # Deep-enrich everything already discovered for this seed: no
+            # discovery phases, no graph refetch — timelines + cards only.
+            # (The full-depth feature: kills bio-only assignment for an account.)
+            job.phase = JobPhase.sample
+            docs = personas.list_personas(session, job.seed_account_id, limit=100_000)
+            tier1 = docs
+            job.progress.discovered = len(docs)
+            job.member_ids = [d.user_id for d in docs
+                              if d.bio.strip() and d.enrichment_tier == 1]
+            job.progress.sampled = len(job.member_ids)
+            jobs.save(session, job); session.commit()
+        elif job.relationship == "engager":
             # Engager-seeded ingest: the population IS the engagers of the seed's
             # recent posts (mega-account fix — newest followers are churn/bots;
             # likers/retweeters are the marketing-relevant audience). Engagement
@@ -62,11 +74,12 @@ def run_job(session, job, xclient, grok_client=None):
         for d in docs:
             d.seed_engagement = clean.aggregate_seed_engagement(d.user_id, engagers)
 
-        # sample
-        job.phase = JobPhase.sample
-        job.member_ids = sampler.select_tier2(docs, job.params.sample_pct, min_n=min(100, len(docs)))
-        job.progress.sampled = len(job.member_ids)
-        jobs.save(session, job); session.commit()
+        # sample (enrich_all sets member_ids itself)
+        if not job.params.enrich_all:
+            job.phase = JobPhase.sample
+            job.member_ids = sampler.select_tier2(docs, job.params.sample_pct, min_n=min(100, len(docs)))
+            job.progress.sampled = len(job.member_ids)
+            jobs.save(session, job); session.commit()
 
         # enrich tier 2 — fetch serially (session-bound), then generate the
         # I/O-bound Grok cards concurrently, then write results serially.
