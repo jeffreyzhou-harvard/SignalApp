@@ -117,9 +117,29 @@ uv run pytest -q        # 35 passing
   Either way, `MCP_ALLOWED_HOSTS` must include the public host (localhost is always
   trusted) or requests 421 from the DNS-rebinding check.
 
-### Container deploy (any host)
+### Deploy to Hugging Face Spaces (free, stable URL, no domain, no card)
 
-`Dockerfile` builds a self-contained image (uvicorn on `:8080`) usable on any
-container host (Hugging Face Spaces, Render, Cloud Run, Fly, …). Set env/secrets:
-`DATABASE_URL` (Neon), `GEMINI_API_KEY`, `MCP_ALLOWED_HOSTS=<public-host>`, and
-`RUN_WORKER=false` (read-only MCP deploy — don't run the ingestion worker).
+Gives a permanent `https://<user>-<space>.hf.space/mcp` URL — set it on Vercel once
+and never touch it again. `Dockerfile` is host-agnostic (serves on `:8080`).
+
+```bash
+pip install -U huggingface_hub          # one-time
+huggingface-cli login                   # paste an HF token with WRITE access
+# create a Docker Space at https://huggingface.co/new-space  (SDK: Docker), then:
+./scripts/deploy-hf-space.sh <hf-username>/agentsim-mcp      # deploy / redeploy
+```
+
+The script clones the Space, copies the backend build files in, writes the HF
+metadata, and pushes (HF builds on push). After the first deploy, set these in the
+Space's **Settings → Variables and secrets**:
+`DATABASE_URL` (Neon), `GEMINI_API_KEY`, `MCP_ALLOWED_HOSTS=<user>-agentsim-mcp.hf.space`,
+`RUN_WORKER=false`. Then on Vercel (once): `AUDIENCE_MCP_URL=https://<user>-agentsim-mcp.hf.space/mcp`.
+
+> The same `Dockerfile` works on Render / Cloud Run / Fly too — set the same four
+> env vars there if you prefer another host.
+
+### Stable URL without hosting — Cloudflare named tunnel
+
+If you'd rather keep the server on your own machine but still have a permanent URL,
+`scripts/setup-named-tunnel.sh` wires a Cloudflare *named* tunnel (needs a domain
+on Cloudflare). See the Grok-agent section above.
