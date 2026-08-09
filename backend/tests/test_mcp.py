@@ -26,7 +26,10 @@ def _doc(uid="700001", handle="@Grace"):
 def test_tools_registered():
     from app.mcp.server import mcp
     names = {t.name for t in asyncio.run(mcp.list_tools())}
-    assert {"search", "get_persona"} <= names
+    assert {
+        "search", "get_persona", "list_audiences", "audience_overview",
+        "list_clusters", "get_cluster_members", "whose_tribe", "top_interests",
+    } <= names
 
 
 def test_get_persona_tool_returns_seeded_user():
