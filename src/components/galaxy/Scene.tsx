@@ -43,8 +43,8 @@ function loadImage(src: string): Promise<HTMLImageElement> {
     const img = new Image();
     // Real X avatars (pbs.twimg.com, via the db audience provider) are
     // cross-origin. Request them with CORS so drawing onto the canvas doesn't
-    // taint it — otherwise THREE.CanvasTexture's texSubImage2D throws
-    // "Tainted canvases may not be loaded". pbs.twimg.com serves
+    // taint it — otherwise WebGL texture upload throws SecurityError (Safari:
+    // "The operation is insecure"). pbs.twimg.com serves
     // `access-control-allow-origin: *`, so this loads clean. Must be set
     // before `src`.
     img.crossOrigin = "anonymous";
@@ -68,11 +68,18 @@ function useAvatarTextures(members: AudienceMember[], clusters: AudienceCluster[
       for (let i = 0; i < members.length && !dead; i += CHUNK) {
         const entries = await Promise.all(
           members.slice(i, i + CHUNK).map(async (m) => {
+            const color = colors.get(m.clusterId) ?? "#82898f";
             try {
               const img = await loadImage(m.avatar);
-              return [m.id, makeAvatarTexture(img, colors.get(m.clusterId) ?? "#82898f")] as const;
+              return [m.id, makeAvatarTexture(img, color)] as const;
             } catch {
-              return null;
+              try {
+                // CORS-refused or dead avatar → seeded local stand-in
+                const img = await loadImage(`/avatars/${m.id % 2 === 0 ? "m" : "f"}${m.id % 100}.jpg`);
+                return [m.id, makeAvatarTexture(img, color)] as const;
+              } catch {
+                return null;
+              }
             }
           })
         );
