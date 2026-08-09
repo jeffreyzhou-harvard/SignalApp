@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "audience-vectors": {
+      "type": "http",
+      "url": "${AUDIENCE_MCP_URL}",
+      "headers": { "Authorization": "Bearer ${AUDIENCE_MCP_TOKEN}" }
+    }
+  }
+}
