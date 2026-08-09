@@ -8,13 +8,21 @@ from pathlib import Path
 RANDOM_STATE = 42
 
 
+# Canonical Grok key name — matches the shared .env and the backend's settings.
+# XAI_API_KEY is accepted as a legacy shell-export alias; this helper is the
+# ONLY place that knows either spelling. (A hardcoded lookup of the wrong
+# spelling once silently degraded a whole run to heuristic tags/labels.)
+XAI_KEY_ENV = "X_AI_API_KEY"
+
+
+def grok_available() -> bool:
+    return bool(os.environ.get(XAI_KEY_ENV) or os.environ.get("XAI_API_KEY"))
+
+
 def xai_api_key() -> str:
-    """The Grok key under either env spelling (.env uses X_AI_API_KEY; older
-    setups exported XAI_API_KEY). A silent KeyError here once degraded a whole
-    run to heuristic tags/labels — fail loudly instead."""
-    key = os.environ.get("XAI_API_KEY") or os.environ.get("X_AI_API_KEY")
+    key = os.environ.get(XAI_KEY_ENV) or os.environ.get("XAI_API_KEY")
     if not key:
-        raise KeyError("set XAI_API_KEY or X_AI_API_KEY for Grok calls")
+        raise KeyError(f"set {XAI_KEY_ENV} for Grok calls")
     return key
 
 # Ingest-tier knobs (mirrors docs/ARCHITECTURE.md; owned by layer A but repeated
