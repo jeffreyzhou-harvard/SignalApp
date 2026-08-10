@@ -9,23 +9,13 @@
 export interface ExploreAudience {
   /** X handle, without the @. Must match an ingested audience in the backend. */
   handle: string;
-  /** Short label for the toggle. */
+  /** Label for the toggle. */
   name: string;
-  /** One line on why this audience is interesting. */
-  blurb: string;
 }
 
 export const EXPLORE_AUDIENCES: ExploreAudience[] = [
-  {
-    handle: "ishand",
-    name: "@ishand",
-    blurb: "A founder's followers — five tribes, from infra engineers to investors.",
-  },
-  {
-    handle: "SpaceXAI",
-    name: "@SpaceXAI",
-    blurb: "A company's engaged audience — the people who like and repost, not passive followers.",
-  },
+  { handle: "ishand", name: "@ishand" },
+  { handle: "SpaceXAI", name: "@SpaceXAI" },
 ];
 
 export const DEFAULT_EXPLORE_HANDLE = EXPLORE_AUDIENCES[0].handle;

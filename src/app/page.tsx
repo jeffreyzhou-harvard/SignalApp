@@ -3,8 +3,11 @@ import { FeatureCards } from "@/components/landing/FeatureCards";
 
 const WAITLIST = "/waitlist";
 const AUTH_START = "/api/auth/x/start?returnTo=/dashboard";
-/** One flag drives beta mode: BETA_LOCK=1 shows waitlist CTAs (and the
- * middleware gates the app); unset restores Dashboard / Connect your X. */
+/** One flag drives beta mode: BETA_LOCK=1 gates the app behind the waitlist
+ * (see middleware). Landing CTAs point at the waitlist either way — Signal is
+ * in private beta, and asking a first-time visitor for X permissions before
+ * they know what it does is the wrong first ask. Beta users go straight to
+ * /dashboard, which signs them in. */
 const LOCKED = process.env.BETA_LOCK === "1";
 
 const X_MASK = {
@@ -40,7 +43,7 @@ export default function Landing() {
             href={LOCKED ? WAITLIST : AUTH_START}
             className="ml-auto rounded-full bg-fg px-6 py-2.5 text-[15px] font-semibold text-ground transition-transform hover:scale-[1.03] active:scale-[0.98]"
           >
-            {LOCKED ? "Request access" : "Dashboard"}
+            {LOCKED ? "Join the waitlist" : "Dashboard"}
           </a>
         </header>
 
@@ -59,23 +62,10 @@ export default function Landing() {
             and A/B tests the creative on a simulated audience before anything hits your feed.
           </p>
           <a
-            href={LOCKED ? WAITLIST : AUTH_START}
+            href={WAITLIST}
             className="mt-10 flex items-center gap-2 rounded-full bg-fg px-7 py-3.5 text-base font-semibold text-ground transition-transform hover:scale-[1.03] active:scale-[0.98]"
           >
-            {LOCKED ? (
-              "Join the waitlist"
-            ) : (
-              <>
-                Connect your{" "}
-                <span
-                  role="img"
-                  aria-label="X"
-                  className="inline-block h-[0.85em] w-[0.85em] bg-ground"
-                  style={X_MASK}
-                />{" "}
-                account
-              </>
-            )}
+            Join the waitlist
             <ArrowRight size={17} strokeWidth={2.5} />
           </a>
           {/* No-signup path into the product: two real audiences, already mapped. */}

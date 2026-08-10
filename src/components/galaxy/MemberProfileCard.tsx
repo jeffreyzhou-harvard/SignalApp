@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import { BadgeCheck, ExternalLink, Heart, MapPin, MessageCircle, Quote, Repeat2, X } from "lucide-react";
-import type { AudienceCluster, AudienceMember } from "@/lib/audience/types";
+import type { AudienceCluster, AudienceMember, MemberProfile } from "@/lib/audience/types";
 import { XLogo } from "../XLogo";
 
 /**
@@ -18,6 +18,29 @@ const compact = (n: number | null | undefined): string | null => {
   if (n < 1_000_000) return `${(n / 1000).toFixed(n < 10_000 ? 1 : 0)}K`;
   return `${(n / 1_000_000).toFixed(1)}M`;
 };
+
+/**
+ * How this member ended up in this niche, stated honestly.
+ *
+ * Deep-profiled members were clustered directly from their own posts, so they
+ * define the niche rather than being scored against it. Bio-assigned members
+ * carry a distance ratio (runner-up niche ÷ chosen niche, so >= 1): 1.0 means
+ * two niches fit equally well, higher means the chosen one is clearly closer.
+ * `1 - 1/ratio` turns that into the share of the gap the winner actually won,
+ * which is the number a marketer should see before trusting the placement.
+ */
+function nicheFit(p: MemberProfile | null | undefined): string {
+  if (p?.enrichmentTier === 2) {
+    return p?.periphery
+      ? "Clustered from their own posts · sits on this niche's edge"
+      : "Clustered from their own posts · core member";
+  }
+  const ratio = p?.confidence ?? null;
+  if (ratio === null || !Number.isFinite(ratio)) return "Placed by bio similarity";
+  const margin = Math.max(0, Math.min(0.99, 1 - 1 / Math.max(ratio, 1)));
+  const strength = margin >= 0.3 ? "clear" : margin >= 0.12 ? "likely" : "narrow";
+  return `Placed by bio similarity · ${strength} match (${(margin * 100).toFixed(0)}% ahead of the next niche)`;
+}
 
 function Stat({ label, value }: { label: string; value: string | null }) {
   if (value === null) return null;
@@ -209,12 +232,7 @@ export function MemberProfileCard({
             </div>
           )}
 
-          {(p?.confidence ?? null) !== null && (
-            <p className="text-xs text-faint">
-              Niche fit {(Math.min(p!.confidence!, 1) * 100).toFixed(0)}%
-              {p?.periphery ? " · on the periphery of this niche" : " · core member"}
-            </p>
-          )}
+          <p className="text-xs text-faint">{nicheFit(p)}</p>
         </div>
       </div>
     </div>

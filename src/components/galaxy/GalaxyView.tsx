@@ -32,13 +32,12 @@ export function GalaxyView({
   /** Which public map to show (explore only). */
   exploreHandle?: string;
 }) {
-  const params =
-    source === "explore" ? { source, handle: exploreHandle } : { projectId };
-  // Paint from cache immediately so revisiting the map doesn't re-download the
-  // whole audience; the effect below revalidates in the background.
-  const [snapshot, setSnapshot] = useState<AudienceSnapshot | null>(() =>
-    getCachedSnapshot(params),
-  );
+  // Starts null on purpose: the cache reads sessionStorage, which the server
+  // can't see, so seeding state from it renders a galaxy on the client where
+  // the server rendered a loader — a hydration mismatch. The effect below
+  // paints from cache on its first pass instead, which costs one render and
+  // no network call.
+  const [snapshot, setSnapshot] = useState<AudienceSnapshot | null>(null);
   const [failed, setFailed] = useState(false);
   const [selected, setSelected] = useState<string | null>(null);
   const [attempt, setAttempt] = useState(0);

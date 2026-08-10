@@ -13,7 +13,6 @@ import { EXPLORE_AUDIENCES, DEFAULT_EXPLORE_HANDLE } from "@/lib/audience/explor
  */
 export default function Explore() {
   const [handle, setHandle] = useState(DEFAULT_EXPLORE_HANDLE);
-  const active = EXPLORE_AUDIENCES.find((a) => a.handle === handle) ?? EXPLORE_AUDIENCES[0];
 
   return (
     <div className="flex h-dvh flex-col bg-ground">
@@ -44,15 +43,11 @@ export default function Explore() {
           ))}
         </div>
 
-        <p className="min-w-0 flex-1 text-[13px] leading-5 text-muted max-md:order-last max-md:basis-full">
-          {active.blurb}
-        </p>
-
         <Link
           href="/waitlist"
-          className="flex shrink-0 items-center gap-1.5 rounded-full bg-fg px-4 py-2 text-[13px] font-semibold text-ground transition-transform hover:scale-[1.02] active:scale-[0.98]"
+          className="ml-auto flex shrink-0 items-center gap-1.5 rounded-full bg-fg px-4 py-2 text-[13px] font-semibold text-ground transition-transform hover:scale-[1.02] active:scale-[0.98]"
         >
-          Map my audience
+          Join the waitlist
           <ArrowRight size={15} strokeWidth={2.5} />
         </Link>
       </header>
