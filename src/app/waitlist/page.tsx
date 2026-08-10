@@ -61,10 +61,17 @@ export default function Waitlist() {
               </span>
               <h1 className="text-xl font-semibold tracking-tight">You&apos;re on the list.</h1>
               <p className="text-sm leading-6 text-muted">
-                We&apos;ll reach out at your email as beta access opens up. Thanks for wanting to
-                launch with Signal.
+                We&apos;ll reach out at your email as beta access opens up. In the meantime, here
+                are two real audiences we mapped — click a tribe, then click a follower.
               </p>
-              <Link href="/" className="mt-2 text-sm font-medium text-accent hover:underline">
+              <Link
+                href="/explore"
+                className="mt-2 flex items-center gap-1.5 rounded-full bg-fg px-5 py-2.5 text-sm font-semibold text-ground transition-transform hover:scale-[1.02] active:scale-[0.98]"
+              >
+                Explore an audience map
+                <ArrowRight size={15} strokeWidth={2.5} />
+              </Link>
+              <Link href="/" className="text-sm font-medium text-muted hover:text-fg">
                 Back to home
               </Link>
             </div>

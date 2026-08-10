@@ -78,6 +78,13 @@ export default function Landing() {
             )}
             <ArrowRight size={17} strokeWidth={2.5} />
           </a>
+          {/* No-signup path into the product: two real audiences, already mapped. */}
+          <a
+            href="/explore"
+            className="mt-4 text-[15px] font-medium text-fg/80 underline-offset-4 transition-colors hover:text-fg hover:underline"
+          >
+            or explore a real audience map
+          </a>
         </div>
       </section>
 

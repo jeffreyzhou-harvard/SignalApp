@@ -5,7 +5,9 @@ import { NextRequest, NextResponse } from "next/server";
  * the landing page and the waitlist are reachable: app pages redirect to the
  * waitlist and API routes answer 403. Unset locally, so dev stays open.
  */
-const OPEN_PATHS = new Set(["/", "/waitlist"]);
+// /explore is public by design: a read-only tour of the demo audience maps,
+// served by /api/explore (allowlisted handles only, no viewer data).
+const OPEN_PATHS = new Set(["/", "/waitlist", "/explore", "/api/explore"]);
 
 export function middleware(req: NextRequest) {
   if (process.env.BETA_LOCK !== "1") return NextResponse.next();

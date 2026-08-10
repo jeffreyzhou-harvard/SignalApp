@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { Canvas } from "@react-three/fiber";
 import type { AudienceMember, AudienceSnapshot } from "@/lib/audience/types";
-import { ensureSnapshot, getCachedSnapshot } from "@/lib/audience/snapshot-cache";
+import { ensureSnapshot, getCachedSnapshot, type SnapshotParams } from "@/lib/audience/snapshot-cache";
 import { GalaxyScene } from "./Scene";
 import { CampaignPanel, type PanelStage } from "./CampaignPanel";
 import { MemberProfileCard } from "./MemberProfileCard";
@@ -19,17 +19,25 @@ export function GalaxyView({
   xHandle,
   displayName,
   seedCopy,
+  source = "audience",
+  exploreHandle,
 }: {
   projectId?: string;
   xHandle?: string | null;
   displayName?: string | null;
   /** Copy iterated in chat, sent back to seed the next wind-tunnel run. */
   seedCopy?: string | null;
+  /** "explore" reads the public demo maps instead of the viewer's audience. */
+  source?: "audience" | "explore";
+  /** Which public map to show (explore only). */
+  exploreHandle?: string;
 }) {
+  const params =
+    source === "explore" ? { source, handle: exploreHandle } : { projectId };
   // Paint from cache immediately so revisiting the map doesn't re-download the
   // whole audience; the effect below revalidates in the background.
   const [snapshot, setSnapshot] = useState<AudienceSnapshot | null>(() =>
-    getCachedSnapshot({ projectId }),
+    getCachedSnapshot(params),
   );
   const [failed, setFailed] = useState(false);
   const [selected, setSelected] = useState<string | null>(null);
@@ -63,7 +71,8 @@ export function GalaxyView({
 
   useEffect(() => {
     let dead = false;
-    const params = { projectId };
+    const params: SnapshotParams =
+      source === "explore" ? { source, handle: exploreHandle } : { projectId };
     // Instant paint from cache on revisit; the retry button forces a refetch.
     const cached = getCachedSnapshot(params);
     if (cached) {
@@ -84,7 +93,7 @@ export function GalaxyView({
     return () => {
       dead = true;
     };
-  }, [projectId, xHandle, attempt]);
+  }, [projectId, xHandle, source, exploreHandle, attempt]);
 
   if (failed) {
     return (

@@ -17,6 +17,9 @@ import type { AudienceSnapshot } from "./types";
 export interface SnapshotParams {
   projectId?: string;
   handle?: string | null;
+  /** "explore" reads the public demo maps (`/api/explore`) instead of the
+   * viewer's own audience — used by the signed-out explore screen. */
+  source?: "audience" | "explore";
 }
 
 /** Within this window a cache hit is served without a background revalidate. */
@@ -31,8 +34,8 @@ interface Entry {
 const mem = new Map<string, Entry>();
 const inflight = new Map<string, Promise<AudienceSnapshot>>();
 
-function keyOf({ projectId, handle }: SnapshotParams): string {
-  return `p=${projectId ?? ""}&h=${handle ?? ""}`;
+function keyOf({ projectId, handle, source }: SnapshotParams): string {
+  return `s=${source ?? "audience"}&p=${projectId ?? ""}&h=${handle ?? ""}`;
 }
 
 function readSession(key: string): Entry | null {
@@ -68,6 +71,10 @@ export function getCachedSnapshot(params: SnapshotParams): AudienceSnapshot | nu
 
 function endpoint(params: SnapshotParams): string {
   const qs = new URLSearchParams();
+  if (params.source === "explore") {
+    if (params.handle) qs.set("handle", params.handle);
+    return `/api/explore${qs.size ? `?${qs}` : ""}`;
+  }
   if (params.projectId) qs.set("projectId", params.projectId);
   if (params.handle) qs.set("handle", params.handle);
   return `/api/audience${qs.size ? `?${qs}` : ""}`;
