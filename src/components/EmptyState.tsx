@@ -2,7 +2,7 @@
 
 import { Plus } from "lucide-react";
 
-/** Wind-tunnel empty state: streamlines flowing past the node cluster. */
+/** Wind-tunnel empty state: streamlines flowing past the X mark. */
 export function EmptyState({ onNewProject }: { onNewProject: () => void }) {
   return (
     <div className="flex flex-1 flex-col items-center justify-center px-6 pb-24 text-center">
@@ -27,17 +27,15 @@ export function EmptyState({ onNewProject }: { onNewProject: () => void }) {
             style={{ animationDelay: line.delay }}
           />
         ))}
-        <g className="text-muted" fill="currentColor">
-          <circle cx="292" cy="58" r="10" />
-          <circle cx="330" cy="98" r="13" />
-          <circle cx="262" cy="102" r="8" />
-          <g stroke="currentColor" strokeWidth="4">
-            <path d="M292 58 L330 98" />
-            <path d="M330 98 L262 102" />
-            <path d="M262 102 L292 58" />
-          </g>
-        </g>
       </svg>
+      <span
+        aria-hidden="true"
+        className="pointer-events-none -mt-32 mb-16 block h-14 w-14 bg-muted"
+        style={{
+          mask: "url(/X_icon.png) no-repeat center / contain",
+          WebkitMask: "url(/X_icon.png) no-repeat center / contain",
+        }}
+      />
 
       <h2 className="text-xl font-semibold tracking-tight">Every launch starts in the tunnel</h2>
       <p className="mt-2 max-w-sm text-sm leading-6 text-muted">

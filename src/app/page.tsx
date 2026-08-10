@@ -2,6 +2,10 @@ import { ArrowRight } from "lucide-react";
 import { FeatureCards } from "@/components/landing/FeatureCards";
 
 const WAITLIST = "/waitlist";
+const AUTH_START = "/api/auth/x/start?returnTo=/dashboard";
+/** One flag drives beta mode: BETA_LOCK=1 shows waitlist CTAs (and the
+ * middleware gates the app); unset restores Dashboard / Connect your X. */
+const LOCKED = process.env.BETA_LOCK === "1";
 
 const X_MASK = {
   mask: "url(/X_icon.png) no-repeat center / contain",
@@ -9,8 +13,8 @@ const X_MASK = {
 };
 
 /**
- * Landing. Signal is in private beta: both CTAs route to the waitlist form
- * instead of the app internals.
+ * Landing. With BETA_LOCK=1 both CTAs route to the waitlist form instead of
+ * the app internals; without it they sign you in and open the dashboard.
  */
 export default function Landing() {
   return (
@@ -33,10 +37,10 @@ export default function Landing() {
           <span className="logo-mask block h-9 w-8 text-fg" aria-hidden="true" />
           <span className="text-xl font-semibold tracking-tight">Signal</span>
           <a
-            href={WAITLIST}
+            href={LOCKED ? WAITLIST : AUTH_START}
             className="ml-auto rounded-full bg-fg px-6 py-2.5 text-[15px] font-semibold text-ground transition-transform hover:scale-[1.03] active:scale-[0.98]"
           >
-            Request access
+            {LOCKED ? "Request access" : "Dashboard"}
           </a>
         </header>
 
@@ -55,10 +59,23 @@ export default function Landing() {
             and A/B tests the creative on a simulated audience before anything hits your feed.
           </p>
           <a
-            href={WAITLIST}
+            href={LOCKED ? WAITLIST : AUTH_START}
             className="mt-10 flex items-center gap-2 rounded-full bg-fg px-7 py-3.5 text-base font-semibold text-ground transition-transform hover:scale-[1.03] active:scale-[0.98]"
           >
-            Join the waitlist
+            {LOCKED ? (
+              "Join the waitlist"
+            ) : (
+              <>
+                Connect your{" "}
+                <span
+                  role="img"
+                  aria-label="X"
+                  className="inline-block h-[0.85em] w-[0.85em] bg-ground"
+                  style={X_MASK}
+                />{" "}
+                account
+              </>
+            )}
             <ArrowRight size={17} strokeWidth={2.5} />
           </a>
         </div>
