@@ -20,3 +20,18 @@ jobs:
           code=$(curl -s -o /dev/null -w "%{http_code}" -m 60 "$url")
           echo "health: $code"
           [ "$code" = "200" ]
+
+      # Assembling a full audience takes seconds against this backend, so keep
+      # the public /explore maps warm in the CDN too — otherwise whoever
+      # arrives first from a link waits for the whole round trip. Never fails
+      # the job: this is a warmer, and the health check above is the real gate.
+      - name: Warm the public audience maps
+        continue-on-error: true
+        env:
+          APP_URL: ${{ vars.APP_URL }}
+        run: |
+          [ -n "$APP_URL" ] || { echo "APP_URL repo variable unset; skipping"; exit 0; }
+          for handle in ishand SpaceXAI; do
+            code=$(curl -s -o /dev/null -w "%{http_code}" -m 90 "$APP_URL/api/explore?handle=$handle")
+            echo "explore $handle: $code"
+          done
