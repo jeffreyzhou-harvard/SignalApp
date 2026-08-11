@@ -1,14 +1,13 @@
 import { ArrowRight } from "lucide-react";
 import { FeatureCards } from "@/components/landing/FeatureCards";
+import { isBetaLocked } from "@/lib/beta";
 
 const WAITLIST = "/waitlist";
 const AUTH_START = "/api/auth/x/start?returnTo=/dashboard";
-/** One flag drives beta mode: BETA_LOCK=1 gates the app behind the waitlist
- * (see middleware). Landing CTAs point at the waitlist either way — Signal is
- * in private beta, and asking a first-time visitor for X permissions before
- * they know what it does is the wrong first ask. Beta users go straight to
- * /dashboard, which signs them in. */
-const LOCKED = process.env.BETA_LOCK === "1";
+/** In beta both CTAs point at the waitlist: asking a first-time visitor for X
+ * permissions before they know what Signal does is the wrong first ask, and
+ * the middleware would bounce them anyway. */
+const LOCKED = isBetaLocked();
 
 const X_MASK = {
   mask: "url(/X_icon.png) no-repeat center / contain",

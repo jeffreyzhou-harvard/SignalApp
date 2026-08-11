@@ -1,16 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
+import { isBetaLocked } from "@/lib/beta";
 
 /**
- * Private-beta lock. With BETA_LOCK=1 (set it on the public deployment), only
- * the landing page and the waitlist are reachable: app pages redirect to the
- * waitlist and API routes answer 403. Unset locally, so dev stays open.
+ * Private-beta lock. When locked (see `isBetaLocked` — any production deploy
+ * unless BETA_LOCK=0), only the landing page, the waitlist and the public
+ * explore map are reachable: app pages redirect to the waitlist and API routes
+ * answer 403.
  */
 // /explore is public by design: a read-only tour of the demo audience maps,
 // served by /api/explore (allowlisted handles only, no viewer data).
 const OPEN_PATHS = new Set(["/", "/waitlist", "/explore", "/api/explore"]);
 
 export function middleware(req: NextRequest) {
-  if (process.env.BETA_LOCK !== "1") return NextResponse.next();
+  if (!isBetaLocked()) return NextResponse.next();
   const { pathname } = req.nextUrl;
   if (OPEN_PATHS.has(pathname)) return NextResponse.next();
   if (pathname.startsWith("/api/")) {
