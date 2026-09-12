@@ -72,7 +72,7 @@ uv sync
 uv run uvicorn app:app --port 8100
 ```
 
-Set `SIMULATION_PROVIDER=oasis` and `SIMLAB_URL=http://localhost:8100` in `.env`. Every simulated follower becomes a Grok-driven OASIS agent with their real persona; runs take a couple of minutes and fall back to the sample simulation on any failure.
+Set `SIMULATION_PROVIDER=oasis` and `SIMLAB_URL=http://localhost:8100` in `.env`. Every simulated follower becomes a Grok-driven OASIS agent with their own real persona; runs take a couple of minutes and fall back to the sample simulation on any failure.
 
 ## Architecture
 
